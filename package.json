@@ -2,8 +2,8 @@
   "name": "node-zip-cli",
   "version": "0.1.0",
   "description": " Simple NodeJS CLI which allows you to create a ZIP file with support for .gitignore files",
-  "main": "dist/src/app.mjs",
-  "bin": "dist/src/app.mjs",
+  "main": "dist/app.mjs",
+  "bin": "dist/app.mjs",
   "type": "module",
   "scripts": {
     "lint": "npx tsc --noemit && npx eslint src test",
