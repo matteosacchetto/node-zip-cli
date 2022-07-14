@@ -1,0 +1,9 @@
+# Ignore everything
+**/*
+
+# Include only what it is necessary for it to run
+!package.json
+!package.json
+!dist/**/*
+!LICENSE
+!README.md

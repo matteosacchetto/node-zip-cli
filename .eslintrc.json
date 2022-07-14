@@ -1,0 +1,28 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "no-var": "off", // Disable this rule since it interferes with @rollup typescript plugin
+                     // Typescript is converted and then linted, which results in errors if you use enums
+                     // since enums are transpiled using `var`
+                     // Temporary workaaround until they fix the behavior of @rollup typescript (issue #1010)
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/consistent-type-definitions": ["error", "type"]
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ]
+}
