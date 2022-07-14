@@ -20,9 +20,10 @@ export default {
     dir: 'dist',
     format: 'es',
     preferConst: preferConst,
-    preserveModules: true,
+    preserveModules: false,
     strict: true,
-    entryFileNames: "[name].mjs"
+    entryFileNames: "[name].mjs",
+    banner: '#!/usr/bin/env node',
   },
   plugins: [
     eslint({
