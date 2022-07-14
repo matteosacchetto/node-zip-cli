@@ -25,6 +25,11 @@
   },
   "author": "Matteo Sacchetto",
   "license": "MIT",
+  "keywords": [
+    "nodejs",
+    "cli",
+    "zip"
+  ],
   "devDependencies": {
     "@rollup/plugin-eslint": "^8.0.2",
     "@rollup/plugin-json": "^4.1.0",
