@@ -1,0 +1,34 @@
+name: ci
+
+# If multiple runs, keep only the last one
+concurrency: 
+  group: ci
+  cancel-in-progress: true
+
+# We run on push to every branch except main
+on:
+  push:
+    branches: 
+      - '**'
+  pull_request:
+    branches:
+      - main
+
+# Build and test the application on Node 16.15
+jobs:
+  build:
+    name: ci
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node 16.15
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.15
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
