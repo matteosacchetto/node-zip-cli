@@ -1,7 +1,7 @@
 {
   "name": "node-zip-cli",
   "version": "0.1.0",
-  "description": "Template for developing a NodeJS app using tpyescript and rollup",
+  "description": " Simple NodeJS CLI which allows you to create a ZIP file with support for .gitignore files",
   "main": "dist/src/app.mjs",
   "bin": "dist/src/app.mjs",
   "type": "module",
