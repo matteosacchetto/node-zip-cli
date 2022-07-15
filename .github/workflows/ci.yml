@@ -2,7 +2,7 @@ name: ci
 
 # If multiple runs, keep only the last one
 concurrency: 
-  group: ci
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 # We run on push to every branch except main
