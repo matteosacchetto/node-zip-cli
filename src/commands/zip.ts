@@ -10,6 +10,8 @@ import { exists, isDirectory } from '@/utils/fs-utils';
 import ora from 'ora';
 import chalk from 'chalk';
 import figureSet from 'figures';
+import { relative } from 'path';
+import { isChildOfCurrentDir } from '@/utils/path-utils';
 
 type ZipCommanOptions = {
   input: string[];
@@ -40,7 +42,11 @@ zipCommand.action(async (options: ZipCommanOptions) => {
   const uniqueEntries = [...new Set(input)];
 
   // Validation step
-  if (!isValidFilename(output) || !output.endsWith('.zip')) {
+  if (
+    !isValidFilename(output) ||
+    !output.endsWith('.zip') ||
+    !isChildOfCurrentDir(output)
+  ) {
     console.error('The output file name is not valid');
     return;
   }
@@ -66,10 +72,19 @@ zipCommand.action(async (options: ZipCommanOptions) => {
     const zip = new JSZip();
     const files = [];
     for (const entry of uniqueEntries) {
+      if (!(await isChildOfCurrentDir(entry))) {
+        throw Error(
+          `${chalk.red(
+            figureSet.cross
+          )} ${entry} is not child of the current directory`
+        );
+      }
       if (await isDirectory(entry)) {
-        files.push(...(await scanFs(entry)));
+        files.push(
+          ...(await scanFs(entry)).map((el) => relative(process.cwd(), el))
+        );
       } else {
-        files.push(entry);
+        files.push(relative(process.cwd(), entry));
       }
     }
 
