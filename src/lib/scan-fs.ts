@@ -10,9 +10,9 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
   try {
     // Read a .gitignore
     const gitignorePath = join(dir, '.gitignore');
-    const gitignoreContent = await readFile(gitignorePath, {
+    const gitignoreContent = `${await readFile(gitignorePath, {
       encoding: 'utf-8',
-    });
+    })}\n`;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const patterns = (parseGitignore(gitignoreContent) as any).patterns;
     gitingoreRules.push(...patterns);
@@ -23,9 +23,9 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
   try {
     // Read a .zipignore
     const zipignorePath = join(dir, '.zipignore');
-    const zipignoreContent = await readFile(zipignorePath, {
+    const zipignoreContent = `${await readFile(zipignorePath, {
       encoding: 'utf-8',
-    });
+    })}\n`;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const patterns = (parseGitignore(zipignoreContent) as any).patterns;
     gitingoreRules.push(...patterns);
