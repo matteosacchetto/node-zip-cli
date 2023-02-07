@@ -1,4 +1,4 @@
-import { join, relative } from 'path';
+import { join, relative, sep } from 'path';
 
 export const isChildOfCurrentDir = async (p: string) => {
   const cwd = process.cwd();
@@ -11,4 +11,8 @@ export const isChildOfCurrentDir = async (p: string) => {
   }
 
   return true;
+};
+
+export const getFilename = (p: string) => {
+  return p.split(sep).at(-1) ?? '';
 };

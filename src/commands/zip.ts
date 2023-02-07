@@ -11,12 +11,14 @@ import ora from 'ora';
 import chalk from 'chalk';
 import figureSet from 'figures';
 import { relative } from 'path';
-import { isChildOfCurrentDir } from '@/utils/path-utils';
+import { isChildOfCurrentDir, getFilename } from '@/utils/path-utils';
+import { InvalidArgumentError } from 'commander';
 
 type ZipCommanOptions = {
   input: string[];
   output: string;
   yes: boolean;
+  deflate: number;
 };
 
 type ZipCommandQuestions = {
@@ -30,6 +32,20 @@ const description =
 const zipCommand = createCommand(name, description);
 zipCommand
   .option('-i, --input <input...>', 'the files or directories to zip', ['.'])
+  .option(
+    '-d, --deflate <compression-level>',
+    'deflate the files',
+    (compressionLevel) => {
+      const parsedValue = parseInt(compressionLevel, 10);
+      if (parsedValue < 0 || parsedValue > 9) {
+        throw new InvalidArgumentError(
+          `compression level must be a integer number between 0 (no compression) and 9 (maximum compression)`
+        );
+      }
+      return parsedValue;
+    },
+    0
+  )
   .option(
     '-o, --output <output-file>',
     'the filename of the zip file to create',
@@ -95,14 +111,33 @@ zipCommand.action(async (options: ZipCommanOptions) => {
         let i = 0;
         spinner.start();
         for (const file of files) {
-          i++;
-          spinner.text = `Creating ${output} file (${i}/${files.length} files)`;
           const content = await readFile(file);
           zip.file(file, content);
         }
 
+        let lastFile = '';
         zip
-          .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+          .generateNodeStream(
+            {
+              type: 'nodebuffer',
+              streamFiles: true,
+              compression: options.deflate ? 'DEFLATE' : 'STORE',
+              compressionOptions: {
+                level: options.deflate,
+              },
+            },
+            (metadata) => {
+              if (
+                metadata.currentFile &&
+                isValidFilename(getFilename(metadata.currentFile)) &&
+                lastFile != metadata.currentFile
+              ) {
+                lastFile = metadata.currentFile;
+                i++;
+                spinner.text = `Creating ${output} file (${i}/${files.length} files)`;
+              }
+            }
+          )
           .pipe(createWriteStream(output))
           .on('error', (e) => {
             spinner.fail();
