@@ -8,17 +8,10 @@ import { exists, isDirectory } from '@/utils/fs-utils';
 import chalk from 'chalk';
 import figureSet from 'figures';
 
-type UnzipCommanOptions = {
-  input: string;
-  output: string;
-};
-
 const name = 'unzip';
 const description = 'Unzip the content of a zip file';
 
-const unzipCommand = createCommand(name, description);
-
-unzipCommand
+const unzipCommand = createCommand(name, description)
   .requiredOption('-i, --input <file>', 'the input zip file to unzip')
   .option(
     '-o, --output <output>',
@@ -26,7 +19,7 @@ unzipCommand
     '.'
   );
 
-unzipCommand.action(async (options: UnzipCommanOptions) => {
+unzipCommand.action(async (options) => {
   const { input, output } = options;
 
   // Validation step

@@ -14,13 +14,6 @@ import { relative } from 'path';
 import { isChildOfCurrentDir, getFilename } from '@/utils/path-utils';
 import { InvalidArgumentError } from 'commander';
 
-type ZipCommanOptions = {
-  input: string[];
-  output: string;
-  yes: boolean;
-  deflate: number;
-};
-
 type ZipCommandQuestions = {
   overwrite: boolean;
 };
@@ -29,9 +22,10 @@ const name = 'zip';
 const description =
   'zip files and directories ignoring files specified in .zipignore and .gitignore';
 
-const zipCommand = createCommand(name, description);
-zipCommand
-  .option('-i, --input <input...>', 'the files or directories to zip', ['.'])
+const zipCommand = createCommand(name, description)
+  .option('-i, --input <input...>', 'the files or directories to zip', [
+    '.',
+  ] as string[])
   .option(
     '-d, --deflate <compression-level>',
     'deflate the files',
@@ -53,7 +47,7 @@ zipCommand
   )
   .option('-y, --yes', 'answers yes to every question', false);
 
-zipCommand.action(async (options: ZipCommanOptions) => {
+zipCommand.action(async (options) => {
   const { output, input } = options;
   const uniqueEntries = [...new Set(input)];
 
@@ -69,7 +63,7 @@ zipCommand.action(async (options: ZipCommanOptions) => {
 
   if (!options.yes) {
     if (await exists(output)) {
-      const answer: ZipCommandQuestions = await inquirer.prompt([
+      const answer = await inquirer.prompt<ZipCommandQuestions>([
         {
           type: 'confirm',
           default: false,

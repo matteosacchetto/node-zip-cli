@@ -1,6 +1,6 @@
 {
   "name": "node-zip-cli",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Simple NodeJS CLI which allows you to create a ZIP file with support for .gitignore files",
   "main": "dist/app.mjs",
   "bin": "dist/app.mjs",
@@ -61,6 +61,7 @@
     "test": "test"
   },
   "dependencies": {
+    "@commander-js/extra-typings": "^10.0.2",
     "chalk": "^5.2.0",
     "commander": "^10.0.0",
     "figures": "^5.0.0",
