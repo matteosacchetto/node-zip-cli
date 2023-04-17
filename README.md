@@ -10,13 +10,13 @@ Simple NodeJS CLI which allows you zip and unzip files with support for .gitigno
 Install it locally with
 
 ```bash
-npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.0/node-zip-cli-0.2.0.tgz
+npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.1/node-zip-cli-0.2.1.tgz
 ```
 
 Or install it globally with
 
 ```bash
-npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.0/node-zip-cli-0.2.0.tgz
+npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.1/node-zip-cli-0.2.1.tgz
 ```
 
 ### Other version
