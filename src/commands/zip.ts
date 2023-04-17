@@ -72,7 +72,7 @@ zipCommand.action(async (options) => {
     return;
   }
 
-  if (!options.yes) {
+  if (!options.yes && !options.dryRun) {
     if (await exists(output)) {
       const answer = await inquirer.prompt<ZipCommandQuestions>([
         {
