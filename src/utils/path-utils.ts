@@ -22,27 +22,28 @@ const printObjAsFileTree = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: Record<string, any>,
   level = 0,
-  isLast = false
+  parentPrefix = ''
 ) => {
   const keys = Object.keys(obj);
-
+  const usableParentPrefix = parentPrefix.slice(4);
   for (let i = 0; i < keys.length; i++) {
     const el = keys[i];
     let prefix = '';
     if (level > 0) {
       if (i === keys.length - 1) {
-        prefix = `${isLast ? ' ' : '│'}   `.repeat(level - 1) + '└── ';
+        prefix = usableParentPrefix + '└── ';
       } else {
-        prefix = `${isLast ? ' ' : '│'}   `.repeat(level - 1) + '├── ';
+        prefix = usableParentPrefix + '├── ';
       }
     }
 
     if (typeof obj[el] === 'object') {
       console.log(`${prefix}${chalk.blue.bold(el + sep)}`);
-      if (!isLast && level === 1 && i === keys.length - 1) {
-        isLast = true;
-      }
-      printObjAsFileTree(obj[el], level + 1, isLast);
+      printObjAsFileTree(
+        obj[el],
+        level + 1,
+        i === keys.length - 1 ? parentPrefix + '    ' : parentPrefix + '│   '
+      );
     } else if (typeof obj[el] === 'boolean') {
       console.log(`${prefix}${el}`);
     }
