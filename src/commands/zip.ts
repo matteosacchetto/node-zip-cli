@@ -46,6 +46,7 @@ const zipCommand = createCommand(name, description)
     'out.zip'
   )
   .option('-y, --yes', 'answers yes to every question', false)
+  .option('-e, --exclude <paths...>', 'ignore the following paths')
   .option('--allow-git', 'allow .git to be included in the zip', false);
 
 zipCommand.action(async (options) => {
@@ -94,6 +95,10 @@ zipCommand.action(async (options) => {
         const defaultRules = [];
         if (!options.allowGit) {
           defaultRules.push('.git/');
+        }
+
+        if (options.exclude && options.exclude.length > 0) {
+          defaultRules.push(...options.exclude);
         }
 
         files.push(
