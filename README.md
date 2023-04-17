@@ -131,7 +131,7 @@ Starting from version `0.2.0`, the directory `.git` is ignored by default. Use t
 
 ###### `--dry-run`
 
-Prints the files that will be zipped, without creating the zip file. The structure that is printed out is the same structure of files and directory which will be created in the zip file.
+Prints the files that will be zipped, without creating the zip file. The structure that is printed out is the same structure of files and directories which will be created in the zip file.
 
 #### `unzip`
 
@@ -162,7 +162,7 @@ The directory where to store the content of the zip file. Defaults to the curren
 
 ###### `--dry-run`
 
-Prints the files that will be unzipped, without extracting them from the zip file. The structure that is printed out is the same structure of files and directory which will be created when unzipping the zip file.
+Prints the files that will be unzipped, without extracting them from the zip file. The structure that is printed out is the same structure of files and directories which will be created when unzipping the zip file.
 
 ### Usage
 
