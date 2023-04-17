@@ -45,7 +45,8 @@ const zipCommand = createCommand(name, description)
     'the filename of the zip file to create',
     'out.zip'
   )
-  .option('-y, --yes', 'answers yes to every question', false);
+  .option('-y, --yes', 'answers yes to every question', false)
+  .option('--allow-git', 'allow .git to be included in the zip', false);
 
 zipCommand.action(async (options) => {
   const { output, input } = options;
@@ -90,8 +91,15 @@ zipCommand.action(async (options) => {
         );
       }
       if (await isDirectory(entry)) {
+        const defaultRules = [];
+        if (!options.allowGit) {
+          defaultRules.push('.git/');
+        }
+
         files.push(
-          ...(await scanFs(entry)).map((el) => relative(process.cwd(), el))
+          ...(await scanFs(entry, defaultRules)).map((el) =>
+            relative(process.cwd(), el)
+          )
         );
       } else {
         files.push(relative(process.cwd(), entry));
