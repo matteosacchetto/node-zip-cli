@@ -19,7 +19,7 @@ Or install it globally with
 npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.0/node-zip-cli-0.2.0.tgz
 ```
 
-### Othe version
+### Other version
 
 Go to the [release](https://github.com/matteosacchetto/node-zip-cli/releases) section of the GitHub repository
 
