@@ -56,13 +56,13 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
   return walk;
 };
 
-export const scanFs = async (rootDir: string) => {
+export const scanFs = async (rootDir: string, defaultExclude?: string[]) => {
   const cwd = process.cwd();
   try {
     const dir = join(cwd, rootDir);
     await (await opendir(rootDir)).close();
     process.chdir(dir);
-    const walk = await listDirContent('.');
+    const walk = await listDirContent('.', defaultExclude);
     const files = walk.map((el: string) => join(rootDir, el));
 
     return files;

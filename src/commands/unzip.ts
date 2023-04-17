@@ -7,6 +7,7 @@ import isValidFilename from 'valid-filename';
 import { exists, isDirectory } from '@/utils/fs-utils';
 import chalk from 'chalk';
 import figureSet from 'figures';
+import { printfileListAsFileTree } from '@/utils/path-utils';
 
 const name = 'unzip';
 const description = 'Unzip the content of a zip file';
@@ -17,6 +18,11 @@ const unzipCommand = createCommand(name, description)
     '-o, --output <output>',
     'the output directory where to store the zip content',
     '.'
+  )
+  .option(
+    '--dry-run',
+    'lists the files that will be unzipped WITHOUT unzipping the archive',
+    false
   );
 
 unzipCommand.action(async (options) => {
@@ -25,6 +31,30 @@ unzipCommand.action(async (options) => {
   // Validation step
   if (!isValidFilename(input) || !input.endsWith('.zip')) {
     console.error('The input file name is not valid');
+    return;
+  }
+
+  if (options.dryRun) {
+    try {
+      const zip = new JSZip();
+
+      const content = await readFile(input);
+      const archive = await zip.loadAsync(content);
+
+      const filenames = Object.keys(archive.files).filter(
+        (el) => !el.endsWith('/')
+      );
+
+      if (filenames.length > 0) {
+        printfileListAsFileTree(filenames);
+      } else {
+        console.error(`Nothing to unzip`);
+      }
+    } catch (e) {
+      if (e instanceof Error) console.error(e.message);
+      else console.error(e);
+    }
+
     return;
   }
 
@@ -72,10 +102,11 @@ unzipCommand.action(async (options) => {
       const dirs = dirname(filePath);
       await mkdir(dirs, { recursive: true });
 
-      if (uncompressedFileContent)
+      if (uncompressedFileContent) {
         await writeFile(filePath, uncompressedFileContent, {
           encoding: 'utf-8',
         });
+      }
     }
 
     spinner.succeed(`Extracted ${input} file to ${output}`);

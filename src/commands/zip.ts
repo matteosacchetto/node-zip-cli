@@ -11,7 +11,11 @@ import ora from 'ora';
 import chalk from 'chalk';
 import figureSet from 'figures';
 import { relative } from 'path';
-import { isChildOfCurrentDir, getFilename } from '@/utils/path-utils';
+import {
+  isChildOfCurrentDir,
+  getFilename,
+  printfileListAsFileTree,
+} from '@/utils/path-utils';
 import { InvalidArgumentError } from 'commander';
 
 type ZipCommandQuestions = {
@@ -45,7 +49,14 @@ const zipCommand = createCommand(name, description)
     'the filename of the zip file to create',
     'out.zip'
   )
-  .option('-y, --yes', 'answers yes to every question', false);
+  .option('-y, --yes', 'answers yes to every question', false)
+  .option('-e, --exclude <paths...>', 'ignore the following paths')
+  .option('--allow-git', 'allow .git to be included in the zip', false)
+  .option(
+    '--dry-run',
+    'lists the files that will be zipped WITHOUT creating the zip file',
+    false
+  );
 
 zipCommand.action(async (options) => {
   const { output, input } = options;
@@ -90,12 +101,33 @@ zipCommand.action(async (options) => {
         );
       }
       if (await isDirectory(entry)) {
+        const defaultRules = [];
+        if (!options.allowGit) {
+          defaultRules.push('.git/');
+        }
+
+        if (options.exclude && options.exclude.length > 0) {
+          defaultRules.push(...options.exclude);
+        }
+
         files.push(
-          ...(await scanFs(entry)).map((el) => relative(process.cwd(), el))
+          ...(await scanFs(entry, defaultRules)).map((el) =>
+            relative(process.cwd(), el)
+          )
         );
       } else {
         files.push(relative(process.cwd(), entry));
       }
+    }
+
+    if (options.dryRun) {
+      if (files.length > 0) {
+        printfileListAsFileTree(files);
+      } else {
+        console.error(`Nothing to zip`);
+      }
+
+      return;
     }
 
     const spinner = ora(`Creating ${output} file (0/${files.length} files)`);
