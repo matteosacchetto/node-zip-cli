@@ -127,7 +127,7 @@ test/
 
 ###### `--allow-git`
 
-Starting from version `0.2.0`, the directory `.git` is ignored by default. Use this flag you want instead to include the `.git` directory in your zip file
+Starting from version `0.2.0`, the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your zip file
 
 ###### `--dry-run`
 
