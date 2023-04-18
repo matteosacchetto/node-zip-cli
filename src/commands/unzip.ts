@@ -92,9 +92,16 @@ unzipCommand.action(async (options) => {
     const content = await readFile(input);
     const archive = await zip.loadAsync(content);
 
-    const filenames = Object.keys(archive.files);
+    const filenames = Object.keys(archive.files).filter(
+      (el) => !el.endsWith('/')
+    );
 
+    let i = 0;
     for (const filename of filenames) {
+      spinner.text = `Extracting ${input} file to ${output} (${++i}/${
+        filenames.length
+      } files) ${chalk.dim(`[${filename}]`)}`;
+
       const uncompressedFileContent = await archive
         .file(filename)
         ?.async('uint8array');
@@ -109,7 +116,9 @@ unzipCommand.action(async (options) => {
       }
     }
 
-    spinner.succeed(`Extracted ${input} file to ${output}`);
+    spinner.succeed(
+      `Extracted ${input} file to ${output} (${filenames.length}/${filenames.length} files)`
+    );
   } catch (e) {
     spinner.fail();
     if (e instanceof Error) console.error(e.message);
