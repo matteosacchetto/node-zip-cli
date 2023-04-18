@@ -160,7 +160,9 @@ zipCommand.action(async (options) => {
               ) {
                 lastFile = metadata.currentFile;
                 i++;
-                spinner.text = `Creating ${output} file (${i}/${files.length} files)`;
+                spinner.text = `Creating ${output} file (${i}/${
+                  files.length
+                } files) ${chalk.dim(`[${metadata.currentFile}]`)}`;
               }
             }
           )
