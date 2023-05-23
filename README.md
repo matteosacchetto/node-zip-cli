@@ -39,6 +39,49 @@ npm i --location=global <link-to-node-zip-cli-{version}.tgz>
 
 where you have to replace `{version}` with the version number you downloaded (ex: 0.1.5) 
 
+### Bash completion
+
+Since version 0.2.3, the package also includes a bash completion script. If you install the package globally, you are on Linux and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
+
+To install it, i recommend to perform the following steps.
+
+Find where did npm isntall this package. To do so you can run the following command
+
+```bash
+npm list -g -p | grep node-zip-cli
+```
+
+Then we can link `bash-completion.sh` script contained within the folder shown by the previous command to it to /usr/share/bash-completion/completions/
+
+```bash
+ln -s <path-found-previously>/bash-completion.sh /usr/share/bash-completion/completions/node-zip-cli
+```
+
+One-liner to do so
+
+```bash
+sudo ln -s `npm list -g -p | grep -m 1 node-zip-cli`/bash-completion.sh /usr/share/bash-completion/completions/node-zip-cli
+```
+
+To remove the completion file
+
+```bash
+sudo rm /usr/share/bash-completion/completions/node-zip-cli
+```
+
+You can alternatively install bash completion locally with the following commands
+
+```bash
+mkdir -p ~/.local/share/bash-completion/completions
+ln -s `npm list -g -p | grep -m 1 node-zip-cli`/bash-completion.sh ~/.local/share/bash-completion/completions/node-zip-cli
+```
+
+To remove it 
+
+```bash
+rm ~/.local/share/bash-completion/completions/node-zip-cli
+```
+
 ## Run
 
 If you installed it locally you can run it with
