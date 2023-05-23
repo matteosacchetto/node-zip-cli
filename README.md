@@ -51,7 +51,7 @@ Find where did npm isntall this package. To do so you can run the following comm
 npm list -g -p | grep node-zip-cli
 ```
 
-Then we can link `bash-completion.sh` script contained within the folder shown by the previous command to it to /usr/share/bash-completion/completions/
+Then we can link `bash-completion.sh` script contained within the folder shown by the previous command to /usr/share/bash-completion/completions/node-zip-cli
 
 ```bash
 ln -s <path-found-previously>/bash-completion.sh /usr/share/bash-completion/completions/node-zip-cli
