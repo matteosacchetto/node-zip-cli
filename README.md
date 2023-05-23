@@ -10,13 +10,13 @@ Simple NodeJS CLI which allows you zip and unzip files with support for .gitigno
 Install it locally with
 
 ```bash
-npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.2/node-zip-cli-0.2.2.tgz
+npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.3/node-zip-cli-0.2.3.tgz
 ```
 
 Or install it globally with
 
 ```bash
-npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.2/node-zip-cli-0.2.2.tgz
+npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.3/node-zip-cli-0.2.3.tgz
 ```
 
 ### Other version
@@ -38,6 +38,49 @@ npm i --location=global <link-to-node-zip-cli-{version}.tgz>
 ```
 
 where you have to replace `{version}` with the version number you downloaded (ex: 0.1.5) 
+
+### Bash completion
+
+Since version 0.2.3, the package also includes a bash completion script. If you install the package globally, you are on Linux and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
+
+To install it, i recommend to perform the following steps.
+
+Find where did npm isntall this package. To do so you can run the following command
+
+```bash
+npm list -g -p | grep node-zip-cli
+```
+
+Then we can link `bash-completion.sh` script contained within the folder shown by the previous command to /usr/share/bash-completion/completions/node-zip-cli
+
+```bash
+ln -s <path-found-previously>/bash-completion.sh /usr/share/bash-completion/completions/node-zip-cli
+```
+
+One-liner to do so
+
+```bash
+sudo ln -s `npm list -g -p | grep -m 1 node-zip-cli`/bash-completion.sh /usr/share/bash-completion/completions/node-zip-cli
+```
+
+To remove the completion file
+
+```bash
+sudo rm /usr/share/bash-completion/completions/node-zip-cli
+```
+
+You can alternatively install bash completion locally with the following commands
+
+```bash
+mkdir -p ~/.local/share/bash-completion/completions
+ln -s `npm list -g -p | grep -m 1 node-zip-cli`/bash-completion.sh ~/.local/share/bash-completion/completions/node-zip-cli
+```
+
+To remove it 
+
+```bash
+rm ~/.local/share/bash-completion/completions/node-zip-cli
+```
 
 ## Run
 
@@ -172,4 +215,4 @@ Simply run this CLI providing to each command all the necessary options.
 
 This file is meant to be placed in a folder which you plan to zip. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
 
-> **NOTE**: Up to the current version (0.2.2) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore. Keep in mind that this behavior may change in the future
+> **NOTE**: Up to the current version (0.2.3) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore. Keep in mind that this behavior may change in the future
