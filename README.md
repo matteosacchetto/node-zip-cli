@@ -10,13 +10,13 @@ Simple NodeJS CLI which allows you zip and unzip files with support for .gitigno
 Install it locally with
 
 ```bash
-npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.3/node-zip-cli-0.2.3.tgz
+npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.4/node-zip-cli-0.2.4.tgz
 ```
 
 Or install it globally with
 
 ```bash
-npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.3/node-zip-cli-0.2.3.tgz
+npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.2.4/node-zip-cli-0.2.4.tgz
 ```
 
 ### Other version
@@ -41,7 +41,7 @@ where you have to replace `{version}` with the version number you downloaded (ex
 
 ### Bash completion
 
-Since version 0.2.3, the package also includes a bash completion script. If you install the package globally, you are on Linux and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
+Since version 0.2.4, the package also includes a bash completion script. If you install the package globally, you are on Linux and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
 
 To install it, i recommend to perform the following steps.
 
@@ -166,7 +166,7 @@ test/
 └── three
 ```
 
-> **NOTE**: Up to the current version (0.2.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> **NOTE**: Up to the current version (0.2.4) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
@@ -215,4 +215,4 @@ Simply run this CLI providing to each command all the necessary options.
 
 This file is meant to be placed in a folder which you plan to zip. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
 
-> **NOTE**: Up to the current version (0.2.3) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore. Keep in mind that this behavior may change in the future
+> **NOTE**: Up to the current version (0.2.4) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore. Keep in mind that this behavior may change in the future
