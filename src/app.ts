@@ -8,6 +8,7 @@ const program = createCommand(name, '');
 // Add sub-programs
 program.addCommand(zipCommand);
 program.addCommand(unzipCommand);
+program.addHelpCommand();
 
 // Parse arguments
 program.parse(process.argv);
