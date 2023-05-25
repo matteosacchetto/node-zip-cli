@@ -10,7 +10,7 @@ _get_last_opt() {
     fi
   done
   
-  echo "$last_opt";
+  printf "%s" "$last_opt"; # echo does not escape properly '-*' options
 }
 
 __node-zip-cli_completion() {
@@ -71,7 +71,7 @@ __node-zip-cli_completion() {
       esac
     ;;
     help)
-      COMPREPLY='';
+      COMPREPLY=($(compgen -W "zip unzip" -- "$cur"));
       return 0;
     ;;
     *)
