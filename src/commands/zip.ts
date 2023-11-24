@@ -5,7 +5,7 @@ import { readFile } from 'fs/promises';
 import JSZip from 'jszip';
 import { scanFs } from '@/lib/scan-fs';
 import isValidFilename from 'valid-filename';
-import inquirer from 'inquirer';
+import confirm from '@inquirer/confirm';
 import { exists, isDirectory } from '@/utils/fs-utils';
 import ora from 'ora';
 import chalk from 'chalk';
@@ -17,10 +17,6 @@ import {
   printfileListAsFileTree,
 } from '@/utils/path-utils';
 import { InvalidArgumentError } from 'commander';
-
-type ZipCommandQuestions = {
-  overwrite: boolean;
-};
 
 const name = 'zip';
 const description =
@@ -74,16 +70,12 @@ zipCommand.action(async (options) => {
 
   if (!options.yes && !options.dryRun) {
     if (await exists(output)) {
-      const answer = await inquirer.prompt<ZipCommandQuestions>([
-        {
-          type: 'confirm',
-          default: false,
-          name: 'overwrite',
-          message: `The file ${output} already exists, overwrite it?`,
-        },
-      ]);
+      const overwrite = await confirm({
+        default: false,
+        message: `The file ${output} already exists, overwrite it?`,
+      });
 
-      if (!answer.overwrite) {
+      if (!overwrite) {
         return;
       }
     }

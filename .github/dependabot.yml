@@ -1,0 +1,60 @@
+version: 2
+updates:
+  # GitHub actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: weekly
+      # Run on monday at 11:00 (CEST)
+      day: 'monday'
+      time: '11:00'
+      timezone: 'Europe/Rome'
+    open-pull-requests-limit: 10
+    commit-message:
+      include: scope
+      prefix: ci
+    labels:
+      - 'type: deps'
+      - 'type: ci'
+
+  # NPM
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      # Run on monday at 11:00 (CEST)
+      day: 'monday'
+      time: '11:00'
+      timezone: 'Europe/Rome'
+    open-pull-requests-limit: 10
+    commit-message:
+      include: scope
+      prefix: build
+    labels:
+      - 'type: deps'
+    ignore:
+      # Allow only minor and patch
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "tap"
+        update-types: ["version-update:semver-major"]
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      dev-dependencies:
+        patterns:
+          - "*"
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      new-dependencies-major-version:
+        patterns:
+          - "*"
+        update-types: 
+          - "major"

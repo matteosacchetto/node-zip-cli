@@ -132,8 +132,12 @@ dist
 # Rollup build dir
 dist
 
-# Jest coverage dir
-coverage
+# Tap dir
+.nyc_output/
+.tap/
+
+# c8 dir
+coverage/
 
 # Docs dir
 docs
