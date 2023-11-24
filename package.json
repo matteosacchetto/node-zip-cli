@@ -56,8 +56,8 @@
     "typescript": "^5.0.4"
   },
   "engines": {
-    "node": ">=16.15",
-    "npm": ">=8.5.5"
+    "node": ">=18.18.0",
+    "npm": ">=9.6.5"
   },
   "directories": {
     "test": "test"
