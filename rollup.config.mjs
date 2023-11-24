@@ -41,7 +41,10 @@ export default {
           typescriptPaths({
             preserveExtensions: true,
           }),
-          esbuild(),
+          esbuild({
+            legalComments: 'none',
+            target: 'esnext',
+          }),
         ]
       : typescript({
           noEmitOnError: useThrowOnError,
