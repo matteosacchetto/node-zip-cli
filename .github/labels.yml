@@ -1,0 +1,66 @@
+- color: d73a4a
+  description: Something isn't working!
+  name: 'type: bug'
+- color: 0075ca
+  description: Improvements or additions to documentation
+  name: 'type: docs'
+- color: cfd3d7
+  description: This issue or pull request already exists
+  name: 'type: duplicate'
+- color: a2eeef
+  description: New feature or request
+  name: 'type: feature'
+- color: 094ee3
+  description: Fix some misbehaving part
+  name: 'type: fix'
+- color: '09e385'
+  description: Refactor code
+  name: 'type: refactor'
+- color: 02bf51
+  description: Performance optimization
+  name: 'type: perf'
+- color: 7057ff
+  description: Good for newcomers
+  name: 'type: good first issue'
+- color: '008672'
+  description: Extra attention is needed
+  name: 'type: help wanted'
+- color: e4e669
+  description: This doesn't seem right
+  name: 'type: invalid'
+- color: d876e3
+  description: Further information is requested
+  name: 'type: question'
+- color: ffffff
+  description: This will not be worked on
+  name: 'type: wontfix'
+- color: bf0404
+  description: Priority 1
+  name: 'priority: 1'
+- color: bf4504
+  description: Priority 2
+  name: 'priority: 2'
+- color: f0d005
+  description: Priority 3
+  name: 'priority: 3'
+- color: 055ff0
+  description: Priority 4
+  name: 'priority: 4'
+- color: 4f4f4f
+  description: Dependencies
+  name: 'type: deps'
+- color: f542e0
+  description: CI
+  name: 'type: ci'
+- color: ff6978
+  description: Major change
+  name: 'semver: major'
+- color: fffcf9
+  description: Minor change
+  name: 'semver: minor'
+- color: b1ede8
+  description: Patch change
+  name: 'semver: patch'
+- color: dc711a
+  description: This pull request is related to a release
+  name: 'release'

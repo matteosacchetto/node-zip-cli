@@ -1,34 +1,59 @@
-name: ci
+name: 'ci'
 
-# If multiple runs, keep only the last one
 concurrency: 
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# We run on push to every branch except main
 on:
-  push:
-    branches: 
-      - '**'
+  workflow_dispatch:
   pull_request:
     branches:
       - main
+      - dev
+    paths-ignore:
+      - '.devcontainer/**'
+      - '.github/**'
+      - '.vscode/**'
+      - '.gitignore'
+      - '.npmignore'
+      - 'LICENSE'
+      - 'README.md'
+  push:
+    paths-ignore:
+      - '.devcontainer/**'
+      - '.github/**'
+      - '.vscode/**'
+      - '.gitignore'
+      - '.npmignore'
+      - 'LICENSE'
+      - 'README.md'
 
-# Build and test the application on Node 16.15
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
-  build:
-    name: ci
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+  ci:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node 16.15
-        uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          node-version: 16.15
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm test
+          fetch-depth: 0
+      
+      - name: Setup NodeJS 18.18.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.0
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Test
+        run: npm test --if-present
+      
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Check style
+        run: npm run style-check --if-present
+        if: github.event_name == 'pull_request'
