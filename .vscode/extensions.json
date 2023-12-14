@@ -1,8 +1,7 @@
 
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
+    "biomejs.biome",
     "ms-vscode-remote.remote-containers"
   ]
 }

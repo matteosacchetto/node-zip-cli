@@ -1,6 +1,5 @@
 // rollup.config.mjs
 import json from '@rollup/plugin-json';
-import eslint from '@rollup/plugin-eslint';
 import typescript from '@rollup/plugin-typescript';
 import run from '@rollup/plugin-run';
 import externals from 'rollup-plugin-node-externals';
@@ -30,9 +29,6 @@ export default {
   },
   plugins: [
     externals(),
-    eslint({
-      throwOnError: useThrowOnError,
-    }),
     json({
       preferConst: preferConst,
     }),

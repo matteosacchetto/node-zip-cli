@@ -148,7 +148,7 @@ zipCommand.action(async (options) => {
               if (
                 metadata.currentFile &&
                 isValidFilename(getFilename(metadata.currentFile)) &&
-                lastFile != metadata.currentFile
+                lastFile !== metadata.currentFile
               ) {
                 lastFile = metadata.currentFile;
                 i++;
