@@ -13,6 +13,7 @@ const useEsbuild = true; // `true` -> use esbuild, `false` use tsc
 
 const isCli = true; // `true` -> is a CLI so bunlde to a single file, `false` not a cli, so use `usePreserveModules`
 const isWatched = process.env.ROLLUP_WATCH === 'true'; // `true` if -w option is used
+const useSourceMaps = process.env.NODE_ENV === 'debug' ? true : false; // gerenetae sourcemaps only for debug
 
 export default {
   input: 'src/app.ts',
@@ -26,6 +27,7 @@ export default {
     strict: true,
     entryFileNames: '[name].mjs',
     banner: isCli ? '#!/usr/bin/env node' : undefined,
+    sourcemap: useSourceMaps,
   },
   plugins: [
     externals(),
