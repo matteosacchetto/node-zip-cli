@@ -24,7 +24,6 @@ export const isFile = async (p: string) => {
   }
 };
 
-
 export const readAccess = async (path: string) => {
   try {
     await access(path, constants.R_OK);
