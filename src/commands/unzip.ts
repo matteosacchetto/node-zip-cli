@@ -8,6 +8,7 @@ import { exists, isDirectory } from '@/utils/fs-utils';
 import chalk from 'chalk';
 import figureSet from 'figures';
 import { printfileListAsFileTree } from '@/utils/path-utils';
+import confirm from '@inquirer/confirm';
 
 const name = 'unzip';
 const description = 'Unzip the content of a zip file';
@@ -66,7 +67,13 @@ unzipCommand.action(async (options) => {
         // Check if empty
         const dir = await readdir(output);
         if (dir.length !== 0) {
-          throw new Error(`Directory ${output} is not empty`);
+          const proceed = await confirm({
+            message: `Directory ${output} is not empty. Proceed anyway?`,
+            default: false,
+          });
+          if (!proceed) {
+            return;
+          }
         }
       } else {
         throw new Error(
