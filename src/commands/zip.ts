@@ -17,6 +17,7 @@ import {
   printfileListAsFileTree,
 } from '@/utils/path-utils';
 import { InvalidArgumentError } from 'commander';
+import { exit_success_on_error_ignore } from '@/utils/process';
 
 const name = 'zip';
 const description =
@@ -70,10 +71,13 @@ zipCommand.action(async (options) => {
 
   if (!options.yes && !options.dryRun) {
     if (await exists(output)) {
-      const overwrite = await confirm({
-        default: false,
-        message: `The file ${output} already exists, overwrite it?`,
-      });
+      const overwrite = await exit_success_on_error_ignore(
+        async () =>
+          await confirm({
+            default: false,
+            message: `The file ${output} already exists, overwrite it?`,
+          })
+      );
 
       if (!overwrite) {
         return;
