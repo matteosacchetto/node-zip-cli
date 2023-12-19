@@ -1,36 +1,25 @@
 import { opendir, readFile } from 'fs/promises';
 import { join } from 'path';
-import parseGitignore from 'parse-gitignore';
 import ignore, { Ignore } from 'ignore';
+import { readAccess } from '@/utils/fs-utils';
+
+const loadIgnoreRules = async (path: string) => {
+  if (await readAccess(path)) {
+    const gitignoreContent = `${await readFile(path, {
+      encoding: 'utf-8',
+    })}\n`;
+    return gitignoreContent.split('\n');
+  }
+
+  return [] as string[];
+};
 
 const listDirContent = async (dir: string, parentRules: string[] = []) => {
   const gitingoreRules = [...parentRules];
   const gitignoreFilter: Ignore = ignore();
 
-  try {
-    // Read a .gitignore
-    const gitignorePath = join(dir, '.gitignore');
-    const gitignoreContent = `${await readFile(gitignorePath, {
-      encoding: 'utf-8',
-    })}\n`;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const patterns = (parseGitignore(gitignoreContent) as any).patterns;
-    gitingoreRules.push(...patterns);
-  } catch (e) {
-    // console.log(e);
-  }
-
-  try {
-    // Read a .zipignore
-    const zipignorePath = join(dir, '.zipignore');
-    const zipignoreContent = `${await readFile(zipignorePath, {
-      encoding: 'utf-8',
-    })}\n`;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const patterns = (parseGitignore(zipignoreContent) as any).patterns;
-    gitingoreRules.push(...patterns);
-  } catch (e) {
-    // console.log(e);
+  for (const ingoreFile of ['.gitignore', '.zipignore']) {
+    gitingoreRules.push(...(await loadIgnoreRules(join(dir, ingoreFile))));
   }
 
   // Add all rules
@@ -42,7 +31,6 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
     const entryPath = join(dir, entry.name);
     if (entry.isDirectory()) {
       if (!gitignoreFilter.ignores(entryPath + '/')) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const subwalk = await listDirContent(entryPath, gitingoreRules);
         walk.push(...subwalk);
       }
