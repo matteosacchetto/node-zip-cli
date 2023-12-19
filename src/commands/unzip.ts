@@ -9,6 +9,7 @@ import chalk from 'chalk';
 import figureSet from 'figures';
 import { printfileListAsFileTree } from '@/utils/path-utils';
 import confirm from '@inquirer/confirm';
+import { exit_success_on_error_ignore } from '@/utils/process';
 
 const name = 'unzip';
 const description = 'Unzip the content of a zip file';
@@ -67,10 +68,13 @@ unzipCommand.action(async (options) => {
         // Check if empty
         const dir = await readdir(output);
         if (dir.length !== 0) {
-          const proceed = await confirm({
-            message: `Directory ${output} is not empty. Proceed anyway?`,
-            default: false,
-          });
+          const proceed = await exit_success_on_error_ignore(
+            async () =>
+              await confirm({
+                message: `Directory ${output} is not empty. Proceed anyway?`,
+                default: false,
+              })
+          );
           if (!proceed) {
             return;
           }

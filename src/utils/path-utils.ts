@@ -19,7 +19,6 @@ export const getFilename = (p: string) => {
 };
 
 const printObjAsFileTree = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: Record<string, any>,
   level = 0,
   parentPrefix = ''
@@ -51,7 +50,6 @@ const printObjAsFileTree = (
 };
 
 export const printfileListAsFileTree = (files: string[]) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const root: Record<string, any> = {};
 
   // Convert to object

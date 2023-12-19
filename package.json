@@ -1,6 +1,6 @@
 {
   "name": "node-zip-cli",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Simple NodeJS CLI which allows you to create a ZIP file with support for .gitignore files",
   "main": "dist/app.mjs",
   "bin": "dist/app.mjs",
@@ -69,7 +69,6 @@
     "ignore": "^5.3.0",
     "jszip": "^3.10.1",
     "ora": "^7.0.1",
-    "parse-gitignore": "^2.0.0",
     "valid-filename": "^4.0.0"
   },
   "tap": {
