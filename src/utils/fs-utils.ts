@@ -1,4 +1,4 @@
-import { stat } from 'fs/promises';
+import { access, constants, stat } from 'fs/promises';
 
 export const exists = async (p: string) => {
   try {
@@ -20,6 +20,16 @@ export const isFile = async (p: string) => {
   try {
     return (await stat(p)).isFile();
   } catch (e) {
+    return false;
+  }
+};
+
+
+export const readAccess = async (path: string) => {
+  try {
+    await access(path, constants.R_OK);
+    return true;
+  } catch {
     return false;
   }
 };
