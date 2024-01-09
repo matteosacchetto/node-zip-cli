@@ -1,7 +1,7 @@
-import { createCommand } from './lib/command';
-import { name } from './config';
-import zipCommand from './commands/zip';
 import unzipCommand from './commands/unzip';
+import zipCommand from './commands/zip';
+import { name } from './config';
+import { createCommand } from './lib/command';
 
 const program = createCommand(name, '');
 

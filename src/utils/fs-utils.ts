@@ -1,4 +1,4 @@
-import { access, constants, stat } from 'fs/promises';
+import { constants, access, stat } from 'node:fs/promises';
 
 export const exists = async (p: string) => {
   try {

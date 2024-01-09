@@ -1,23 +1,23 @@
 import { createCommand } from '@/lib/command';
 
-import { createWriteStream } from 'fs';
-import { readFile } from 'fs/promises';
-import JSZip from 'jszip';
+import { createWriteStream } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import { relative } from 'node:path';
 import { scanFs } from '@/lib/scan-fs';
-import isValidFilename from 'valid-filename';
-import confirm from '@inquirer/confirm';
 import { exists, isDirectory } from '@/utils/fs-utils';
-import ora from 'ora';
-import chalk from 'chalk';
-import figureSet from 'figures';
-import { relative } from 'path';
 import {
-  isChildOfCurrentDir,
   getFilename,
+  isChildOfCurrentDir,
   printfileListAsFileTree,
 } from '@/utils/path-utils';
-import { InvalidArgumentError } from 'commander';
 import { exit_success_on_error_ignore } from '@/utils/process';
+import confirm from '@inquirer/confirm';
+import chalk from 'chalk';
+import { InvalidArgumentError } from 'commander';
+import figureSet from 'figures';
+import JSZip from 'jszip';
+import ora from 'ora';
+import isValidFilename from 'valid-filename';
 
 const name = 'zip';
 const description =
