@@ -1,16 +1,17 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.4.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.5.0/schema.json",
   "organizeImports": {
-    "enabled": false
+    "enabled": true,
+    "include": ["src/*.ts", "test/*.ts", "rollup.config.mjs"]
   },
   "linter": {
-    "ignore": ["*.json"],
-    "include": ["src/*.ts", "test/*.ts"],
+    "ignore": ["*.json", "dist/*"],
+    "include": ["src/*.ts", "test/*.ts", "rollup.config.mjs"],
     "enabled": true,
     "rules": {
       "recommended": true,
       "complexity": {
-        "noUselessConstructor": "off"
+        "noUselessConstructor": "warn"
       },
       "suspicious": {
         "noExplicitAny": "off"
@@ -22,12 +23,22 @@
         "noNonNullAssertion": "off",
         "useSingleVarDeclarator": "off",
         "useEnumInitializers": "warn"
+      },
+      "nursery": {
+        "noUnusedImports": "warn",
+        "useExportType": "error",
+        "useImportType": "error",
+        "useNodejsImportProtocol": "error",
+        "noInvalidUseBeforeDeclaration": "error",
+        "noUselessTernary": "error"
       }
     }
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "space"
+    "indentStyle": "space",
+    "ignore": ["dist/*"],
+    "include": ["src/*.ts", "test/*.ts", "rollup.config.mjs", "*.json"]
   },
   "javascript": {
     "formatter": {
