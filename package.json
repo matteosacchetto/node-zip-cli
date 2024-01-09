@@ -15,9 +15,9 @@
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:debug": "rollup -c --environment NODE_ENV:debug",
     "pretap": "npx tap build",
-    "tap": "tap --node-arg='--no-warnings' --node-arg='--loader=tsx/esm' --disable-coverage --allow-empty-coverage",
+    "tap": "tap --node-arg='--import=tsx/esm' --disable-coverage --allow-empty-coverage",
     "pretest": "npm run lint && npx tap build",
-    "test": "c8 -c .c8rc.json tap --node-arg='--no-warnings' --node-arg='--loader=tsx/esm' --disable-coverage --allow-empty-coverage test/*.test.ts test/**/*.test.ts",
+    "test": "c8 -c .c8rc.json tap --node-arg='--import=tsx/esm' --disable-coverage --allow-empty-coverage test/*.test.ts test/**/*.test.ts",
     "prepack": "npm run build"
   },
   "repository": {
@@ -54,7 +54,7 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.18.0",
+    "node": ">=18.19.0",
     "npm": ">=9.6.5"
   },
   "directories": {
