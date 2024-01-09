@@ -1,5 +1,5 @@
+import { join, relative, sep } from 'node:path';
 import chalk from 'chalk';
-import { join, relative, sep } from 'path';
 
 export const isChildOfCurrentDir = async (p: string) => {
   const cwd = process.cwd();

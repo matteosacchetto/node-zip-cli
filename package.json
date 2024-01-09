@@ -6,9 +6,9 @@
   "bin": "dist/app.mjs",
   "type": "module",
   "scripts": {
-    "lint": "npx tsc --pretty --incremental --noEmit && biome lint src test",
-    "style-check": "biome format src/ test/",
-    "style-fix": "biome format --write src/ test/",
+    "lint": "tsc --pretty --incremental --noEmit && biome lint src/ test/ rollup.config.mjs",
+    "style-check": "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true src/ test/ rollup.config.mjs && biome format src/ test/ rollup.config.mjs",
+    "style-fix": "biome check --apply --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true src/ test/ rollup.config.mjs && biome format --write src/ test/ rollup.config.mjs",
     "dev": "npx rollup -c -w",
     "prebuild": "rm -rf dist",
     "build": "npm run lint && rollup -c --environment NODE_ENV:production",
@@ -36,7 +36,7 @@
     "zip"
   ],
   "devDependencies": {
-    "@biomejs/biome": "1.4.1-nightly.570d680",
+    "@biomejs/biome": "^1.5.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-run": "^3.0.2",
     "@rollup/plugin-typescript": "^11.1.5",

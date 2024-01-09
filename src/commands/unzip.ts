@@ -1,15 +1,15 @@
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { createCommand } from '@/lib/command';
-import { dirname, join } from 'path';
-import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
+import { exists, isDirectory } from '@/utils/fs-utils';
+import { printfileListAsFileTree } from '@/utils/path-utils';
+import { exit_success_on_error_ignore } from '@/utils/process';
+import confirm from '@inquirer/confirm';
+import chalk from 'chalk';
+import figureSet from 'figures';
 import JSZip from 'jszip';
 import ora from 'ora';
 import isValidFilename from 'valid-filename';
-import { exists, isDirectory } from '@/utils/fs-utils';
-import chalk from 'chalk';
-import figureSet from 'figures';
-import { printfileListAsFileTree } from '@/utils/path-utils';
-import confirm from '@inquirer/confirm';
-import { exit_success_on_error_ignore } from '@/utils/process';
 
 const name = 'unzip';
 const description = 'Unzip the content of a zip file';

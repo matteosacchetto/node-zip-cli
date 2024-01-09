@@ -1,7 +1,7 @@
-import { opendir, readFile } from 'fs/promises';
-import { join } from 'path';
-import ignore, { Ignore } from 'ignore';
+import { opendir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { readAccess } from '@/utils/fs-utils';
+import ignore, { type Ignore } from 'ignore';
 
 const loadIgnoreRules = async (path: string) => {
   if (await readAccess(path)) {
