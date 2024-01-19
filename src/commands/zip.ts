@@ -126,16 +126,22 @@ zipCommand.action(async (options) => {
       return;
     }
 
-    const spinner = ora(`Creating ${output} file (0/${files.length} files)`);
+    const spinner = ora(`Reading (0/${files.length} files)`);
 
     if (files.length > 0) {
       try {
         let i = 0;
         spinner.start();
         for (const file of files) {
+          spinner.text = `Reading (${++i}/${files.length} files) ${chalk.dim(
+            `[${file}]`
+          )}`;
           const content = await readFile(file);
           zip.file(file, content);
         }
+        i = 0;
+
+        spinner.text = `Creating ${output} file (0/${files.length} files)`;
 
         let lastFile = '';
         zip
