@@ -15,6 +15,9 @@ const isCli = true; // `true` -> is a CLI so bunlde to a single file, `false` no
 const isWatched = process.env.ROLLUP_WATCH === 'true'; // `true` if -w option is used
 const useSourceMaps = process.env.NODE_ENV === 'debug'; // gerenetae sourcemaps only for debug
 
+/**
+ * @type {import('rollup').RollupOptions}
+ */
 export default {
   input: 'src/app.ts',
   output: {
