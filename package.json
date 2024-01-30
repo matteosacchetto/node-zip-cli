@@ -46,7 +46,7 @@
     "esbuild": "^0.19.11",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.0",
-    "rollup-plugin-node-externals": "^6.1.2",
+    "rollup-plugin-node-externals": "^7.0.1",
     "rollup-plugin-typescript-paths": "^1.5.0",
     "tap": "^18.6.1",
     "tsx": "^4.7.0",
