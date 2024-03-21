@@ -1,12 +1,25 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.6.1/schema.json",
+  "files": {
+    "include": [
+      "src/*.ts",
+      "test/*.ts",
+      "scripts/*.mjs",
+      "rollup.config.mjs",
+      "rollup.plugins.mjs",
+      "rollup.plugins.d.mts",
+      "test.runner.mjs",
+      "package.json",
+      "tsconfig.json",
+      "biome.json",
+      ".c8rc.json"
+    ]
+  },
   "organizeImports": {
     "enabled": true,
-    "include": ["src/*.ts", "test/*.ts", "rollup.config.mjs"]
+    "ignore": ["*.json"]
   },
   "linter": {
-    "ignore": ["*.json", "dist/*"],
-    "include": ["src/*.ts", "test/*.ts", "rollup.config.mjs"],
     "enabled": true,
     "rules": {
       "recommended": true,
@@ -14,31 +27,41 @@
         "noUselessConstructor": "warn"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "warn"
       },
       "style": {
-        "useTemplate": "off",
-        "noUnusedTemplateLiteral": "off",
-        "noUselessElse": "off",
+        "useTemplate": "warn",
+        "noUnusedTemplateLiteral": "warn",
+        "noUselessElse": "warn",
         "noNonNullAssertion": "off",
         "useSingleVarDeclarator": "off",
-        "useEnumInitializers": "warn"
-      },
-      "nursery": {
-        "noUnusedImports": "warn",
+        "useEnumInitializers": "warn",
         "useExportType": "error",
         "useImportType": "error",
         "useNodejsImportProtocol": "error",
+        "useFilenamingConvention": {
+          "level": "warn",
+          "options": {
+            "filenameCases": ["kebab-case"],
+            "strictCase": false
+          }
+        },
+        "useConsistentArrayType": "warn"
+      },
+      "correctness": {
+        "noUnusedImports": "warn",
         "noInvalidUseBeforeDeclaration": "error",
-        "noUselessTernary": "error"
+        "noUnusedPrivateClassMembers": "warn"
+      },
+      "nursery": {
+        "noUselessTernary": "error",
+        "noExportsInTest": "error"
       }
     }
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "space",
-    "ignore": ["dist/*"],
-    "include": ["src/*.ts", "test/*.ts", "rollup.config.mjs", "*.json"]
+    "indentStyle": "space"
   },
   "javascript": {
     "formatter": {
