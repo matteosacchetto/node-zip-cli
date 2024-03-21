@@ -58,7 +58,9 @@
     "figures": "^6.0.1",
     "ignore": "^5.3.0",
     "jszip": "^3.10.1",
+    "log-symbols": "^6.0.0",
     "ora": "^8.0.1",
+    "strip-ansi": "^7.1.0",
     "valid-filename": "^4.0.0"
   }
 }
