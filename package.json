@@ -15,6 +15,7 @@
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:debug": "rollup -c --environment NODE_ENV:debug",
     "test": "node --import=tsx/esm test.runner.mjs",
+    "node": "node --import=tsx/esm",
     "prepack": "npm run build",
     "coverage": "c8 -c .c8rc.json npm run test"
   },
