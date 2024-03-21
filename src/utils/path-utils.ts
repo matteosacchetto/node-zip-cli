@@ -18,11 +18,19 @@ export const getFilename = (p: string) => {
   return p.split(sep).at(-1) ?? '';
 };
 
+type TreePath<T> = {
+  [key: string]: T | TreePath<T>;
+};
+
 const printObjAsFileTree = (
-  obj: Record<string, any>,
+  obj: TreePath<boolean>,
   level = 0,
   parentPrefix = ''
 ) => {
+  const stats = {
+    files: 0,
+    dirs: 0,
+  };
   const keys = Object.keys(obj);
   const usableParentPrefix = parentPrefix.slice(4);
   for (let i = 0; i < keys.length; i++) {
@@ -30,27 +38,33 @@ const printObjAsFileTree = (
     let prefix = '';
     if (level > 0) {
       if (i === keys.length - 1) {
-        prefix = usableParentPrefix + '└── ';
+        prefix = `${usableParentPrefix}└── `;
       } else {
-        prefix = usableParentPrefix + '├── ';
+        prefix = `${usableParentPrefix}├── `;
       }
     }
 
     if (typeof obj[el] === 'object') {
+      stats.dirs += 1;
       console.log(`${prefix}${chalk.blue.bold(el + sep)}`);
-      printObjAsFileTree(
-        obj[el],
+      const child_stats = printObjAsFileTree(
+        obj[el] as TreePath<boolean>,
         level + 1,
-        i === keys.length - 1 ? parentPrefix + '    ' : parentPrefix + '│   '
+        i === keys.length - 1 ? `${parentPrefix}    ` : `${parentPrefix}│   `
       );
+      stats.files += child_stats.files;
+      stats.dirs += child_stats.dirs;
     } else if (typeof obj[el] === 'boolean') {
+      stats.files += 1;
       console.log(`${prefix}${el}`);
     }
   }
+
+  return stats;
 };
 
 export const printfileListAsFileTree = (files: string[]) => {
-  const root: Record<string, any> = {};
+  const root: TreePath<boolean> = {};
 
   // Convert to object
   for (const path of files.sort()) {
@@ -61,13 +75,13 @@ export const printfileListAsFileTree = (files: string[]) => {
       if (node[tokens[i]] === undefined) {
         node[tokens[i]] = {};
       }
-      node = node[tokens[i]];
+      node = node[tokens[i]] as TreePath<boolean>;
     }
 
     node[tokens[tokens.length - 1]] = true;
   }
 
-  printObjAsFileTree(
+  const stats = printObjAsFileTree(
     Object.keys(root).length === 1
       ? root
       : {
@@ -75,5 +89,15 @@ export const printfileListAsFileTree = (files: string[]) => {
         }
   );
 
-  console.log(`\n${files.length} ${files.length > 1 ? 'files' : 'file'}`);
+  console.log(
+    `\n${
+      stats.dirs > 0
+        ? `${stats.dirs} ${stats.dirs > 1 ? 'directories' : 'directory'}, `
+        : ''
+    }${
+      stats.files > 0
+        ? `${stats.files} ${files.length > 1 ? 'files' : 'file'}`
+        : ''
+    }`
+  );
 };

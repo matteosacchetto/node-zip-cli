@@ -55,5 +55,5 @@ jobs:
         run: npm run build --if-present
 
       - name: Check style
-        run: npm run style-check --if-present
+        run: npm run style:check --if-present
         if: github.event_name == 'pull_request'

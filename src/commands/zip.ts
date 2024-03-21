@@ -31,10 +31,10 @@ const zipCommand = createCommand(name, description)
     '-d, --deflate <compression-level>',
     'deflate the files',
     (compressionLevel) => {
-      const parsedValue = parseInt(compressionLevel, 10);
+      const parsedValue = Number.parseInt(compressionLevel, 10);
       if (parsedValue < 0 || parsedValue > 9) {
         throw new InvalidArgumentError(
-          `compression level must be a integer number between 0 (no compression) and 9 (maximum compression)`
+          'compression level must be a integer number between 0 (no compression) and 9 (maximum compression)'
         );
       }
       return parsedValue;
@@ -120,7 +120,7 @@ zipCommand.action(async (options) => {
       if (files.length > 0) {
         printfileListAsFileTree(files);
       } else {
-        console.error(`Nothing to zip`);
+        console.error('Nothing to zip');
       }
 
       return;
@@ -189,7 +189,7 @@ zipCommand.action(async (options) => {
           figureSet.arrowDown
         )} Creating ${output} file ${chalk.dim('[SKIPPED]')}`
       );
-      console.error(`Nothing to zip`);
+      console.error('Nothing to zip');
     }
   } catch (e) {
     if (e instanceof Error) console.error(e.message);

@@ -30,7 +30,7 @@ const listDirContent = async (dir: string, parentRules: string[] = []) => {
   for await (const entry of entrties) {
     const entryPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (!gitignoreFilter.ignores(entryPath + '/')) {
+      if (!gitignoreFilter.ignores(`${entryPath}/`)) {
         const subwalk = await listDirContent(entryPath, gitingoreRules);
         walk.push(...subwalk);
       }

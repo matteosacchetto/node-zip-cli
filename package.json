@@ -6,9 +6,9 @@
   "bin": "dist/app.mjs",
   "type": "module",
   "scripts": {
-    "lint": "tsc --pretty --incremental --noEmit && biome lint src/ test/ rollup.config.mjs",
-    "style-check": "biome check --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true src/ test/ rollup.config.mjs && biome format src/ test/ rollup.config.mjs",
-    "style-fix": "biome check --apply --formatter-enabled=false --linter-enabled=false --organize-imports-enabled=true src/ test/ rollup.config.mjs && biome format --write src/ test/ rollup.config.mjs",
+    "lint": "tsc --pretty --incremental --noEmit && biome lint .",
+    "style:check": "biome check --linter-enabled=false .",
+    "style:fix": "biome check --linter-enabled=false --apply .",
     "dev": "npx rollup -c -w",
     "prebuild": "rm -rf dist",
     "build": "npm run lint && rollup -c --environment NODE_ENV:production",
@@ -28,13 +28,9 @@
   },
   "author": "Matteo Sacchetto",
   "license": "MIT",
-  "keywords": [
-    "nodejs",
-    "cli",
-    "zip"
-  ],
+  "keywords": ["nodejs", "cli", "zip"],
   "devDependencies": {
-    "@biomejs/biome": "^1.5.3",
+    "@biomejs/biome": "^1.6.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-run": "^3.0.2",
     "@rollup/plugin-typescript": "^11.1.6",

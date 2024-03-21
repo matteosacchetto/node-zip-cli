@@ -50,7 +50,7 @@ unzipCommand.action(async (options) => {
       if (filenames.length > 0) {
         printfileListAsFileTree(filenames);
       } else {
-        console.error(`Nothing to unzip`);
+        console.error('Nothing to unzip');
       }
     } catch (e) {
       if (e instanceof Error) console.error(e.message);
