@@ -10,7 +10,7 @@
     "style:check": "biome check --linter-enabled=false .",
     "style:fix": "biome check --linter-enabled=false --apply .",
     "dev": "npx rollup -c -w",
-    "prebuild": "rm -rf dist",
+    "prebuild": "node scripts/rm.mjs dist",
     "build": "npm run lint && rollup -c --environment NODE_ENV:production",
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:debug": "rollup -c --environment NODE_ENV:debug",
