@@ -14,11 +14,9 @@
     "build": "npm run lint && rollup -c --environment NODE_ENV:production",
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:debug": "rollup -c --environment NODE_ENV:debug",
-    "pretap": "npx tap build",
-    "tap": "tap --node-arg='--import=tsx/esm' --disable-coverage --allow-empty-coverage",
-    "pretest": "npm run lint && npx tap build",
-    "test": "c8 -c .c8rc.json tap --node-arg='--import=tsx/esm' --disable-coverage --allow-empty-coverage test/*.test.ts test/**/*.test.ts",
-    "prepack": "npm run build"
+    "test": "node --import=tsx/esm test.runner.mjs",
+    "prepack": "npm run build",
+    "coverage": "c8 -c .c8rc.json npm run test"
   },
   "repository": {
     "type": "git",
@@ -43,21 +41,17 @@
     "@types/node": "^18.19.10",
     "@types/parse-gitignore": "^1.0.2",
     "c8": "^9.1.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.20.2",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
     "rollup-plugin-node-externals": "^7.0.1",
     "rollup-plugin-typescript-paths": "^1.5.0",
-    "tap": "^18.7.0",
-    "tsx": "^4.7.0",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18.19.0",
     "npm": ">=9.6.5"
-  },
-  "directories": {
-    "test": "test"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^11.1.0",
@@ -69,10 +63,5 @@
     "jszip": "^3.10.1",
     "ora": "^8.0.1",
     "valid-filename": "^4.0.0"
-  },
-  "tap": {
-    "plugin": [
-      "!@tapjs/typescript"
-    ]
   }
 }
