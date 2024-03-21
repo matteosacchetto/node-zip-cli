@@ -4,7 +4,7 @@ import { createWriteStream } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, relative } from 'node:path';
 import { scanFs } from '@/lib/scan-fs';
-import { exists, isDirectory } from '@/utils/fs-utils';
+import { exists, isDirectory } from '@/utils/fs';
 import {
   getFilename,
   isChildOfCurrentDir,

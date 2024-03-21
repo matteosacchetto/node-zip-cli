@@ -1,7 +1,7 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { createCommand } from '@/lib/command';
-import { exists, isDirectory } from '@/utils/fs-utils';
+import { exists, isDirectory } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
