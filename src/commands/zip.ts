@@ -1,16 +1,21 @@
 import { createCommand } from '@/lib/command';
 
 import { createWriteStream } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { relative } from 'node:path';
+import { mkdir, readFile } from 'node:fs/promises';
+import { dirname, relative } from 'node:path';
 import { scanFs } from '@/lib/scan-fs';
-import { exists, isDirectory } from '@/utils/fs-utils';
+import { exists, isDirectory } from '@/utils/fs';
 import {
   getFilename,
   isChildOfCurrentDir,
   printfileListAsFileTree,
-} from '@/utils/path-utils';
-import { exit_success_on_error_ignore } from '@/utils/process';
+} from '@/utils/path';
+import {
+  exit_fail_on_error,
+  exit_success_on_error_ignore,
+} from '@/utils/process';
+import { validation_spinner } from '@/validation/validation-spinner';
+import { valid_zip_file_path } from '@/validation/zip';
 import confirm from '@inquirer/confirm';
 import chalk from 'chalk';
 import { InvalidArgumentError } from 'commander';
@@ -56,145 +61,145 @@ const zipCommand = createCommand(name, description)
   );
 
 zipCommand.action(async (options) => {
-  const { output, input } = options;
-  const uniqueEntries = [...new Set(input)];
+  await exit_fail_on_error(async () => {
+    const uniqueEntries = [...new Set(options.input)];
 
-  // Validation step
-  if (
-    !isValidFilename(output) ||
-    !output.endsWith('.zip') ||
-    !isChildOfCurrentDir(output)
-  ) {
-    console.error('The output file name is not valid');
-    return;
-  }
+    // Validation step
+    await validation_spinner({
+      name: 'output path',
+      value: options.output,
+      fn: async () => valid_zip_file_path(options.output),
+    });
 
-  if (!options.yes && !options.dryRun) {
-    if (await exists(output)) {
-      const overwrite = await exit_success_on_error_ignore(
-        async () =>
-          await confirm({
-            default: false,
-            message: `The file ${output} already exists, overwrite it?`,
-          })
-      );
+    if (!options.yes && !options.dryRun) {
+      if (await exists(options.output)) {
+        const overwrite = await exit_success_on_error_ignore(
+          async () =>
+            await confirm({
+              default: false,
+              message: `The file ${options.output} already exists, overwrite it?`,
+            })
+        );
 
-      if (!overwrite) {
+        if (!overwrite) {
+          return;
+        }
+      }
+    }
+
+    try {
+      const zip = new JSZip();
+      const files = [];
+      for (const entry of uniqueEntries) {
+        if (!(await isChildOfCurrentDir(entry))) {
+          throw Error(
+            `${chalk.red(
+              figureSet.cross
+            )} ${entry} is not child of the current directory`
+          );
+        }
+        if (await isDirectory(entry)) {
+          const defaultRules = [];
+          if (!options.allowGit) {
+            defaultRules.push('.git/');
+          }
+
+          if (options.exclude && options.exclude.length > 0) {
+            defaultRules.push(...options.exclude);
+          }
+
+          files.push(
+            ...(await scanFs(entry, defaultRules)).map((el) =>
+              relative(process.cwd(), el)
+            )
+          );
+        } else {
+          files.push(relative(process.cwd(), entry));
+        }
+      }
+
+      if (options.dryRun) {
+        if (files.length > 0) {
+          printfileListAsFileTree(files);
+        } else {
+          console.error('Nothing to zip');
+        }
+
         return;
       }
-    }
-  }
 
-  try {
-    const zip = new JSZip();
-    const files = [];
-    for (const entry of uniqueEntries) {
-      if (!(await isChildOfCurrentDir(entry))) {
-        throw Error(
-          `${chalk.red(
-            figureSet.cross
-          )} ${entry} is not child of the current directory`
-        );
-      }
-      if (await isDirectory(entry)) {
-        const defaultRules = [];
-        if (!options.allowGit) {
-          defaultRules.push('.git/');
-        }
+      const spinner = ora(`Reading (0/${files.length} files)`);
 
-        if (options.exclude && options.exclude.length > 0) {
-          defaultRules.push(...options.exclude);
-        }
-
-        files.push(
-          ...(await scanFs(entry, defaultRules)).map((el) =>
-            relative(process.cwd(), el)
-          )
-        );
-      } else {
-        files.push(relative(process.cwd(), entry));
-      }
-    }
-
-    if (options.dryRun) {
       if (files.length > 0) {
-        printfileListAsFileTree(files);
+        try {
+          let i = 0;
+          spinner.start();
+          for (const file of files) {
+            spinner.text = `Reading (${++i}/${files.length} files) ${chalk.dim(
+              `[${file}]`
+            )}`;
+            const content = await readFile(file);
+            zip.file(file, content);
+          }
+          i = 0;
+
+          spinner.text = `Creating ${options.output} file (0/${files.length} files)`;
+
+          await mkdir(dirname(options.output), { recursive: true });
+
+          let lastFile = '';
+          zip
+            .generateNodeStream(
+              {
+                type: 'nodebuffer',
+                streamFiles: true,
+                compression: options.deflate ? 'DEFLATE' : 'STORE',
+                compressionOptions: {
+                  level: options.deflate,
+                },
+              },
+              (metadata) => {
+                if (
+                  metadata.currentFile &&
+                  isValidFilename(getFilename(metadata.currentFile)) &&
+                  lastFile !== metadata.currentFile
+                ) {
+                  lastFile = metadata.currentFile;
+                  i++;
+                  spinner.text = `Creating ${options.output} file (${i}/${
+                    files.length
+                  } files) ${chalk.dim(`[${metadata.currentFile}]`)}`;
+                }
+              }
+            )
+            .pipe(createWriteStream(options.output))
+            .on('error', (e) => {
+              spinner.fail();
+              console.error(e);
+            })
+            .on('finish', () => {
+              spinner.succeed(
+                `Created ${options.output} file (${i}/${files.length} files)`
+              );
+            });
+        } catch (e) {
+          spinner.fail();
+          if (e instanceof Error) console.error(e.message);
+          else console.error(e);
+        }
       } else {
+        console.error(
+          `${chalk.yellow.bold(figureSet.arrowDown)} Creating ${
+            options.output
+          } file ${chalk.dim('[SKIPPED]')}`
+        );
         console.error('Nothing to zip');
       }
-
-      return;
+    } catch (e) {
+      if (e instanceof Error) console.error(e.message);
+      else console.error(e);
     }
-
-    const spinner = ora(`Reading (0/${files.length} files)`);
-
-    if (files.length > 0) {
-      try {
-        let i = 0;
-        spinner.start();
-        for (const file of files) {
-          spinner.text = `Reading (${++i}/${files.length} files) ${chalk.dim(
-            `[${file}]`
-          )}`;
-          const content = await readFile(file);
-          zip.file(file, content);
-        }
-        i = 0;
-
-        spinner.text = `Creating ${output} file (0/${files.length} files)`;
-
-        let lastFile = '';
-        zip
-          .generateNodeStream(
-            {
-              type: 'nodebuffer',
-              streamFiles: true,
-              compression: options.deflate ? 'DEFLATE' : 'STORE',
-              compressionOptions: {
-                level: options.deflate,
-              },
-            },
-            (metadata) => {
-              if (
-                metadata.currentFile &&
-                isValidFilename(getFilename(metadata.currentFile)) &&
-                lastFile !== metadata.currentFile
-              ) {
-                lastFile = metadata.currentFile;
-                i++;
-                spinner.text = `Creating ${output} file (${i}/${
-                  files.length
-                } files) ${chalk.dim(`[${metadata.currentFile}]`)}`;
-              }
-            }
-          )
-          .pipe(createWriteStream(output))
-          .on('error', (e) => {
-            spinner.fail();
-            console.error(e);
-          })
-          .on('finish', () => {
-            spinner.succeed(
-              `Created ${output} file (${i}/${files.length} files)`
-            );
-          });
-      } catch (e) {
-        spinner.fail();
-        if (e instanceof Error) console.error(e.message);
-        else console.error(e);
-      }
-    } else {
-      console.error(
-        `${chalk.yellow.bold(
-          figureSet.arrowDown
-        )} Creating ${output} file ${chalk.dim('[SKIPPED]')}`
-      );
-      console.error('Nothing to zip');
-    }
-  } catch (e) {
-    if (e instanceof Error) console.error(e.message);
-    else console.error(e);
-  }
+  });
 });
 
 export default zipCommand;

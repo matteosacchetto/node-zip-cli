@@ -10,11 +10,12 @@
     "style:check": "biome check --linter-enabled=false .",
     "style:fix": "biome check --linter-enabled=false --apply .",
     "dev": "npx rollup -c -w",
-    "prebuild": "rm -rf dist",
+    "prebuild": "node scripts/rm.mjs dist",
     "build": "npm run lint && rollup -c --environment NODE_ENV:production",
     "build:dev": "rollup -c --environment NODE_ENV:development",
     "build:debug": "rollup -c --environment NODE_ENV:debug",
     "test": "node --import=tsx/esm test.runner.mjs",
+    "node": "node --import=tsx/esm",
     "prepack": "npm run build",
     "coverage": "c8 -c .c8rc.json npm run test"
   },
@@ -57,7 +58,9 @@
     "figures": "^6.0.1",
     "ignore": "^5.3.0",
     "jszip": "^3.10.1",
+    "log-symbols": "^6.0.0",
     "ora": "^8.0.1",
+    "strip-ansi": "^7.1.0",
     "valid-filename": "^4.0.0"
   }
 }

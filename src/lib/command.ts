@@ -1,5 +1,5 @@
 import { version } from '@/config';
-import { uncapitalize } from '@/utils/string-utils';
+import { uncapitalize } from '@/utils/string';
 import { Command } from '@commander-js/extra-typings';
 
 export const createCommand = (name: string, description: string): Command => {
