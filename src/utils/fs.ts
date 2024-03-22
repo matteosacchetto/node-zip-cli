@@ -1,6 +1,6 @@
 import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
-import type { FsEntries, ConflictingFsEntries } from '@/types/fs';
+import type { ConflictingFsEntries, FsEntries } from '@/types/fs';
 
 export const unique_fs_entries = (
   list: FsEntries[]

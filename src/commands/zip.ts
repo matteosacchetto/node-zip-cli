@@ -1,6 +1,10 @@
-import { createCommand } from '@/utils/command';
 import { list_entries } from '@/core/scan-fs';
+import { create_zip } from '@/core/zip';
 import { logger } from '@/logger';
+import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
+import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
+import { createCommand } from '@/utils/command';
+import { log_conflicts } from '@/utils/conflicts';
 import { exists, unique_entries } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
@@ -12,10 +16,6 @@ import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
 import { createOption } from '@commander-js/extra-typings';
 import { InvalidArgumentError } from 'commander';
-import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
-import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
-import { log_conflicts } from '@/utils/conflicts';
-import { create_zip } from '@/core/zip';
 
 const name = 'zip';
 const description =

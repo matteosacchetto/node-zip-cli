@@ -1,18 +1,18 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { FsEntries } from '@/types/fs';
+import { clean_path, get_default_mode } from '@/utils/fs';
 import { log_indent } from '@/utils/log';
 import { getFilename } from '@/utils/path';
+import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import chalk from 'chalk';
 import figureSet from 'figures';
 import JSZip from 'jszip';
 import isValidFilename from 'valid-filename';
-import { defer } from '@/utils/promise';
-import { clean_path, get_default_mode } from '@/utils/fs';
-import { pipeline } from 'node:stream/promises';
 
 export const create_zip = async (
   output_path: string,
