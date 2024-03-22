@@ -31,6 +31,10 @@ __node-zip-cli_completion() {
           COMPREPLY='';
           return 0;
         ;;
+        -k|--keep-parent)
+          COMPREPLY=($(compgen -W "full last none" -- "$cur"));
+          return 0;
+        ;;
       esac
 
       # Options with variadic arguments
@@ -44,7 +48,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -d --deflate -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -d --deflate -k --keep-parent -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac
@@ -70,12 +74,66 @@ __node-zip-cli_completion() {
         ;;
       esac
     ;;
+    tar)
+      # Options with one argument
+      case $prev in
+        -g|--gzip)
+          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9" -- "$cur"));
+          return 0;
+        ;;
+        -o|--output)
+          COMPREPLY='';
+          return 0;
+        ;;
+        -k|--keep-parent)
+          COMPREPLY=($(compgen -W "full last none" -- "$cur"));
+          return 0;
+        ;;
+      esac
+
+      # Options with variadic arguments
+      case $last_opt in
+        -i|--input)
+          _filedir;
+          return 0;
+        ;;
+        -e|--exclude)
+          _filedir;
+          return 0;
+        ;;
+        *)
+          COMPREPLY=($(compgen -W "-v --version -i --input -g --gzip -k --keep-parent -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          return 0;
+        ;;
+      esac
+    ;;
+    untar)
+      # Options with one argument
+      case $prev in
+        -o|--output)
+          COMPREPLY='';
+          return 0;
+        ;;
+      esac
+
+      # Options with variadic arguments
+      case $last_opt in
+        -i|--input)
+          _filedir '@(tar|tgz|tar.gz)';
+          return 0;
+        ;;
+        *)
+          COMPREPLY=($(compgen -W "-v --version -i --input -o --output --dry-run -h --help" -- "$cur"));
+          return 0;
+        ;;
+      esac
+    ;;
     help)
-      COMPREPLY=($(compgen -W "zip unzip" -- "$cur"));
+      COMPREPLY=($(compgen -W "zip unzip tar untar" -- "$cur"));
       return 0;
     ;;
     *)
-      COMPREPLY=($(compgen -W "-h --help -v --version zip unzip help" -- "$cur"));
+      COMPREPLY=($(compgen -W "-h --help -v --version zip unzip tar untar help" -- "$cur"));
       return 0;
     ;;
   esac
