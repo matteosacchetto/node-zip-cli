@@ -49,9 +49,9 @@ const zipCommand = createCommand(name, description)
     'out.zip'
   )
   .addOption(
-    createOption('-k, --keep-parent <mode>')
-      .default('full')
+    createOption('-k, --keep-parent <mode>', 'keep the parent directories')
       .choices(['none', 'last', 'full'] as const)
+      .default('full' as const)
   )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
