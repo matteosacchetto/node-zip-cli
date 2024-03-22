@@ -92,8 +92,10 @@ const list_dir_content_recursive = async (
 const list_dir_content = async (dir: string, parentRules: string[] = []) => {
   const { uid, gid, mode, size, mtime } = await stat(dir);
 
-  const entries: FsEntries[] = [
-    {
+  const entries: FsEntries[] = [];
+
+  if (clean_path(dir) !== '.')
+    entries.push({
       path: dir,
       cleaned_path: dir,
       type: 'directory',
@@ -104,8 +106,7 @@ const list_dir_content = async (dir: string, parentRules: string[] = []) => {
         mtime,
         size,
       },
-    },
-  ];
+    });
 
   entries.push(...(await list_dir_content_recursive(dir, parentRules)));
 

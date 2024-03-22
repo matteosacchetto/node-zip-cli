@@ -1,10 +1,17 @@
 import { createCommand } from '@/lib/command';
 
-import { createWriteStream } from 'node:fs';
-import { mkdir, readFile, stat } from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { mkdir, stat } from 'node:fs/promises';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { type FsEntries, scanFs } from '@/lib/scan-fs';
-import { clean_path, exists, isDirectory, isFile } from '@/utils/fs';
+import {
+  clean_path,
+  exists,
+  isDirectory,
+  isFile,
+  unique_entries,
+  unique_fs_entries,
+} from '@/utils/fs';
 import { getFilename, printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
@@ -64,7 +71,7 @@ const zipCommand = createCommand(name, description)
 
 zipCommand.action(async (options) => {
   await exit_fail_on_error(async () => {
-    const uniqueEntries = [...new Set(options.input)];
+    const uniqueEntries = unique_entries(options.input);
 
     // Validation step
     await validation_spinner({
@@ -90,9 +97,11 @@ zipCommand.action(async (options) => {
     }
 
     try {
-      const zip = new JSZip();
       const files: FsEntries[] = [];
       for (const entry of uniqueEntries) {
+        let fs_entries: FsEntries[] = [];
+        let base_dir = '';
+
         if (await isDirectory(entry)) {
           const defaultRules = [];
           if (!options.allowGit) {
@@ -103,44 +112,49 @@ zipCommand.action(async (options) => {
             defaultRules.push(...options.exclude);
           }
 
-          const entries = await scanFs(entry, defaultRules);
-          if (options.keepParent === 'none') {
-            const base = entry;
-            files.push(
-              ...entries
-                .filter((el) => relative(base, el.path) !== '')
-                .map((el) => {
-                  el.cleaned_path = clean_path(relative(base, el.path));
-                  return el;
-                })
-            );
-          } else if (options.keepParent === 'last') {
-            const base = resolve(entry).split(sep).slice(0, -1).join(sep);
-
-            files.push(
-              ...entries.map((el) => {
-                el.cleaned_path = clean_path(relative(base, resolve(el.path)));
-                return el;
-              })
-            );
-          } else {
-            files.push(...entries);
-          }
+          fs_entries = await scanFs(entry, defaultRules);
+          base_dir = entry;
         } else if (await isFile(entry)) {
           const path = entry;
           const stats = await stat(path);
-          files.push({
-            path,
-            cleaned_path: clean_path(path),
-            type: 'file',
-            stats,
+          fs_entries = [
+            {
+              path,
+              cleaned_path: clean_path(path),
+              type: 'file',
+              stats,
+            },
+          ];
+          base_dir = dirname(path);
+        }
+
+        if (options.keepParent === 'none') {
+          const base = base_dir;
+          fs_entries = fs_entries
+            .filter((el) => relative(base, el.path) !== '')
+            .map((el) => {
+              el.cleaned_path = clean_path(relative(base, el.path));
+              return el;
+            });
+        } else if (options.keepParent === 'last') {
+          const base = resolve(base_dir).split(sep).slice(0, -1).join(sep);
+
+          fs_entries.map((el) => {
+            if (dirname(el.path) !== '.') {
+              el.cleaned_path = clean_path(relative(base, resolve(el.path)));
+            }
+            return el;
           });
         }
+
+        files.push(...fs_entries);
       }
+
+      const unique_files = unique_fs_entries(files);
 
       if (options.dryRun) {
         if (files.length > 0) {
-          printfileListAsFileTree(files);
+          printfileListAsFileTree(unique_files);
         } else {
           console.error('Nothing to zip');
         }
@@ -148,20 +162,20 @@ zipCommand.action(async (options) => {
         return;
       }
 
-      const spinner = ora(`Reading (0/${files.length} files)`);
-      const num_files = files.filter((el) => el.type === 'file').length;
+      const zip = new JSZip();
+      const num_files = unique_files.filter((el) => el.type === 'file').length;
+      const spinner = ora(`Reading (0/${num_files} files)`);
 
-      if (files.length > 0) {
+      if (unique_files.length > 0) {
         try {
           let i = 0;
           spinner.start();
-          for (const file of files) {
+          for (const file of unique_files) {
             if (file.type === 'file') {
-              spinner.text = `Reading (${++i}/${
-                files.length
-              } files) ${chalk.dim(`[${file}]`)}`;
-              const content = await readFile(file.path);
-              zip.file(file.cleaned_path, content, {
+              spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
+                `[${file}]`
+              )}`;
+              zip.file(file.cleaned_path, createReadStream(file.path), {
                 date: file.stats.mtime,
                 unixPermissions: file.stats.mode,
               });
