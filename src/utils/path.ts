@@ -1,5 +1,5 @@
 import { join, relative, sep } from 'node:path';
-import type { FsEntries } from '@/lib/scan-fs';
+import type { FsEntries } from '@/core/scan-fs';
 import chalk from 'chalk';
 import { BooleanFilter } from './filter';
 import { get_default_stats } from './fs';

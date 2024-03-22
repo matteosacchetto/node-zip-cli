@@ -1,6 +1,6 @@
 import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
-import type { FsEntries } from '@/lib/scan-fs';
+import type { FsEntries } from '@/core/scan-fs';
 
 export const unique_fs_entries = (
   list: FsEntries[]

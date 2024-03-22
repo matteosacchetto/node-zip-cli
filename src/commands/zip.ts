@@ -1,8 +1,8 @@
-import { createCommand } from '@/lib/command';
+import { createCommand } from '@/utils/command';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { list_entries } from '@/lib/scan-fs';
+import { list_entries } from '@/core/scan-fs';
 import { logger } from '@/logger';
 import { exists, unique_entries } from '@/utils/fs';
 import { getFilename, printfileListAsFileTree } from '@/utils/path';

@@ -3,7 +3,7 @@
 import unzipCommand from './commands/unzip';
 import zipCommand from './commands/zip';
 import { description, name } from './config';
-import { createCommand } from './lib/command';
+import { createCommand } from './utils/command';
 import { uncapitalize } from './utils/string';
 
 const program = createCommand(name, uncapitalize(description));

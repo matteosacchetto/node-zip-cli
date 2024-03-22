@@ -1,7 +1,7 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { createCommand } from '@/lib/command';
-import type { FsEntries } from '@/lib/scan-fs';
+import { createCommand } from '@/utils/command';
+import type { FsEntries } from '@/core/scan-fs';
 import { clean_path, exists, get_default_mode, isDirectory } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
