@@ -9,8 +9,8 @@ import {
   exit_on_finish,
   exit_success_on_false,
 } from '@/utils/process';
-import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_tar_file_path } from '@/validation/tar';
+import { validation_spinner } from '@/validation/validation-spinner';
 
 const name = 'untar';
 const description = 'untar the content of a tar file';
