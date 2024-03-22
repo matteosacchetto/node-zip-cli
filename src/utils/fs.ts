@@ -2,19 +2,38 @@ import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { FsEntries } from '@/lib/scan-fs';
 
-export const unique_fs_entries = (list: FsEntries[]) => {
+export const unique_fs_entries = (
+  list: FsEntries[]
+): [
+  FsEntries[],
+  {
+    conflicting_path: string;
+    conflicting_with_path: string;
+  }[],
+] => {
   const sorted_list = list.sort((a, b) =>
     a.cleaned_path.localeCompare(b.cleaned_path)
   );
   const final_list: FsEntries[] = [];
+  const conflicting_list: {
+    conflicting_path: string;
+    conflicting_with_path: string;
+  }[] = [];
 
   for (let i = 0; i < sorted_list.length; i++) {
     if (sorted_list[i].cleaned_path !== final_list.at(-1)?.cleaned_path) {
       final_list.push(sorted_list[i]);
+    } else {
+      if (resolve(sorted_list[i].path) !== resolve(final_list.at(-1)!.path)) {
+        conflicting_list.push({
+          conflicting_path: sorted_list[i].path,
+          conflicting_with_path: final_list.at(-1)!.path,
+        });
+      }
     }
   }
 
-  return final_list;
+  return [final_list, conflicting_list];
 };
 
 export const unique_entries = (list: string[]) => {

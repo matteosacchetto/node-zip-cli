@@ -27,6 +27,7 @@ import figureSet from 'figures';
 import JSZip from 'jszip';
 import ora from 'ora';
 import isValidFilename from 'valid-filename';
+import { logger } from '@/logger';
 
 const name = 'zip';
 const description =
@@ -150,7 +151,40 @@ zipCommand.action(async (options) => {
         files.push(...fs_entries);
       }
 
-      const unique_files = unique_fs_entries(files);
+      const [unique_files, conflicting_list] = unique_fs_entries(files);
+
+      if (conflicting_list.length) {
+        logger.warning(
+          chalk.bold(
+            'The following list of entries conflicts with other entries'
+          )
+        );
+        for (const entry of conflicting_list) {
+          logger.log(
+            `${chalk.yellow(entry.conflicting_path)} -> ${chalk.green(
+              entry.conflicting_with_path
+            )}`
+          );
+        }
+
+        if (!options.yes) {
+          const proceed = await exit_success_on_error_ignore(
+            async () =>
+              await confirm({
+                default: false,
+                message: `Proceed anyway? ${chalk.dim(
+                  '(conflicting files will not be added)'
+                )}`,
+              })
+          );
+
+          if (!proceed) {
+            return;
+          }
+        } else {
+          logger.info('Creating the archive excluding those files');
+        }
+      }
 
       if (options.dryRun) {
         if (files.length > 0) {
