@@ -4,6 +4,7 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, stat } from 'node:fs/promises';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { type FsEntries, scanFs } from '@/lib/scan-fs';
+import { logger } from '@/logger';
 import {
   clean_path,
   exists,
@@ -27,7 +28,6 @@ import figureSet from 'figures';
 import JSZip from 'jszip';
 import ora from 'ora';
 import isValidFilename from 'valid-filename';
-import { logger } from '@/logger';
 
 const name = 'zip';
 const description =

@@ -29,11 +29,7 @@
   },
   "author": "Matteo Sacchetto",
   "license": "MIT",
-  "keywords": [
-    "nodejs",
-    "cli",
-    "zip"
-  ],
+  "keywords": ["nodejs", "cli", "zip"],
   "devDependencies": {
     "@biomejs/biome": "^1.6.1",
     "@rollup/plugin-json": "^6.1.0",
