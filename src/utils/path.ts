@@ -36,6 +36,7 @@ type TreePath<T> = {
 
 const format_path = (path: string, mode: number) => {
   switch (mode) {
+    case 0o100777:
     case 0o100775: {
       return chalk.bold.green(path);
     }
@@ -44,8 +45,12 @@ const format_path = (path: string, mode: number) => {
       return chalk.bold.blue(path);
     }
 
+    case 0o41777: {
+      return chalk.bgGreen.black(path);
+    }
+
     case 0o40777: {
-      return chalk.bold.bgGreen.blue(path);
+      return chalk.bgGreen.blue(path);
     }
 
     default: {
