@@ -7,10 +7,7 @@ import { createCommand } from './utils/command';
 import { uncapitalize } from './utils/string';
 
 const program = createCommand(name, uncapitalize(description));
-
-// Add sub-programs
 program.addCommand(zipCommand);
 program.addCommand(unzipCommand);
 
-// Parse arguments
 program.parse(process.argv);
