@@ -1,8 +1,14 @@
 import type { Stats } from 'node:fs';
 import { opendir, readFile, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { BooleanFilter } from '@/utils/filter';
-import { clean_path, read_access } from '@/utils/fs';
+import {
+  clean_path,
+  isDirectory,
+  isFile,
+  read_access,
+  unique_fs_entries,
+} from '@/utils/fs';
 import ignore, { type Ignore } from 'ignore';
 
 export type FsEntries = {
@@ -94,36 +100,101 @@ const list_dir_content = async (dir: string, parentRules: string[] = []) => {
 
   const entries: FsEntries[] = [];
 
-  if (clean_path(dir) !== '.')
-    entries.push({
-      path: dir,
-      cleaned_path: dir,
-      type: 'directory',
-      stats: {
-        uid,
-        gid,
-        mode,
-        mtime,
-        size,
-      },
-    });
+  entries.push({
+    path: dir,
+    cleaned_path: clean_path(dir),
+    type: 'directory',
+    stats: {
+      uid,
+      gid,
+      mode,
+      mtime,
+      size,
+    },
+  });
 
   entries.push(...(await list_dir_content_recursive(dir, parentRules)));
 
   return entries;
 };
 
-export const scanFs = async (rootDir: string, defaultExclude?: string[]) => {
+export const scan_fs = async (rootDir: string, defaultExclude?: string[]) => {
   const cwd = process.cwd();
   try {
-    const dir = join(rootDir);
-    process.chdir(dir);
-    return (await list_dir_content('.', defaultExclude)).map((el) => {
-      el.path = join(rootDir, el.path);
-      el.cleaned_path = clean_path(join(rootDir, el.cleaned_path));
-      return el;
-    });
+    process.chdir(rootDir);
+    return (await list_dir_content('.', defaultExclude))
+      .map((el) => {
+        el.path = join(rootDir, el.path);
+        el.cleaned_path = clean_path(join(rootDir, el.cleaned_path));
+        return el;
+      })
+      .filter((el) => el.cleaned_path !== '.');
   } finally {
     process.chdir(cwd);
   }
+};
+
+export const list_entries = async (
+  unique_input_entries: string[],
+  keep_parent: 'full' | 'last' | 'none',
+  allow_git: boolean,
+  exclude_list?: string[]
+) => {
+  const files: FsEntries[] = [];
+
+  for (const entry of unique_input_entries) {
+    let fs_entries: FsEntries[] = [];
+    let base_dir = '';
+
+    if (await isDirectory(entry)) {
+      const defaultRules = [];
+      if (!allow_git) {
+        defaultRules.push('.git/');
+      }
+
+      if (exclude_list && exclude_list.length > 0) {
+        defaultRules.push(...exclude_list);
+      }
+
+      fs_entries = await scan_fs(entry, defaultRules);
+      base_dir = entry;
+    } else if (await isFile(entry)) {
+      const path = entry;
+      const stats = await stat(path);
+      fs_entries = [
+        {
+          path,
+          cleaned_path: clean_path(path),
+          type: 'file',
+          stats,
+        },
+      ];
+      base_dir = dirname(path);
+    }
+
+    if (keep_parent === 'none') {
+      const base = base_dir;
+      fs_entries = fs_entries
+        .filter((el) => relative(base, el.path) !== '')
+        .map((el) => {
+          el.cleaned_path = clean_path(relative(base, el.path));
+          return el;
+        });
+    } else if (keep_parent === 'last') {
+      const base = resolve(base_dir).split(sep).slice(0, -1).join(sep);
+
+      fs_entries
+        .map((el) => {
+          if (dirname(el.path) !== '.') {
+            el.cleaned_path = clean_path(relative(base, resolve(el.path)));
+          }
+          return el;
+        })
+        .filter((el) => el.cleaned_path !== '.');
+    }
+
+    files.push(...fs_entries);
+  }
+
+  return unique_fs_entries(files);
 };

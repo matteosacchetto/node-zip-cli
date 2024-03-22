@@ -1,18 +1,10 @@
 import { createCommand } from '@/lib/command';
-
 import { createReadStream, createWriteStream } from 'node:fs';
-import { mkdir, stat } from 'node:fs/promises';
-import { dirname, relative, resolve, sep } from 'node:path';
-import { type FsEntries, scanFs } from '@/lib/scan-fs';
+import { mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { list_entries } from '@/lib/scan-fs';
 import { logger } from '@/logger';
-import {
-  clean_path,
-  exists,
-  isDirectory,
-  isFile,
-  unique_entries,
-  unique_fs_entries,
-} from '@/utils/fs';
+import { exists, unique_entries } from '@/utils/fs';
 import { getFilename, printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
@@ -28,6 +20,7 @@ import figureSet from 'figures';
 import JSZip from 'jszip';
 import ora from 'ora';
 import isValidFilename from 'valid-filename';
+import { log_indent } from '@/utils/log';
 
 const name = 'zip';
 const description =
@@ -97,189 +90,139 @@ zipCommand.action(async (options) => {
       }
     }
 
-    try {
-      const files: FsEntries[] = [];
-      for (const entry of uniqueEntries) {
-        let fs_entries: FsEntries[] = [];
-        let base_dir = '';
+    const [unique_files, conflicting_list] = await list_entries(
+      uniqueEntries,
+      options.keepParent,
+      options.allowGit,
+      options.exclude
+    );
 
-        if (await isDirectory(entry)) {
-          const defaultRules = [];
-          if (!options.allowGit) {
-            defaultRules.push('.git/');
-          }
-
-          if (options.exclude && options.exclude.length > 0) {
-            defaultRules.push(...options.exclude);
-          }
-
-          fs_entries = await scanFs(entry, defaultRules);
-          base_dir = entry;
-        } else if (await isFile(entry)) {
-          const path = entry;
-          const stats = await stat(path);
-          fs_entries = [
-            {
-              path,
-              cleaned_path: clean_path(path),
-              type: 'file',
-              stats,
-            },
-          ];
-          base_dir = dirname(path);
-        }
-
-        if (options.keepParent === 'none') {
-          const base = base_dir;
-          fs_entries = fs_entries
-            .filter((el) => relative(base, el.path) !== '')
-            .map((el) => {
-              el.cleaned_path = clean_path(relative(base, el.path));
-              return el;
-            });
-        } else if (options.keepParent === 'last') {
-          const base = resolve(base_dir).split(sep).slice(0, -1).join(sep);
-
-          fs_entries.map((el) => {
-            if (dirname(el.path) !== '.') {
-              el.cleaned_path = clean_path(relative(base, resolve(el.path)));
-            }
-            return el;
-          });
-        }
-
-        files.push(...fs_entries);
-      }
-
-      const [unique_files, conflicting_list] = unique_fs_entries(files);
-
-      if (conflicting_list.length) {
-        logger.warning(
-          chalk.bold(
-            'The following list of entries conflicts with other entries'
-          )
+    if (conflicting_list.length) {
+      logger.warning(
+        chalk.bold('The following list of entries conflicts with other entries')
+      );
+      for (const entry of conflicting_list) {
+        logger.log(
+          `${chalk.yellow(entry.conflicting_path)} -> ${chalk.green(
+            entry.conflicting_with_path
+          )}`
         );
-        for (const entry of conflicting_list) {
-          logger.log(
-            `${chalk.yellow(entry.conflicting_path)} -> ${chalk.green(
-              entry.conflicting_with_path
-            )}`
-          );
-        }
-
-        if (!options.yes) {
-          const proceed = await exit_success_on_error_ignore(
-            async () =>
-              await confirm({
-                default: false,
-                message: `Proceed anyway? ${chalk.dim(
-                  '(conflicting files will not be added)'
-                )}`,
-              })
-          );
-
-          if (!proceed) {
-            return;
-          }
-        } else {
-          logger.info('Creating the archive excluding those files');
-        }
       }
 
-      if (options.dryRun) {
-        if (files.length > 0) {
-          printfileListAsFileTree(unique_files);
-        } else {
-          console.error('Nothing to zip');
-        }
-
-        return;
-      }
-
-      const zip = new JSZip();
-      const num_files = unique_files.filter((el) => el.type === 'file').length;
-      const spinner = ora(`Reading (0/${num_files} files)`);
-
-      if (unique_files.length > 0) {
-        try {
-          let i = 0;
-          spinner.start();
-          for (const file of unique_files) {
-            if (file.type === 'file') {
-              spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
-                `[${file}]`
-              )}`;
-              zip.file(file.cleaned_path, createReadStream(file.path), {
-                date: file.stats.mtime,
-                unixPermissions: file.stats.mode,
-              });
-            } else if (file.type === 'directory') {
-              zip.file(file.cleaned_path, null, {
-                date: file.stats.mtime,
-                unixPermissions: file.stats.mode,
-                dir: true,
-              });
-            }
-          }
-          i = 0;
-
-          spinner.text = `Creating ${options.output} file (0/${num_files} files)`;
-
-          await mkdir(dirname(options.output), { recursive: true });
-
-          let lastFile = '';
-          zip
-            .generateNodeStream(
-              {
-                type: 'nodebuffer',
-                streamFiles: true,
-                compression: options.deflate ? 'DEFLATE' : 'STORE',
-                compressionOptions: {
-                  level: options.deflate,
-                },
-              },
-              (metadata) => {
-                if (
-                  metadata.currentFile &&
-                  isValidFilename(getFilename(metadata.currentFile)) &&
-                  lastFile !== metadata.currentFile
-                ) {
-                  lastFile = metadata.currentFile;
-                  i++;
-                  spinner.text = `Creating ${
-                    options.output
-                  } file (${i}/${num_files} files) ${chalk.dim(
-                    `[${metadata.currentFile}]`
-                  )}`;
-                }
-              }
-            )
-            .pipe(createWriteStream(options.output))
-            .on('error', (e) => {
-              spinner.fail();
-              console.error(e);
+      if (!options.yes) {
+        const proceed = await exit_success_on_error_ignore(
+          async () =>
+            await confirm({
+              default: false,
+              message: `Proceed anyway? ${chalk.dim(
+                '(conflicting files will not be added)'
+              )}`,
             })
-            .on('finish', () => {
-              spinner.succeed(
-                `Created ${options.output} file (${i}/${num_files} files)`
-              );
-            });
-        } catch (e) {
-          spinner.fail();
-          if (e instanceof Error) console.error(e.message);
-          else console.error(e);
+        );
+
+        if (!proceed) {
+          return;
         }
       } else {
-        console.error(
-          `${chalk.yellow.bold(figureSet.arrowDown)} Creating ${
-            options.output
-          } file ${chalk.dim('[SKIPPED]')}`
-        );
+        logger.info('Creating the archive excluding those files');
+      }
+    }
+
+    if (options.dryRun) {
+      if (unique_files.length > 0) {
+        printfileListAsFileTree(unique_files);
+      } else {
         console.error('Nothing to zip');
       }
-    } catch (e) {
-      if (e instanceof Error) console.error(e.message);
-      else console.error(e);
+
+      return;
+    }
+
+    const zip = new JSZip();
+    const num_files = unique_files.filter((el) => el.type === 'file').length;
+    const spinner = ora(`Reading (0/${num_files} files)`);
+
+    if (num_files > 0) {
+      try {
+        let i = 0;
+        spinner.start();
+        for (const file of unique_files) {
+          if (file.type === 'file') {
+            spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
+              `[${file}]`
+            )}`;
+            zip.file(file.cleaned_path, createReadStream(file.path), {
+              date: file.stats.mtime,
+              unixPermissions: file.stats.mode,
+            });
+          } else if (file.type === 'directory') {
+            zip.file(file.cleaned_path, null, {
+              date: file.stats.mtime,
+              unixPermissions: file.stats.mode,
+              dir: true,
+            });
+          }
+        }
+        i = 0;
+
+        spinner.text = `Creating ${options.output} file (0/${num_files} files)`;
+
+        await mkdir(dirname(options.output), { recursive: true });
+
+        let lastFile = '';
+        zip
+          .generateNodeStream(
+            {
+              type: 'nodebuffer',
+              streamFiles: true,
+              compression: options.deflate ? 'DEFLATE' : 'STORE',
+              compressionOptions: {
+                level: options.deflate,
+              },
+            },
+            (metadata) => {
+              if (
+                metadata.currentFile &&
+                isValidFilename(getFilename(metadata.currentFile)) &&
+                lastFile !== metadata.currentFile
+              ) {
+                lastFile = metadata.currentFile;
+                i++;
+                spinner.text = `Creating ${
+                  options.output
+                } file (${i}/${num_files} files) ${chalk.dim(
+                  `[${metadata.currentFile}]`
+                )}`;
+              }
+            }
+          )
+          .pipe(createWriteStream(options.output))
+          .on('error', (e) => {
+            spinner.fail();
+            console.error(e);
+          })
+          .on('finish', () => {
+            spinner.succeed(
+              `Created ${options.output} file (${i}/${num_files} files)`
+            );
+          });
+      } catch (e) {
+        spinner.fail();
+        if (e instanceof Error) console.error(e.message);
+        else console.error(e);
+      }
+    } else {
+      console.error(
+        `${chalk.yellow.bold(figureSet.arrowDown)} Creating ${
+          options.output
+        } file ${chalk.dim('[SKIPPED]')}`
+      );
+      log_indent({
+        indentation_increment: 2,
+        fn: () => {
+          logger.dimmed_error('Nothing to zip');
+        },
+      });
     }
   });
 });
