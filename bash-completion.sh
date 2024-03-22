@@ -69,7 +69,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -o --output --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -o --output -y --yes --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac
@@ -123,7 +123,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -o --output --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -o --output -y --yes --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac

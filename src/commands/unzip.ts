@@ -26,7 +26,8 @@ const unzipCommand = createCommand(name, description)
     '--dry-run',
     'lists the files that will be unzipped WITHOUT unzipping the archive',
     false
-  );
+  )
+  .option('-y, --yes', 'answers yes to every question', false);
 
 unzipCommand.action(async (options) => {
   await exit_fail_on_error(async () => {
@@ -58,7 +59,7 @@ unzipCommand.action(async (options) => {
 
       // Check if empty
       const dir = await readdir(options.output);
-      if (dir.length !== 0) {
+      if (dir.length !== 0 && !options.yes) {
         await exit_success_on_false(() =>
           confirm_not_empty_dir_prompt(options.output)
         );
