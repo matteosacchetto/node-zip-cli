@@ -2,20 +2,17 @@ import { createCommand } from '@/lib/command';
 
 import { createWriteStream } from 'node:fs';
 import { mkdir, readFile, stat } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname, relative, resolve, sep } from 'node:path';
 import { type FsEntries, scanFs } from '@/lib/scan-fs';
 import { clean_path, exists, isDirectory, isFile } from '@/utils/fs';
-import {
-  getFilename,
-  isChildOfCurrentDir,
-  printfileListAsFileTree,
-} from '@/utils/path';
+import { getFilename, printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
   exit_success_on_error_ignore,
 } from '@/utils/process';
 import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
+import { createOption } from '@commander-js/extra-typings';
 import confirm from '@inquirer/confirm';
 import chalk from 'chalk';
 import { InvalidArgumentError } from 'commander';
@@ -50,6 +47,11 @@ const zipCommand = createCommand(name, description)
     '-o, --output <output-file>',
     'the filename of the zip file to create',
     'out.zip'
+  )
+  .addOption(
+    createOption('-k, --keep-parent <mode>')
+      .default('full')
+      .choices(['none', 'last', 'full'] as const)
   )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
@@ -91,13 +93,6 @@ zipCommand.action(async (options) => {
       const zip = new JSZip();
       const files: FsEntries[] = [];
       for (const entry of uniqueEntries) {
-        if (!(await isChildOfCurrentDir(entry))) {
-          throw Error(
-            `${chalk.red(
-              figureSet.cross
-            )} ${entry} is not child of the current directory`
-          );
-        }
         if (await isDirectory(entry)) {
           const defaultRules = [];
           if (!options.allowGit) {
@@ -108,7 +103,29 @@ zipCommand.action(async (options) => {
             defaultRules.push(...options.exclude);
           }
 
-          files.push(...(await scanFs(entry, defaultRules)));
+          const entries = await scanFs(entry, defaultRules);
+          if (options.keepParent === 'none') {
+            const base = entry;
+            files.push(
+              ...entries
+                .filter((el) => relative(base, el.path) !== '')
+                .map((el) => {
+                  el.cleaned_path = clean_path(relative(base, el.path));
+                  return el;
+                })
+            );
+          } else if (options.keepParent === 'last') {
+            const base = resolve(entry).split(sep).slice(0, -1).join(sep);
+
+            files.push(
+              ...entries.map((el) => {
+                el.cleaned_path = clean_path(relative(base, resolve(el.path)));
+                return el;
+              })
+            );
+          } else {
+            files.push(...entries);
+          }
         } else if (await isFile(entry)) {
           const path = entry;
           const stats = await stat(path);
@@ -144,12 +161,12 @@ zipCommand.action(async (options) => {
                 files.length
               } files) ${chalk.dim(`[${file}]`)}`;
               const content = await readFile(file.path);
-              zip.file(clean_path(file.path), content, {
+              zip.file(file.cleaned_path, content, {
                 date: file.stats.mtime,
                 unixPermissions: file.stats.mode,
               });
             } else if (file.type === 'directory') {
-              zip.file(clean_path(file.path), null, {
+              zip.file(file.cleaned_path, null, {
                 date: file.stats.mtime,
                 unixPermissions: file.stats.mode,
                 dir: true,
