@@ -1,10 +1,10 @@
 import { createCommand } from '@/lib/command';
 
 import { createWriteStream } from 'node:fs';
-import { mkdir, readFile } from 'node:fs/promises';
-import { dirname, relative } from 'node:path';
-import { scanFs } from '@/lib/scan-fs';
-import { exists, isDirectory } from '@/utils/fs';
+import { mkdir, readFile, stat } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { type FsEntries, scanFs } from '@/lib/scan-fs';
+import { clean_path, exists, isDirectory, isFile } from '@/utils/fs';
 import {
   getFilename,
   isChildOfCurrentDir,
@@ -89,7 +89,7 @@ zipCommand.action(async (options) => {
 
     try {
       const zip = new JSZip();
-      const files = [];
+      const files: FsEntries[] = [];
       for (const entry of uniqueEntries) {
         if (!(await isChildOfCurrentDir(entry))) {
           throw Error(
@@ -108,13 +108,16 @@ zipCommand.action(async (options) => {
             defaultRules.push(...options.exclude);
           }
 
-          files.push(
-            ...(await scanFs(entry, defaultRules)).map((el) =>
-              relative(process.cwd(), el)
-            )
-          );
-        } else {
-          files.push(relative(process.cwd(), entry));
+          files.push(...(await scanFs(entry, defaultRules)));
+        } else if (await isFile(entry)) {
+          const path = entry;
+          const stats = await stat(path);
+          files.push({
+            path,
+            cleaned_path: clean_path(path),
+            type: 'file',
+            stats,
+          });
         }
       }
 
@@ -129,21 +132,33 @@ zipCommand.action(async (options) => {
       }
 
       const spinner = ora(`Reading (0/${files.length} files)`);
+      const num_files = files.filter((el) => el.type === 'file').length;
 
       if (files.length > 0) {
         try {
           let i = 0;
           spinner.start();
           for (const file of files) {
-            spinner.text = `Reading (${++i}/${files.length} files) ${chalk.dim(
-              `[${file}]`
-            )}`;
-            const content = await readFile(file);
-            zip.file(file, content);
+            if (file.type === 'file') {
+              spinner.text = `Reading (${++i}/${
+                files.length
+              } files) ${chalk.dim(`[${file}]`)}`;
+              const content = await readFile(file.path);
+              zip.file(clean_path(file.path), content, {
+                date: file.stats.mtime,
+                unixPermissions: file.stats.mode,
+              });
+            } else if (file.type === 'directory') {
+              zip.file(clean_path(file.path), null, {
+                date: file.stats.mtime,
+                unixPermissions: file.stats.mode,
+                dir: true,
+              });
+            }
           }
           i = 0;
 
-          spinner.text = `Creating ${options.output} file (0/${files.length} files)`;
+          spinner.text = `Creating ${options.output} file (0/${num_files} files)`;
 
           await mkdir(dirname(options.output), { recursive: true });
 
@@ -166,9 +181,11 @@ zipCommand.action(async (options) => {
                 ) {
                   lastFile = metadata.currentFile;
                   i++;
-                  spinner.text = `Creating ${options.output} file (${i}/${
-                    files.length
-                  } files) ${chalk.dim(`[${metadata.currentFile}]`)}`;
+                  spinner.text = `Creating ${
+                    options.output
+                  } file (${i}/${num_files} files) ${chalk.dim(
+                    `[${metadata.currentFile}]`
+                  )}`;
                 }
               }
             )
@@ -179,7 +196,7 @@ zipCommand.action(async (options) => {
             })
             .on('finish', () => {
               spinner.succeed(
-                `Created ${options.output} file (${i}/${files.length} files)`
+                `Created ${options.output} file (${i}/${num_files} files)`
               );
             });
         } catch (e) {

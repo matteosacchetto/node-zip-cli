@@ -1,7 +1,8 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { createCommand } from '@/lib/command';
-import { exists, isDirectory } from '@/utils/fs';
+import type { FsEntries } from '@/lib/scan-fs';
+import { clean_path, exists, get_default_mode, isDirectory } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
@@ -47,12 +48,27 @@ unzipCommand.action(async (options) => {
         const content = await readFile(options.input);
         const archive = await zip.loadAsync(content);
 
-        const filenames = Object.keys(archive.files).filter(
-          (el) => !el.endsWith('/')
-        );
+        const filenames = Object.entries(archive.files);
 
         if (filenames.length > 0) {
-          printfileListAsFileTree(filenames);
+          printfileListAsFileTree(
+            filenames.map(
+              (el) =>
+                <FsEntries>{
+                  path: el[1].name,
+                  cleaned_path: clean_path(el[1].name),
+                  type: el[1].dir ? 'directory' : 'file',
+                  stats: {
+                    mtime: el[1].date,
+                    uid: 1000,
+                    gid: 1000,
+                    mode:
+                      el[1].unixPermissions ??
+                      get_default_mode(el[1].dir ? 'directory' : 'file'),
+                  },
+                }
+            )
+          );
         } else {
           console.error('Nothing to unzip');
         }

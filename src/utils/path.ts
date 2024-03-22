@@ -1,5 +1,8 @@
 import { join, relative, sep } from 'node:path';
+import type { FsEntries } from '@/lib/scan-fs';
 import chalk from 'chalk';
+import { BooleanFilter } from './filter';
+import { get_default_stats } from './fs';
 
 export const isChildOfCurrentDir = async (p: string) => {
   const cwd = process.cwd();
@@ -19,11 +22,40 @@ export const getFilename = (p: string) => {
 };
 
 type TreePath<T> = {
-  [key: string]: T | TreePath<T>;
+  [key: string]:
+    | {
+        stats: T;
+        type: 'file';
+      }
+    | {
+        type: 'directory';
+        children: TreePath<T>;
+        stats: T;
+      };
+};
+
+const format_path = (path: string, mode: number) => {
+  switch (mode) {
+    case 0o100775: {
+      return chalk.bold.green(path);
+    }
+
+    case 0o40775: {
+      return chalk.bold.blue(path);
+    }
+
+    case 0o40777: {
+      return chalk.bold.bgGreen.blue(path);
+    }
+
+    default: {
+      return path;
+    }
+  }
 };
 
 const printObjAsFileTree = (
-  obj: TreePath<boolean>,
+  obj: TreePath<Omit<FsEntries['stats'], 'size'>>,
   level = 0,
   parentPrefix = ''
 ) => {
@@ -44,48 +76,81 @@ const printObjAsFileTree = (
       }
     }
 
-    if (typeof obj[el] === 'object') {
+    const entry = obj[el];
+    if (entry.type === 'directory') {
       stats.dirs += 1;
-      console.log(`${prefix}${chalk.blue.bold(el + sep)}`);
+      console.log(`${prefix}${format_path(el + sep, entry.stats.mode)}`);
       const child_stats = printObjAsFileTree(
-        obj[el] as TreePath<boolean>,
+        entry.children,
         level + 1,
         i === keys.length - 1 ? `${parentPrefix}    ` : `${parentPrefix}│   `
       );
       stats.files += child_stats.files;
       stats.dirs += child_stats.dirs;
-    } else if (typeof obj[el] === 'boolean') {
+    } else if (entry.type === 'file') {
       stats.files += 1;
-      console.log(`${prefix}${el}`);
+      console.log(`${prefix}${format_path(el, entry.stats.mode)}`);
     }
   }
 
   return stats;
 };
 
-export const printfileListAsFileTree = (files: string[]) => {
-  const root: TreePath<boolean> = {};
+export const printfileListAsFileTree = (
+  entries: (Omit<FsEntries, 'stats'> & {
+    stats: Omit<FsEntries['stats'], 'size'>;
+  })[]
+) => {
+  const now = new Date();
+  const root: TreePath<Omit<FsEntries['stats'], 'size'>> = {};
 
   // Convert to object
-  for (const path of files.sort()) {
-    const tokens = path.split(sep);
-    let node = root;
+  for (const entry of entries.sort((a, b) =>
+    a.cleaned_path.localeCompare(b.cleaned_path)
+  )) {
+    const tokens = entry.cleaned_path.split(sep).filter(BooleanFilter);
 
+    let node = root;
     for (let i = 0; i < tokens.length - 1; i++) {
       if (node[tokens[i]] === undefined) {
-        node[tokens[i]] = {};
+        node[tokens[i]] = {
+          type: 'directory',
+          stats: get_default_stats('directory', now),
+          children: {},
+        };
       }
-      node = node[tokens[i]] as TreePath<boolean>;
+
+      node = (
+        node[tokens[i]] as Extract<
+          TreePath<Omit<FsEntries['stats'], 'size'>>[string],
+          { type: 'directory' }
+        >
+      ).children;
     }
 
-    node[tokens[tokens.length - 1]] = true;
+    if (entry.type === 'directory') {
+      node[tokens[tokens.length - 1]] = {
+        stats: entry.stats,
+        children: {},
+        type: 'directory',
+      };
+    } else {
+      node[tokens[tokens.length - 1]] = {
+        stats: entry.stats,
+        type: 'file',
+      };
+    }
   }
 
   const stats = printObjAsFileTree(
     Object.keys(root).length === 1
       ? root
       : {
-          '.': root,
+          '.': {
+            type: 'directory',
+            stats: get_default_stats('directory', now),
+            children: root,
+          },
         }
   );
 
@@ -96,7 +161,7 @@ export const printfileListAsFileTree = (files: string[]) => {
         : ''
     }${
       stats.files > 0
-        ? `${stats.files} ${files.length > 1 ? 'files' : 'file'}`
+        ? `${stats.files} ${stats.files > 1 ? 'files' : 'file'}`
         : ''
     }`
   );
