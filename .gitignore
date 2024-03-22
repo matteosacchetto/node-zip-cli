@@ -144,5 +144,6 @@ docs
 
 # Archives
 *.zip
+*.tar
 *.tar.gz
 *.tgz
