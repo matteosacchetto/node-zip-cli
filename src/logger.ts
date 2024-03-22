@@ -79,11 +79,14 @@ class Logger {
       );
     }
   }
-  log(...msg: unknown[]) {
+  write(...msg: unknown[]) {
     this.#log(STD_FD.OUT, true, ' ', ...msg);
   }
+  log(...msg: unknown[]) {
+    this.#log(STD_FD.ERR, true, ' ', ...msg);
+  }
   info(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, false, chalk.cyan(logSymbols.info), ...msg);
+    this.#log(STD_FD.ERR, false, chalk.cyan(logSymbols.info), ...msg);
   }
   error(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.red(logSymbols.error), ...msg);
@@ -92,10 +95,10 @@ class Logger {
     this.#log(STD_FD.ERR, false, chalk.yellow(logSymbols.warning), ...msg);
   }
   success(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, false, chalk.green(logSymbols.success), ...msg);
+    this.#log(STD_FD.ERR, false, chalk.green(logSymbols.success), ...msg);
   }
   dimmed_log(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
+    this.#log(STD_FD.ERR, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
   }
   dimmed_error(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
