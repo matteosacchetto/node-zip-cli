@@ -1,24 +1,15 @@
 import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
-import type { FsEntries } from '@/core/scan-fs';
+import type { FsEntries, ConflictingFsEntries } from '@/types/fs';
 
 export const unique_fs_entries = (
   list: FsEntries[]
-): [
-  FsEntries[],
-  {
-    conflicting_path: string;
-    conflicting_with_path: string;
-  }[],
-] => {
+): [FsEntries[], ConflictingFsEntries[]] => {
   const sorted_list = list.sort((a, b) =>
     a.cleaned_path.localeCompare(b.cleaned_path)
   );
   const final_list: FsEntries[] = [];
-  const conflicting_list: {
-    conflicting_path: string;
-    conflicting_with_path: string;
-  }[] = [];
+  const conflicting_list: ConflictingFsEntries[] = [];
 
   for (let i = 0; i < sorted_list.length; i++) {
     if (sorted_list[i].cleaned_path !== final_list.at(-1)?.cleaned_path) {

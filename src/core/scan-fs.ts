@@ -1,4 +1,3 @@
-import type { Stats } from 'node:fs';
 import { opendir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { BooleanFilter } from '@/utils/filter';
@@ -10,13 +9,7 @@ import {
   unique_fs_entries,
 } from '@/utils/fs';
 import ignore, { type Ignore } from 'ignore';
-
-export type FsEntries = {
-  path: string;
-  cleaned_path: string;
-  type: 'file' | 'directory';
-  stats: Pick<Stats, 'mtime' | 'uid' | 'gid' | 'mode' | 'size'>;
-};
+import type { FsEntries } from '@/types/fs';
 
 const loadIgnoreRules = async (path: string) => {
   if (await read_access(path)) {

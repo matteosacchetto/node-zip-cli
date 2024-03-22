@@ -1,26 +1,21 @@
 import { createCommand } from '@/utils/command';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
-import { dirname } from 'node:path';
 import { list_entries } from '@/core/scan-fs';
 import { logger } from '@/logger';
 import { exists, unique_entries } from '@/utils/fs';
-import { getFilename, printfileListAsFileTree } from '@/utils/path';
+import { printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
-  exit_success_on_error_ignore,
+  exit_on_finish,
+  exit_success_on_false,
 } from '@/utils/process';
 import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
 import { createOption } from '@commander-js/extra-typings';
-import confirm from '@inquirer/confirm';
-import chalk from 'chalk';
 import { InvalidArgumentError } from 'commander';
-import figureSet from 'figures';
-import JSZip from 'jszip';
-import ora from 'ora';
-import isValidFilename from 'valid-filename';
-import { log_indent } from '@/utils/log';
+import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
+import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
+import { log_conflicts } from '@/utils/conflicts';
+import { create_zip } from '@/core/zip';
 
 const name = 'zip';
 const description =
@@ -65,9 +60,8 @@ const zipCommand = createCommand(name, description)
 
 zipCommand.action(async (options) => {
   await exit_fail_on_error(async () => {
-    const uniqueEntries = unique_entries(options.input);
+    const unique_inputs = unique_entries(options.input);
 
-    // Validation step
     await validation_spinner({
       name: 'output path',
       value: options.output,
@@ -76,154 +70,41 @@ zipCommand.action(async (options) => {
 
     if (!options.yes && !options.dryRun) {
       if (await exists(options.output)) {
-        const overwrite = await exit_success_on_error_ignore(
-          async () =>
-            await confirm({
-              default: false,
-              message: `The file ${options.output} already exists, overwrite it?`,
-            })
+        await exit_success_on_false(() =>
+          confirm_overwrite_prompt(options.output)
         );
-
-        if (!overwrite) {
-          return;
-        }
       }
     }
 
-    const [unique_files, conflicting_list] = await list_entries(
-      uniqueEntries,
+    const [unique_list, conflicting_list] = await list_entries(
+      unique_inputs,
       options.keepParent,
       options.allowGit,
       options.exclude
     );
 
     if (conflicting_list.length) {
-      logger.warning(
-        chalk.bold('The following list of entries conflicts with other entries')
-      );
-      for (const entry of conflicting_list) {
-        logger.log(
-          `${chalk.yellow(entry.conflicting_path)} -> ${chalk.green(
-            entry.conflicting_with_path
-          )}`
-        );
-      }
+      log_conflicts(conflicting_list);
 
       if (!options.yes) {
-        const proceed = await exit_success_on_error_ignore(
-          async () =>
-            await confirm({
-              default: false,
-              message: `Proceed anyway? ${chalk.dim(
-                '(conflicting files will not be added)'
-              )}`,
-            })
-        );
-
-        if (!proceed) {
-          return;
-        }
+        await exit_success_on_false(() => confirm_conflict_prompt());
       } else {
         logger.info('Creating the archive excluding those files');
       }
     }
 
+    const num_files = unique_list.filter((el) => el.type === 'file').length;
     if (options.dryRun) {
-      if (unique_files.length > 0) {
-        printfileListAsFileTree(unique_files);
-      } else {
-        console.error('Nothing to zip');
-      }
-
-      return;
-    }
-
-    const zip = new JSZip();
-    const num_files = unique_files.filter((el) => el.type === 'file').length;
-    const spinner = ora(`Reading (0/${num_files} files)`);
-
-    if (num_files > 0) {
-      try {
-        let i = 0;
-        spinner.start();
-        for (const file of unique_files) {
-          if (file.type === 'file') {
-            spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
-              `[${file}]`
-            )}`;
-            zip.file(file.cleaned_path, createReadStream(file.path), {
-              date: file.stats.mtime,
-              unixPermissions: file.stats.mode,
-            });
-          } else if (file.type === 'directory') {
-            zip.file(file.cleaned_path, null, {
-              date: file.stats.mtime,
-              unixPermissions: file.stats.mode,
-              dir: true,
-            });
-          }
+      await exit_on_finish(() => {
+        if (num_files > 0) {
+          printfileListAsFileTree(unique_list);
+        } else {
+          console.error('Nothing to zip');
         }
-        i = 0;
-
-        spinner.text = `Creating ${options.output} file (0/${num_files} files)`;
-
-        await mkdir(dirname(options.output), { recursive: true });
-
-        let lastFile = '';
-        zip
-          .generateNodeStream(
-            {
-              type: 'nodebuffer',
-              streamFiles: true,
-              compression: options.deflate ? 'DEFLATE' : 'STORE',
-              compressionOptions: {
-                level: options.deflate,
-              },
-            },
-            (metadata) => {
-              if (
-                metadata.currentFile &&
-                isValidFilename(getFilename(metadata.currentFile)) &&
-                lastFile !== metadata.currentFile
-              ) {
-                lastFile = metadata.currentFile;
-                i++;
-                spinner.text = `Creating ${
-                  options.output
-                } file (${i}/${num_files} files) ${chalk.dim(
-                  `[${metadata.currentFile}]`
-                )}`;
-              }
-            }
-          )
-          .pipe(createWriteStream(options.output))
-          .on('error', (e) => {
-            spinner.fail();
-            console.error(e);
-          })
-          .on('finish', () => {
-            spinner.succeed(
-              `Created ${options.output} file (${i}/${num_files} files)`
-            );
-          });
-      } catch (e) {
-        spinner.fail();
-        if (e instanceof Error) console.error(e.message);
-        else console.error(e);
-      }
-    } else {
-      console.error(
-        `${chalk.yellow.bold(figureSet.arrowDown)} Creating ${
-          options.output
-        } file ${chalk.dim('[SKIPPED]')}`
-      );
-      log_indent({
-        indentation_increment: 2,
-        fn: () => {
-          logger.dimmed_error('Nothing to zip');
-        },
       });
     }
+
+    await create_zip(options.output, unique_list, num_files, options.deflate);
   });
 });
 

@@ -1,20 +1,16 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { mkdir, readdir } from 'node:fs/promises';
+import { extract_zip, read_zip } from '@/core/zip';
+import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
-import type { FsEntries } from '@/core/scan-fs';
-import { clean_path, exists, get_default_mode, isDirectory } from '@/utils/fs';
+import { exists, isDirectory } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
-  exit_success_on_error_ignore,
+  exit_on_finish,
+  exit_success_on_false,
 } from '@/utils/process';
 import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
-import confirm from '@inquirer/confirm';
-import chalk from 'chalk';
-import figureSet from 'figures';
-import JSZip from 'jszip';
-import ora from 'ora';
 
 const name = 'unzip';
 const description = 'Unzip the content of a zip file';
@@ -42,121 +38,36 @@ unzipCommand.action(async (options) => {
     });
 
     if (options.dryRun) {
-      try {
-        const zip = new JSZip();
-
-        const content = await readFile(options.input);
-        const archive = await zip.loadAsync(content);
-
-        const filenames = Object.entries(archive.files);
-
+      await exit_on_finish(async () => {
+        const filenames = await read_zip(options.input);
         if (filenames.length > 0) {
-          printfileListAsFileTree(
-            filenames.map(
-              (el) =>
-                <FsEntries>{
-                  path: el[1].name,
-                  cleaned_path: clean_path(el[1].name),
-                  type: el[1].dir ? 'directory' : 'file',
-                  stats: {
-                    mtime: el[1].date,
-                    uid: 1000,
-                    gid: 1000,
-                    mode:
-                      el[1].unixPermissions ??
-                      get_default_mode(el[1].dir ? 'directory' : 'file'),
-                  },
-                }
-            )
-          );
+          printfileListAsFileTree(filenames);
         } else {
           console.error('Nothing to unzip');
         }
-      } catch (e) {
-        if (e instanceof Error) console.error(e.message);
-        else console.error(e);
-      }
-
-      return;
+      });
     }
 
-    // Check if the directory exists
-    try {
-      if (await exists(options.output)) {
-        // Check if it is a directory
-        if (await isDirectory(options.output)) {
-          // Check if empty
-          const dir = await readdir(options.output);
-          if (dir.length !== 0) {
-            const proceed = await exit_success_on_error_ignore(
-              async () =>
-                await confirm({
-                  message: `Directory ${options.output} is not empty. Proceed anyway?`,
-                  default: false,
-                })
-            );
-            if (!proceed) {
-              return;
-            }
-          }
-        } else {
-          throw new Error(
-            `The ${options.output} path already exists but it is not a directory`
-          );
-        }
-      } else {
-        // Create it
-        await mkdir(options.output, { recursive: true });
-      }
-    } catch (e) {
-      if (e instanceof Error)
-        console.error(`${chalk.red(figureSet.cross)} ${e.message}`);
-      else console.error(e);
-      return;
-    }
-
-    const spinner = ora(
-      `Extracting ${options.input} file to ${options.output}`
-    );
-    try {
-      const zip = new JSZip();
-      spinner.start();
-
-      const content = await readFile(options.input);
-      const archive = await zip.loadAsync(content);
-
-      const filenames = Object.keys(archive.files).filter(
-        (el) => !el.endsWith('/')
-      );
-
-      let i = 0;
-      for (const filename of filenames) {
-        spinner.text = `Extracting ${options.input} file to ${
-          options.output
-        } (${++i}/${filenames.length} files) ${chalk.dim(`[${filename}]`)}`;
-
-        const uncompressedFileContent = await archive
-          .file(filename)
-          ?.async('uint8array');
-        const filePath = join(options.output, filename);
-        const dirs = dirname(filePath);
-        await mkdir(dirs, { recursive: true });
-
-        if (uncompressedFileContent) {
-          await writeFile(filePath, uncompressedFileContent, {
-            encoding: 'utf-8',
-          });
-        }
+    if (await exists(options.output)) {
+      // Check if it is a directory
+      if (!(await isDirectory(options.output))) {
+        throw new Error(
+          `The ${options.output} path already exists but it is not a directory`
+        );
       }
 
-      spinner.succeed(
-        `Extracted ${options.input} file to ${options.output} (${filenames.length}/${filenames.length} files)`
-      );
-    } catch (e) {
-      spinner.fail();
-      if (e instanceof Error) console.error(e.message);
-      else console.error(e);
+      // Check if empty
+      const dir = await readdir(options.output);
+      if (dir.length !== 0) {
+        await exit_success_on_false(() =>
+          confirm_not_empty_dir_prompt(options.output)
+        );
+      }
     }
+
+    await mkdir(options.output, { recursive: true });
+
+    await extract_zip(options.input, options.output);
   });
 });
 
