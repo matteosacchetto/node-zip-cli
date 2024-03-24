@@ -65,6 +65,12 @@ const list_dir_content_recursive = async (
         );
         dir_data.n_children = subwalk.n_children;
         walk.push(...subwalk.walk);
+
+        if (dir_data.n_children === 0) {
+          // If the child directory is empty
+          // do not count it among the parent list
+          n_children--;
+        }
       }
     } else if (entry.isFile()) {
       if (!gitignoreFilter.ignores(entryPath)) {
@@ -138,8 +144,20 @@ export const list_entries = async (
   allow_git: boolean,
   exclude_list?: string[]
 ) => {
-  const files: FsEntry[] = [];
+  const default_rules = [];
+  
+  if (!allow_git) {
+    default_rules.push('.git/');
+  }
 
+  if (exclude_list && exclude_list.length > 0) {
+    default_rules.push(...exclude_list);
+  }
+
+  const default_filter: Ignore = ignore();
+  default_filter.add(default_rules);
+
+  const files: FsEntry[] = [];
   for (const entry of unique_input_entries) {
     let fs_entries: FsEntry[] = [];
     let base_dir = '';
@@ -147,29 +165,21 @@ export const list_entries = async (
     const stats = await stat(entry);
 
     if (stats.isDirectory()) {
-      const defaultRules = [];
-      if (!allow_git) {
-        defaultRules.push('.git/');
-      }
-
-      if (exclude_list && exclude_list.length > 0) {
-        defaultRules.push(...exclude_list);
-      }
-
-      fs_entries = await scan_fs(entry, defaultRules);
+      fs_entries = await scan_fs(entry, default_rules);
       base_dir = entry;
     } else if (stats.isFile()) {
       const path = entry;
-      const stats = await stat(path);
-      fs_entries = [
-        {
-          path,
-          cleaned_path: clean_path(path),
-          type: 'file',
-          stats,
-        },
-      ];
-      base_dir = dirname(path);
+      if (!default_filter.ignores(path)) {
+        fs_entries = [
+          {
+            path,
+            cleaned_path: clean_path(path),
+            type: 'file',
+            stats,
+          },
+        ];
+        base_dir = dirname(path);
+      }
     }
 
     if (keep_parent === 'none') {
