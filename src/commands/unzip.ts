@@ -2,7 +2,7 @@ import { mkdir, readdir } from 'node:fs/promises';
 import { extract_zip, read_zip } from '@/core/zip';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
-import { exists, isDirectory } from '@/utils/fs';
+import { exists, is_directory } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
@@ -50,8 +50,7 @@ unzipCommand.action(async (options) => {
     }
 
     if (await exists(options.output)) {
-      // Check if it is a directory
-      if (!(await isDirectory(options.output))) {
+      if (!(await is_directory(options.output))) {
         throw new Error(
           `The ${options.output} path already exists but it is not a directory`
         );

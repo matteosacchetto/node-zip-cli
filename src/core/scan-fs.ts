@@ -2,13 +2,7 @@ import { opendir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { FsEntries } from '@/types/fs';
 import { BooleanFilter } from '@/utils/filter';
-import {
-  clean_path,
-  isDirectory,
-  isFile,
-  read_access,
-  unique_fs_entries,
-} from '@/utils/fs';
+import { clean_path, read_access, unique_fs_entries } from '@/utils/fs';
 import ignore, { type Ignore } from 'ignore';
 
 const loadIgnoreRules = async (path: string) => {
@@ -114,6 +108,8 @@ const list_dir_content = async (dir: string, parentRules: string[] = []) => {
 export const scan_fs = async (rootDir: string, defaultExclude?: string[]) => {
   const cwd = process.cwd();
   try {
+    console.log(rootDir);
+
     process.chdir(rootDir);
     return (await list_dir_content('.', defaultExclude))
       .map((el) => {
@@ -139,7 +135,9 @@ export const list_entries = async (
     let fs_entries: FsEntries[] = [];
     let base_dir = '';
 
-    if (await isDirectory(entry)) {
+    const stats = await stat(entry);
+
+    if (stats.isDirectory()) {
       const defaultRules = [];
       if (!allow_git) {
         defaultRules.push('.git/');
@@ -151,7 +149,7 @@ export const list_entries = async (
 
       fs_entries = await scan_fs(entry, defaultRules);
       base_dir = entry;
-    } else if (await isFile(entry)) {
+    } else if (stats.isFile()) {
       const path = entry;
       const stats = await stat(path);
       fs_entries = [

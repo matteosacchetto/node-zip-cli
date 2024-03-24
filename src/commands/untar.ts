@@ -2,7 +2,7 @@ import { mkdir, readdir } from 'node:fs/promises';
 import { extract_tar, read_tar } from '@/core/tar';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
-import { exists, isDirectory } from '@/utils/fs';
+import { exists, is_directory } from '@/utils/fs';
 import { printfileListAsFileTree } from '@/utils/path';
 import {
   exit_fail_on_error,
@@ -51,7 +51,7 @@ untarCommand.action(async (options) => {
     }
 
     if (await exists(options.output)) {
-      if (!(await isDirectory(options.output))) {
+      if (!(await is_directory(options.output))) {
         throw new Error(
           `The ${options.output} path already exists but it is not a directory`
         );

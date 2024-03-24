@@ -55,17 +55,9 @@ export const exists = async (p: string) => {
   }
 };
 
-export const isDirectory = async (p: string) => {
+export const is_directory = async (p: string) => {
   try {
     return (await stat(p)).isDirectory();
-  } catch (e) {
-    return false;
-  }
-};
-
-export const isFile = async (p: string) => {
-  try {
-    return (await stat(p)).isFile();
   } catch (e) {
     return false;
   }
