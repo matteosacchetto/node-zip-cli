@@ -1,6 +1,7 @@
 import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { ConflictingFsEntries, FsEntries } from '@/types/fs';
+import { createReadStream } from 'node:fs';
 
 export const unique_fs_entries = (
   list: FsEntries[]
@@ -121,4 +122,27 @@ export const get_default_mode = (type: 'file' | 'directory'): number => {
   }
 
   return 0o40775;
+};
+
+export const read_file_partial = async (
+  path: string,
+  opts: {
+    start?: number | undefined;
+    end?: number | undefined;
+    encoding?: BufferEncoding | undefined;
+  }
+) => {
+  const stream = createReadStream(path, {
+    start: opts.start,
+    end: opts.end,
+    encoding: opts.encoding,
+  });
+
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  stream.close();
+
+  return Buffer.concat(chunks);
 };
