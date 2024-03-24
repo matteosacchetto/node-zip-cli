@@ -35,7 +35,7 @@
     "zip"
   ],
   "devDependencies": {
-    "@biomejs/biome": "^1.6.1",
+    "@biomejs/biome": "^1.6.2",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-run": "^3.0.2",
