@@ -1,6 +1,6 @@
 import { opendir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import type { FsEntries } from '@/types/fs';
+import type { FsEntry } from '@/types/fs';
 import { BooleanFilter } from '@/utils/filter';
 import { clean_path, read_access, unique_fs_entries } from '@/utils/fs';
 import ignore, { type Ignore } from 'ignore';
@@ -31,7 +31,7 @@ const list_dir_content_recursive = async (
   gitignoreFilter.add(gitingoreRules);
 
   const entrties = await opendir(dir);
-  const walk: FsEntries[] = [];
+  const walk: FsEntry[] = [];
   let n_children = 0;
   for await (const entry of entrties) {
     const entryPath = join(dir, entry.name);
@@ -44,7 +44,7 @@ const list_dir_content_recursive = async (
       if (!gitignoreFilter.ignores(`${entryPath}/`)) {
         n_children++;
         const { uid, gid, mode, size, mtime } = await stat(entryPath);
-        const dir_data = <Extract<FsEntries, { type: 'directory' }>>{
+        const dir_data = <Extract<FsEntry, { type: 'directory' }>>{
           path: entryPath,
           cleaned_path: entryPath,
           type: 'directory',
@@ -92,9 +92,9 @@ const list_dir_content_recursive = async (
 const list_dir_content = async (dir: string, parentRules: string[] = []) => {
   const { uid, gid, mode, size, mtime } = await stat(dir);
 
-  const entries: FsEntries[] = [];
+  const entries: FsEntry[] = [];
 
-  const dir_data = <Extract<FsEntries, { type: 'directory' }>>{
+  const dir_data = <Extract<FsEntry, { type: 'directory' }>>{
     path: dir,
     cleaned_path: clean_path(dir),
     type: 'directory',
@@ -138,10 +138,10 @@ export const list_entries = async (
   allow_git: boolean,
   exclude_list?: string[]
 ) => {
-  const files: FsEntries[] = [];
+  const files: FsEntry[] = [];
 
   for (const entry of unique_input_entries) {
-    let fs_entries: FsEntries[] = [];
+    let fs_entries: FsEntry[] = [];
     let base_dir = '';
 
     const stats = await stat(entry);

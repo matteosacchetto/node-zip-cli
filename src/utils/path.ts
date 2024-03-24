@@ -1,5 +1,5 @@
 import { join, relative, sep } from 'node:path';
-import type { FsEntries } from '@/types/fs';
+import type { FsEntry } from '@/types/fs';
 import chalk from 'chalk';
 import { BooleanFilter } from './filter';
 import { get_default_stats } from './fs';
@@ -60,7 +60,7 @@ const format_path = (path: string, mode: number) => {
 };
 
 const printObjAsFileTree = (
-  obj: TreePath<Omit<FsEntries['stats'], 'size'>>,
+  obj: TreePath<Omit<FsEntry['stats'], 'size'>>,
   level = 0,
   parentPrefix = ''
 ) => {
@@ -102,12 +102,12 @@ const printObjAsFileTree = (
 };
 
 export const printfileListAsFileTree = (
-  entries: (Omit<FsEntries, 'stats'> & {
-    stats: Omit<FsEntries['stats'], 'size'>;
+  entries: (Omit<FsEntry, 'stats'> & {
+    stats: Omit<FsEntry['stats'], 'size'>;
   })[]
 ) => {
   const now = new Date();
-  const root: TreePath<Omit<FsEntries['stats'], 'size'>> = {};
+  const root: TreePath<Omit<FsEntry['stats'], 'size'>> = {};
 
   // Convert to object
   for (const entry of entries.sort((a, b) =>
@@ -127,7 +127,7 @@ export const printfileListAsFileTree = (
 
       node = (
         node[tokens[i]] as Extract<
-          TreePath<Omit<FsEntries['stats'], 'size'>>[string],
+          TreePath<Omit<FsEntry['stats'], 'size'>>[string],
           { type: 'directory' }
         >
       ).children;

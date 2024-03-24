@@ -1,16 +1,16 @@
 import { createReadStream } from 'node:fs';
 import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
-import type { ConflictingFsEntries, FsEntries } from '@/types/fs';
+import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
 
 export const unique_fs_entries = (
-  list: FsEntries[]
-): [FsEntries[], ConflictingFsEntries[]] => {
+  list: FsEntry[]
+): [FsEntry[], ConflictingFsEntry[]] => {
   const sorted_list = list.sort((a, b) =>
     a.cleaned_path.localeCompare(b.cleaned_path)
   );
-  const final_list: FsEntries[] = [];
-  const conflicting_list: ConflictingFsEntries[] = [];
+  const final_list: FsEntry[] = [];
+  const conflicting_list: ConflictingFsEntry[] = [];
 
   for (let i = 0; i < sorted_list.length; i++) {
     if (sorted_list[i].cleaned_path !== final_list.at(-1)?.cleaned_path) {
@@ -99,7 +99,7 @@ export const clean_path = (path: string) => {
 export const get_default_stats = (
   type: 'file' | 'directory',
   now: Date
-): Omit<FsEntries['stats'], 'size'> => {
+): Omit<FsEntry['stats'], 'size'> => {
   return {
     uid: 1000,
     gid: 1000,

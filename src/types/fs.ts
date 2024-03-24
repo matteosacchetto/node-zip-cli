@@ -1,6 +1,6 @@
 import type { Stats } from 'node:fs';
 
-export type FsEntries = {
+export type FsEntry = {
   path: string;
   cleaned_path: string;
   stats: Pick<Stats, 'mtime' | 'uid' | 'gid' | 'mode' | 'size'>;
@@ -14,9 +14,9 @@ export type FsEntries = {
     }
 );
 
-export type ArchiveEntries = Omit<FsEntries, 'n_children'>;
+export type ArchiveEntry = Omit<FsEntry, 'n_children'>;
 
-export type ConflictingFsEntries = {
+export type ConflictingFsEntry = {
   conflicting_path: string;
   conflicting_with_path: string;
 };

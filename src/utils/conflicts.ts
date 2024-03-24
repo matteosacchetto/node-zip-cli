@@ -1,8 +1,8 @@
 import { logger } from '@/logger';
-import type { ConflictingFsEntries } from '@/types/fs';
+import type { ConflictingFsEntry } from '@/types/fs';
 import chalk from 'chalk';
 
-export const log_conflicts = (conflicting_list: ConflictingFsEntries[]) => {
+export const log_conflicts = (conflicting_list: ConflictingFsEntry[]) => {
   logger.warning(
     chalk.bold('The following list of entries conflicts with other entries')
   );

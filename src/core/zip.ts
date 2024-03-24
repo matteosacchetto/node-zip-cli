@@ -3,7 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
-import type { FsEntries } from '@/types/fs';
+import type { FsEntry } from '@/types/fs';
 import { clean_path, get_default_mode } from '@/utils/fs';
 import { log_indent } from '@/utils/log';
 import { getFilename } from '@/utils/path';
@@ -16,7 +16,7 @@ import isValidFilename from 'valid-filename';
 
 export const create_zip = async (
   output_path: string,
-  unique_fs_entries: FsEntries[],
+  unique_fs_entries: FsEntry[],
   num_files: number,
   deflate: number
 ) => {
@@ -113,7 +113,7 @@ export const read_zip = async (input_path: string) => {
 
   return filenames.map(
     (el) =>
-      <FsEntries>{
+      <FsEntry>{
         path: el[1].name,
         cleaned_path: clean_path(el[1].name),
         type: el[1].dir ? 'directory' : 'file',
