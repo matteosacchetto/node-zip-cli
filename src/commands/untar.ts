@@ -9,7 +9,7 @@ import {
   exit_on_finish,
   exit_success_on_false,
 } from '@/utils/process';
-import { valid_tar_file_path } from '@/validation/tar';
+import { valid_input_tar_file_path } from '@/validation/tar';
 import { validation_spinner } from '@/validation/validation-spinner';
 
 const name = 'untar';
@@ -34,11 +34,7 @@ untarCommand.action(async (options) => {
     await validation_spinner({
       name: 'input path',
       value: options.input,
-      fn: async () =>
-        valid_tar_file_path(
-          options.input,
-          options.input.endsWith('.tgz') || options.input.endsWith('.tar.gz')
-        ),
+      fn: async () => valid_input_tar_file_path(options.input),
     });
 
     if (options.dryRun) {

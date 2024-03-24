@@ -12,7 +12,7 @@ import {
   exit_on_finish,
   exit_success_on_false,
 } from '@/utils/process';
-import { valid_tar_file_path } from '@/validation/tar';
+import { valid_output_tar_file_path } from '@/validation/tar';
 import { validation_spinner } from '@/validation/validation-spinner';
 import { createOption } from '@commander-js/extra-typings';
 import { InvalidArgumentError } from 'commander';
@@ -73,7 +73,7 @@ tarCommand.action(async (options) => {
     await validation_spinner({
       name: 'output path',
       value: output,
-      fn: async () => valid_tar_file_path(output, options.gzip),
+      fn: async () => valid_output_tar_file_path(output, options.gzip),
     });
 
     if (!options.yes && !options.dryRun) {
