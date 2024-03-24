@@ -1,7 +1,7 @@
+import { createReadStream } from 'node:fs';
 import { constants, access, stat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { ConflictingFsEntries, FsEntries } from '@/types/fs';
-import { createReadStream } from 'node:fs';
 
 export const unique_fs_entries = (
   list: FsEntries[]

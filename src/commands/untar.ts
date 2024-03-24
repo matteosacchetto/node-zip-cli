@@ -9,9 +9,9 @@ import {
   exit_on_finish,
   exit_success_on_false,
 } from '@/utils/process';
+import { is_gzip_archive } from '@/utils/tar';
 import { valid_input_tar_file_path } from '@/validation/tar';
 import { validation_spinner } from '@/validation/validation-spinner';
-import { is_gzip_archive } from '@/utils/tar';
 
 const name = 'untar';
 const description = 'untar the content of a tar file';

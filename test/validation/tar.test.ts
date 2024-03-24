@@ -4,8 +4,8 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { ValidationError } from '@/errors/validation-error';
 import {
-  valid_output_tar_file_path,
   valid_input_tar_file_path,
+  valid_output_tar_file_path,
 } from '@/validation/tar';
 
 const filename = relative(
