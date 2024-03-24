@@ -42,7 +42,6 @@ const list_dir_content_recursive = async (
 
     if (entry.isDirectory()) {
       if (!gitignoreFilter.ignores(`${entryPath}/`)) {
-        n_children++;
         const { uid, gid, mode, size, mtime } = await stat(entryPath);
         const dir_data = <Extract<FsEntry, { type: 'directory' }>>{
           path: entryPath,
@@ -64,13 +63,8 @@ const list_dir_content_recursive = async (
           gitingoreRules
         );
         dir_data.n_children = subwalk.n_children;
+        n_children += subwalk.n_children;
         walk.push(...subwalk.walk);
-
-        if (dir_data.n_children === 0) {
-          // If the child directory is empty
-          // do not count it among the parent list
-          n_children--;
-        }
       }
     } else if (entry.isFile()) {
       if (!gitignoreFilter.ignores(entryPath)) {
@@ -145,7 +139,7 @@ export const list_entries = async (
   exclude_list?: string[]
 ) => {
   const default_rules = [];
-  
+
   if (!allow_git) {
     default_rules.push('.git/');
   }
