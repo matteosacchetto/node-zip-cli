@@ -11,6 +11,7 @@ import {
 } from '@/utils/process';
 import { valid_input_tar_file_path } from '@/validation/tar';
 import { validation_spinner } from '@/validation/validation-spinner';
+import { is_gzip_archive } from '@/utils/tar';
 
 const name = 'untar';
 const description = 'untar the content of a tar file';
@@ -36,10 +37,11 @@ untarCommand.action(async (options) => {
       value: options.input,
       fn: async () => valid_input_tar_file_path(options.input),
     });
+    const is_gzip = await is_gzip_archive(options.input);
 
     if (options.dryRun) {
       await exit_on_finish(async () => {
-        const filenames = await read_tar(options.input);
+        const filenames = await read_tar(options.input, is_gzip);
         if (filenames.length > 0) {
           printfileListAsFileTree(filenames);
         } else {
@@ -66,7 +68,7 @@ untarCommand.action(async (options) => {
 
     await mkdir(options.output, { recursive: true });
 
-    await extract_tar(options.input, options.output);
+    await extract_tar(options.input, options.output, is_gzip);
   });
 });
 

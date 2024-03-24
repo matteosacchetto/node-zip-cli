@@ -78,14 +78,12 @@ export const create_tar = async (
   });
 };
 
-export const read_tar = async (input_path: string) => {
+export const read_tar = async (input_path: string, is_gzip: boolean) => {
   const ex = extract();
 
   const line = [
     createReadStream(input_path),
-    input_path.endsWith('.tgz') || input_path.endsWith('.tar.gz')
-      ? createGunzip()
-      : undefined,
+    is_gzip ? createGunzip() : undefined,
     ex,
   ].filter(BooleanFilter);
 
@@ -118,11 +116,15 @@ export const read_tar = async (input_path: string) => {
   return fs_entries;
 };
 
-export const extract_tar = async (input_path: string, output_dir: string) => {
+export const extract_tar = async (
+  input_path: string,
+  output_dir: string,
+  is_gzip: boolean
+) => {
   await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
-      const num_files = (await read_tar(input_path)).filter(
+      const num_files = (await read_tar(input_path, is_gzip)).filter(
         (el) => el.type === 'file'
       ).length;
 
@@ -130,9 +132,7 @@ export const extract_tar = async (input_path: string, output_dir: string) => {
 
       const line = [
         createReadStream(input_path),
-        input_path.endsWith('.tgz') || input_path.endsWith('.tar.gz')
-          ? createGunzip()
-          : undefined,
+        is_gzip ? createGunzip() : undefined,
         ex,
       ].filter(BooleanFilter);
 
