@@ -3,7 +3,7 @@ import { chmod, chown, mkdir, utimes } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
-import type { FsEntries } from '@/types/fs';
+import type { ArchiveEntries, FsEntries } from '@/types/fs';
 import { BooleanFilter } from '@/utils/filter';
 import { clean_path, get_default_mode } from '@/utils/fs';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
@@ -88,7 +88,7 @@ export const read_tar = async (input_path: string, is_gzip: boolean) => {
   ].filter(BooleanFilter);
 
   const now = new Date();
-  const fs_entries: FsEntries[] = [];
+  const fs_entries: ArchiveEntries[] = [];
   const pip = pipeline(line);
   for await (const entry of ex) {
     if (entry.header.type === 'file' || entry.header.type === 'directory') {
