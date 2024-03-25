@@ -1,5 +1,5 @@
 import { join, relative, sep } from 'node:path';
-import type { FsEntry } from '@/types/fs';
+import type { ArchiveEntry, TreePath } from '@/types/fs';
 import chalk from 'chalk';
 import { BooleanFilter } from './filter';
 import { get_default_stats } from './fs';
@@ -19,19 +19,6 @@ export const isChildOfCurrentDir = async (p: string) => {
 
 export const getFilename = (p: string) => {
   return p.split(sep).at(-1) ?? '';
-};
-
-type TreePath<T> = {
-  [key: string]:
-    | {
-        stats: T;
-        type: 'file';
-      }
-    | {
-        type: 'directory';
-        children: TreePath<T>;
-        stats: T;
-      };
 };
 
 const format_path = (path: string, mode: number) => {
@@ -61,11 +48,7 @@ const format_path = (path: string, mode: number) => {
   }
 };
 
-const printObjAsFileTree = (
-  obj: TreePath<Omit<FsEntry['stats'], 'size'>>,
-  level = 0,
-  parentPrefix = ''
-) => {
+const printObjAsFileTree = (obj: TreePath, level = 0, parentPrefix = '') => {
   const stats = {
     files: 0,
     dirs: 0,
@@ -103,13 +86,9 @@ const printObjAsFileTree = (
   return stats;
 };
 
-export const printfileListAsFileTree = (
-  entries: (Omit<FsEntry, 'stats'> & {
-    stats: Omit<FsEntry['stats'], 'size'>;
-  })[]
-) => {
+export const printfileListAsFileTree = (entries: ArchiveEntry[]) => {
   const now = new Date();
-  const root: TreePath<Omit<FsEntry['stats'], 'size'>> = {};
+  const root: TreePath = {};
 
   // Convert to object
   for (const entry of entries.sort((a, b) =>
@@ -128,10 +107,7 @@ export const printfileListAsFileTree = (
       }
 
       node = (
-        node[tokens[i]] as Extract<
-          TreePath<Omit<FsEntry['stats'], 'size'>>[string],
-          { type: 'directory' }
-        >
+        node[tokens[i]] as Extract<TreePath[string], { type: 'directory' }>
       ).children;
     }
 
