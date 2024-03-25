@@ -52,7 +52,7 @@ const zipCommand = createCommand(name, description)
   .option('-y, --yes', 'answers yes to every question', false)
   .option(
     '-e, --exclude <paths...>',
-    'ignore the following paths (experimental)'
+    'ignore the following paths'
   )
   .option('--allow-git', 'allow .git to be included in the zip', false)
   .option(
