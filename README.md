@@ -1,5 +1,5 @@
 # node-zip-cli
-Simple NodeJS CLI which allows you to create and extract zip/tar files with support for .gitignore files
+Simple nodejs cli which allows you to create and extract zip/tar files with support for .gitignore files
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/matteosacchetto/node-zip-cli?label=latest%20release&style=for-the-badge)
 
@@ -100,7 +100,7 @@ node-zip-cli
 ```
 Usage: node-zip-cli [options] [command]
 
-simple NodeJS CLI which allows you to create a ZIP file with support for .gitignore files
+simple nodejs cli which allows you to create and extract zip/tar files with support for .gitignore files
 
 Options:
   -v, --version    output the version number
