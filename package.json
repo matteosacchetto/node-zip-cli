@@ -43,7 +43,7 @@
     "esbuild": "^0.20.2",
     "rollup": "^4.13.0",
     "rollup-plugin-esbuild": "^6.1.1",
-    "rollup-plugin-node-externals": "^7.1.0",
+    "rollup-plugin-node-externals": "^7.1.1",
     "rollup-plugin-typescript-paths": "^1.5.0",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3"
