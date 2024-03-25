@@ -2,8 +2,14 @@ import { opendir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { FsEntry } from '@/types/fs';
 import { BooleanFilter } from '@/utils/filter';
-import { clean_path, read_access, unique_fs_entries } from '@/utils/fs';
+import {
+  clean_path,
+  fix_mode,
+  read_access,
+  unique_fs_entries,
+} from '@/utils/fs';
 import ignore, { type Ignore } from 'ignore';
+import { is_windows } from './constants';
 
 const loadIgnoreRules = async (path: string) => {
   if (await read_access(path)) {
@@ -50,7 +56,7 @@ const list_dir_content_recursive = async (
           stats: {
             uid,
             gid,
-            mode,
+            mode: fix_mode(mode, is_windows),
             size,
             mtime,
           },
@@ -101,7 +107,7 @@ const list_dir_content = async (dir: string, parentRules: string[] = []) => {
     stats: {
       uid,
       gid,
-      mode,
+      mode: fix_mode(mode, is_windows),
       mtime,
       size,
     },

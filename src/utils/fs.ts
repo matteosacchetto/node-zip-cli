@@ -138,3 +138,17 @@ export const read_file_partial = async (
 
   return Buffer.concat(chunks);
 };
+
+export const fix_mode = (mode: number, is_windows: boolean) => {
+  if (is_windows) {
+    if (mode & 0o40000) {
+      return 0o40775;
+    }
+
+    if (mode & 100000) {
+      return 0o100664;
+    }
+  }
+
+  return mode;
+};
