@@ -13,7 +13,7 @@ import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
 
 const name = 'unzip';
-const description = 'Unzip the content of a zip file';
+const description = 'unzip the content of a zip file';
 
 const unzipCommand = createCommand(name, description)
   .requiredOption('-i, --input <file>', 'the input zip file to unzip')
