@@ -1,25 +1,8 @@
-import { join, relative, sep } from 'node:path';
+import { sep } from 'node:path';
 import type { ArchiveEntry, TreePath } from '@/types/fs';
 import chalk from 'chalk';
 import { BooleanFilter } from './filter';
 import { get_default_stats } from './fs';
-
-export const isChildOfCurrentDir = async (p: string) => {
-  const cwd = process.cwd();
-  const absoluteP = join(process.cwd(), p);
-
-  const relativeP = relative(cwd, absoluteP);
-
-  if (relativeP.startsWith('..')) {
-    return false;
-  }
-
-  return true;
-};
-
-export const getFilename = (p: string) => {
-  return p.split(sep).at(-1) ?? '';
-};
 
 const format_path = (path: string, mode: number) => {
   switch (mode) {
@@ -48,7 +31,11 @@ const format_path = (path: string, mode: number) => {
   }
 };
 
-const printObjAsFileTree = (obj: TreePath, level = 0, parentPrefix = '') => {
+const print_obj_as_file_tree = (
+  obj: TreePath,
+  level = 0,
+  parentPrefix = ''
+) => {
   const stats = {
     files: 0,
     dirs: 0,
@@ -70,7 +57,7 @@ const printObjAsFileTree = (obj: TreePath, level = 0, parentPrefix = '') => {
     if (entry.type === 'directory') {
       stats.dirs += 1;
       console.log(`${prefix}${format_path(el + sep, entry.stats.mode)}`);
-      const child_stats = printObjAsFileTree(
+      const child_stats = print_obj_as_file_tree(
         entry.children,
         level + 1,
         i === keys.length - 1 ? `${parentPrefix}    ` : `${parentPrefix}│   `
@@ -86,7 +73,7 @@ const printObjAsFileTree = (obj: TreePath, level = 0, parentPrefix = '') => {
   return stats;
 };
 
-export const printfileListAsFileTree = (entries: ArchiveEntry[]) => {
+export const printfile_list_as_file_tree = (entries: ArchiveEntry[]) => {
   const now = new Date();
   const root: TreePath = {};
 
@@ -125,7 +112,7 @@ export const printfileListAsFileTree = (entries: ArchiveEntry[]) => {
     }
   }
 
-  const stats = printObjAsFileTree(
+  const stats = print_obj_as_file_tree(
     Object.keys(root).length === 1
       ? root
       : {

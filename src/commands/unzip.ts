@@ -3,7 +3,7 @@ import { extract_zip, read_zip } from '@/core/zip';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
 import { exists, is_directory } from '@/utils/fs';
-import { printfileListAsFileTree } from '@/utils/path';
+import { printfile_list_as_file_tree } from '@/utils/path';
 import {
   exit_fail_on_error,
   exit_on_finish,
@@ -42,7 +42,7 @@ unzipCommand.action(async (options) => {
       await exit_on_finish(async () => {
         const filenames = await read_zip(options.input);
         if (filenames.length > 0) {
-          printfileListAsFileTree(filenames);
+          printfile_list_as_file_tree(filenames);
         } else {
           console.error('Nothing to unzip');
         }

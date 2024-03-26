@@ -1,12 +1,11 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, FsEntry } from '@/types/fs';
 import { clean_path, get_default_mode } from '@/utils/fs';
 import { log_indent } from '@/utils/log';
-import { getFilename } from '@/utils/path';
 import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import chalk from 'chalk';
@@ -80,7 +79,7 @@ export const create_zip = async (
           (metadata) => {
             if (
               metadata.currentFile &&
-              isValidFilename(getFilename(metadata.currentFile)) &&
+              isValidFilename(basename(metadata.currentFile)) &&
               lastFile !== metadata.currentFile
             ) {
               lastFile = metadata.currentFile;

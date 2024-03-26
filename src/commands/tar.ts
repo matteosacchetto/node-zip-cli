@@ -6,7 +6,7 @@ import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
 import { createCommand } from '@/utils/command';
 import { log_conflicts } from '@/utils/conflicts';
 import { exists, unique_entries } from '@/utils/fs';
-import { printfileListAsFileTree } from '@/utils/path';
+import { printfile_list_as_file_tree } from '@/utils/path';
 import {
   exit_fail_on_error,
   exit_on_finish,
@@ -53,10 +53,7 @@ const tarCommand = createCommand(name, description)
       .default('full' as const)
   )
   .option('-y, --yes', 'answers yes to every question', false)
-  .option(
-    '-e, --exclude <paths...>',
-    'ignore the following paths'
-  )
+  .option('-e, --exclude <paths...>', 'ignore the following paths')
   .option('--allow-git', 'allow .git to be included in the tar', false)
   .option(
     '--dry-run',
@@ -103,7 +100,7 @@ tarCommand.action(async (options) => {
     if (options.dryRun) {
       await exit_on_finish(() => {
         if (num_files > 0) {
-          printfileListAsFileTree(unique_list);
+          printfile_list_as_file_tree(unique_list);
         } else {
           console.error('Nothing to tar');
         }
