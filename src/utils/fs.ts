@@ -79,10 +79,10 @@ export const clean_path = (path: string) => {
     let parsed_path = parse(final_path);
     while (isAbsolute(final_path) || parsed_path.root) {
       const root =
-        path.charAt(0) === '/' && path.slice(0, 4) !== '//?/'
+        final_path.charAt(0) === '/' && final_path.slice(0, 4) !== '//?/'
           ? '/'
           : parsed_path.root;
-      final_path = path.slice(root.length);
+      final_path = final_path.slice(root.length);
       parsed_path = parse(final_path);
     }
     return final_path;
@@ -110,7 +110,7 @@ export const get_default_stats = (
 
 export const get_default_mode = (type: 'file' | 'directory'): number => {
   if (type === 'file') {
-    return 0o100644;
+    return 0o100664;
   }
 
   return 0o40775;
