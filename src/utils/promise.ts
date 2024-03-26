@@ -1,6 +1,6 @@
 export function defer<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
-  // biome-ignore lint/suspicious/noExplicitAny: here is ok to have any
+  // biome-ignore lint/suspicious/noExplicitAny: official type of the Promise reject function
   let reject!: (reason?: any) => void;
 
   const promise = new Promise<T>((_resolve, _reject) => {
