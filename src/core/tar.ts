@@ -49,10 +49,10 @@ export const create_tar = async (
             type: 'file',
           });
 
-          const readStream = createReadStream(fs_entry.path);
+          const file_stream = createReadStream(fs_entry.path);
           entry.once('error', (err) => entry.destroy(err));
 
-          for await (const chunk of readStream) {
+          for await (const chunk of file_stream) {
             entry.write(chunk);
           }
           entry.end();
@@ -162,8 +162,8 @@ export const extract_tar = async (
             const { mtime, uid, gid, mode } = entry.header;
 
             await mkdir(dir, { recursive: true });
-            const filestream = createWriteStream(file);
-            await pipeline(entry, filestream);
+            const file_stream = createWriteStream(file);
+            await pipeline(entry, file_stream);
 
             if (mode) await chmod(file, mode);
             if (mtime) await utimes(file, mtime, mtime);
