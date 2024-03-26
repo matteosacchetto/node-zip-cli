@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
 import type { ArchiveEntry, FsEntry } from '@/types/fs';
-import { BooleanFilter } from '@/utils/filter';
+import { boolean_filter } from '@/utils/filter';
 import { clean_path, get_default_mode } from '@/utils/fs';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { get_full_mode } from '@/utils/tar';
@@ -69,7 +69,7 @@ export const create_tar = async (
             })
           : undefined,
         createWriteStream(output_path),
-      ].filter(BooleanFilter);
+      ].filter(boolean_filter);
 
       spinner.text = `Creating ${output_path} file (${num_files}/${num_files} files)`;
       await pipeline(line);
@@ -85,7 +85,7 @@ export const read_tar = async (input_path: string, is_gzip: boolean) => {
     createReadStream(input_path),
     is_gzip ? createGunzip() : undefined,
     ex,
-  ].filter(BooleanFilter);
+  ].filter(boolean_filter);
 
   const now = new Date();
   const fs_entries: ArchiveEntry[] = [];
@@ -134,7 +134,7 @@ export const extract_tar = async (
         createReadStream(input_path),
         is_gzip ? createGunzip() : undefined,
         ex,
-      ].filter(BooleanFilter);
+      ].filter(boolean_filter);
 
       const pip = pipeline(line);
       let i = 0;

@@ -1,7 +1,7 @@
 import { sep } from 'node:path';
 import type { ArchiveEntry, TreePath } from '@/types/fs';
 import chalk from 'chalk';
-import { BooleanFilter } from './filter';
+import { boolean_filter } from './filter';
 import { get_default_stats } from './fs';
 
 const format_path = (path: string, mode: number) => {
@@ -81,7 +81,7 @@ export const printfile_list_as_file_tree = (entries: ArchiveEntry[]) => {
   for (const entry of entries.sort((a, b) =>
     a.cleaned_path.localeCompare(b.cleaned_path)
   )) {
-    const tokens = entry.cleaned_path.split(sep).filter(BooleanFilter);
+    const tokens = entry.cleaned_path.split(sep).filter(boolean_filter);
 
     let node = root;
     for (let i = 0; i < tokens.length - 1; i++) {

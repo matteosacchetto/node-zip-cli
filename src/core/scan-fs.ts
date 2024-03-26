@@ -1,7 +1,7 @@
 import { opendir, readFile, stat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { FsEntry } from '@/types/fs';
-import { BooleanFilter } from '@/utils/filter';
+import { boolean_filter } from '@/utils/filter';
 import {
   clean_path,
   fix_mode,
@@ -11,12 +11,12 @@ import {
 import ignore, { type Ignore } from 'ignore';
 import { is_windows } from './constants';
 
-const loadIgnoreRules = async (path: string) => {
+const load_ignore_rules = async (path: string) => {
   if (await read_access(path)) {
-    const gitignoreContent = `${await readFile(path, {
+    const gitignore_content = `${await readFile(path, {
       encoding: 'utf-8',
     })}\n`;
-    return gitignoreContent.split('\n').filter(BooleanFilter);
+    return gitignore_content.split('\n').filter(boolean_filter);
   }
 
   return [] as string[];
@@ -24,34 +24,34 @@ const loadIgnoreRules = async (path: string) => {
 
 const list_dir_content_recursive = async (
   dir: string,
-  parentRules: string[] = []
+  parent_rules: string[] = []
 ) => {
-  const gitingoreRules = [...parentRules];
-  const gitignoreFilter: Ignore = ignore();
+  const gitingore_rules = [...parent_rules];
+  const gitignore_filter: Ignore = ignore();
 
-  for (const ingoreFile of ['.gitignore', '.zipignore']) {
-    gitingoreRules.push(...(await loadIgnoreRules(join(dir, ingoreFile))));
+  for (const ingore_file of ['.gitignore', '.zipignore']) {
+    gitingore_rules.push(...(await load_ignore_rules(join(dir, ingore_file))));
   }
 
   // Add all rules
-  gitignoreFilter.add(gitingoreRules);
+  gitignore_filter.add(gitingore_rules);
 
   const entrties = await opendir(dir);
   const walk: FsEntry[] = [];
   let n_children = 0;
   for await (const entry of entrties) {
-    const entryPath = join(dir, entry.name);
+    const entry_path = join(dir, entry.name);
 
-    if (!(await read_access(entryPath))) {
+    if (!(await read_access(entry_path))) {
       continue;
     }
 
     if (entry.isDirectory()) {
-      if (!gitignoreFilter.ignores(`${entryPath}/`)) {
-        const { uid, gid, mode, size, mtime } = await stat(entryPath);
+      if (!gitignore_filter.ignores(`${entry_path}/`)) {
+        const { uid, gid, mode, size, mtime } = await stat(entry_path);
         const dir_data = <Extract<FsEntry, { type: 'directory' }>>{
-          path: entryPath,
-          cleaned_path: entryPath,
+          path: entry_path,
+          cleaned_path: entry_path,
           type: 'directory',
           stats: {
             uid,
@@ -65,20 +65,20 @@ const list_dir_content_recursive = async (
         walk.push(dir_data);
 
         const subwalk = await list_dir_content_recursive(
-          entryPath,
-          gitingoreRules
+          entry_path,
+          gitingore_rules
         );
         dir_data.n_children = subwalk.n_children;
         n_children += subwalk.n_children;
         walk.push(...subwalk.walk);
       }
     } else if (entry.isFile()) {
-      if (!gitignoreFilter.ignores(entryPath)) {
+      if (!gitignore_filter.ignores(entry_path)) {
         n_children++;
-        const { uid, gid, mode, size, mtime } = await stat(entryPath);
+        const { uid, gid, mode, size, mtime } = await stat(entry_path);
         walk.push({
-          path: entryPath,
-          cleaned_path: entryPath,
+          path: entry_path,
+          cleaned_path: entry_path,
           type: 'file',
           stats: {
             uid,
@@ -95,7 +95,7 @@ const list_dir_content_recursive = async (
   return { walk, n_children };
 };
 
-const list_dir_content = async (dir: string, parentRules: string[] = []) => {
+const list_dir_content = async (dir: string, parent_rules: string[] = []) => {
   const { uid, gid, mode, size, mtime } = await stat(dir);
 
   const entries: FsEntry[] = [];
@@ -115,21 +115,21 @@ const list_dir_content = async (dir: string, parentRules: string[] = []) => {
   };
   entries.push(dir_data);
 
-  const subwalk = await list_dir_content_recursive(dir, parentRules);
+  const subwalk = await list_dir_content_recursive(dir, parent_rules);
   dir_data.n_children = subwalk.n_children;
   entries.push(...subwalk.walk);
 
   return entries;
 };
 
-export const scan_fs = async (rootDir: string, defaultExclude?: string[]) => {
+export const scan_fs = async (root_dir: string, default_exclude?: string[]) => {
   const cwd = process.cwd();
   try {
-    process.chdir(rootDir);
-    return (await list_dir_content('.', defaultExclude))
+    process.chdir(root_dir);
+    return (await list_dir_content('.', default_exclude))
       .map((el) => {
-        el.path = join(rootDir, el.path);
-        el.cleaned_path = clean_path(join(rootDir, el.cleaned_path));
+        el.path = join(root_dir, el.path);
+        el.cleaned_path = clean_path(join(root_dir, el.cleaned_path));
         return el;
       })
       .filter((el) => el.cleaned_path !== '.');
