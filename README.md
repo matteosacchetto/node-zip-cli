@@ -366,3 +366,5 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 > [!WARN]
 > *Current limitaionts*  
 > Up to the current version (0.6.0) the strategy of ignoring `*` and the not ignore some paths (e.g. `!test`, `!src`, ...) is not supported.
+>
+> Up to the current version (0.6.0) you can zip/tar and unzip/untar only files and directories. Symlinks are not yet supported
