@@ -1,5 +1,5 @@
 import { createReadStream, createWriteStream } from 'node:fs';
-import { mkdir, readFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, utimes } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
@@ -75,6 +75,7 @@ export const create_zip = async (
             compressionOptions: {
               level: deflate,
             },
+            platform: 'UNIX',
           },
           (metadata) => {
             if (
@@ -157,9 +158,21 @@ export const extract_zip = async (input_path: string, output_dir: string) => {
 
           const file_stream = file.nodeStream('nodebuffer');
           await pipeline(file_stream, createWriteStream(file_path));
+
+          const mode = file.unixPermissions;
+          if (mode) await chmod(file_path, mode);
+
+          const mtime = file.date;
+          if (mtime) await utimes(file_path, mtime, mtime);
         } else {
           const dir_path = join(output_dir, clean_path(filename));
           await mkdir(dirname(dir_path), { recursive: true });
+
+          const mode = file.unixPermissions;
+          if (mode) await chmod(output_dir, mode);
+
+          const mtime = file.date;
+          if (mtime) await utimes(dir_path, mtime, mtime);
         }
       }
 
