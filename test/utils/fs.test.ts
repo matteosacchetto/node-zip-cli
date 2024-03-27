@@ -1,9 +1,11 @@
-import type { FsEntry } from '@/types/fs';
+import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
 import {
   clean_path,
   fix_mode,
   get_default_mode,
   get_default_stats,
+  unique_entries,
+  unique_fs_entries,
 } from '@/utils/fs';
 import assert from 'node:assert';
 import { join, relative } from 'node:path';
@@ -109,6 +111,96 @@ describe(filename, async () => {
 
     test('//test/src', async (context) => {
       assert.strictEqual(clean_path('////test/src'), 'test/src');
+    });
+  });
+
+  describe('unique_entries', async () => {
+    test('single entry: src', async (context) => {
+      assert.deepStrictEqual(unique_entries(['src']), ['src']);
+    });
+
+    test('mulitple entry: src, ./src', async (context) => {
+      assert.deepStrictEqual(unique_entries(['src', './src']), ['src']);
+    });
+
+    test('mulitple entry: src, ./src, join(process.cwd(), src)', async (context) => {
+      assert.deepStrictEqual(
+        unique_entries(['src', './src', join(process.cwd(), 'src')]),
+        ['src']
+      );
+    });
+
+    test('mulitple entry: src, test', async (context) => {
+      assert.deepStrictEqual(unique_entries(['src', 'test']), ['src', 'test']);
+    });
+  });
+
+  describe('unique_fs_entries', async () => {
+    test('no conflict', async () => {
+      const now = new Date();
+      const entries: FsEntry[] = [
+        {
+          path: 'src',
+          cleaned_path: 'src',
+          stats: { ...get_default_stats('directory', now), size: 0 },
+          type: 'directory',
+          n_children: 1,
+        },
+        {
+          path: 'src/file',
+          cleaned_path: 'src/file',
+          stats: { ...get_default_stats('file', now), size: 0 },
+          type: 'file',
+        },
+      ];
+
+      assert.deepStrictEqual(unique_fs_entries(entries), [entries, []]);
+    });
+
+    test('conflicts', async () => {
+      const now = new Date();
+      const entries: FsEntry[] = [
+        {
+          path: 'src',
+          cleaned_path: 'src',
+          stats: { ...get_default_stats('directory', now), size: 0 },
+          type: 'directory',
+          n_children: 1,
+        },
+        {
+          path: 'src/file',
+          cleaned_path: 'src/file',
+          stats: { ...get_default_stats('file', now), size: 0 },
+          type: 'file',
+        },
+        {
+          path: '../src',
+          cleaned_path: 'src',
+          stats: { ...get_default_stats('directory', now), size: 0 },
+          type: 'directory',
+          n_children: 1,
+        },
+        {
+          path: '../src/file',
+          cleaned_path: 'src/file',
+          stats: { ...get_default_stats('file', now), size: 0 },
+          type: 'file',
+        },
+      ].sort((a, b) => a.path.localeCompare(b.path)) as FsEntry[];
+
+      assert.deepStrictEqual(unique_fs_entries(entries), [
+        [entries[0], entries[2]],
+        <ConflictingFsEntry[]>[
+          {
+            conflicting_path: entries[1].path,
+            conflicting_with_path: entries[0].path,
+          },
+          {
+            conflicting_path: entries[3].path,
+            conflicting_with_path: entries[2].path,
+          },
+        ],
+      ]);
     });
   });
 });
