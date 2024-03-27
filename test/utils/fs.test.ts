@@ -1,3 +1,7 @@
+import assert from 'node:assert';
+import { join, relative } from 'node:path';
+import { describe, test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
 import {
   clean_path,
@@ -7,10 +11,6 @@ import {
   unique_entries,
   unique_fs_entries,
 } from '@/utils/fs';
-import assert from 'node:assert';
-import { join, relative } from 'node:path';
-import { describe, test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 
 const filename = relative(
   join(process.cwd(), 'test'),

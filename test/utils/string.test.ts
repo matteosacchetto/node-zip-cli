@@ -1,8 +1,8 @@
-import { capitalize, uncapitalize } from '@/utils/string';
 import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { capitalize, uncapitalize } from '@/utils/string';
 
 const filename = relative(
   join(process.cwd(), 'test'),
