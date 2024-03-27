@@ -7,6 +7,7 @@ import { parseArgs } from 'node:util';
 
 const {
   values: { parallel },
+  positionals,
 } = parseArgs({
   options: {
     parallel: {
@@ -15,14 +16,18 @@ const {
       default: false,
     },
   },
+  allowPositionals: true,
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dir = join(__dirname, 'test');
 
-const files = (await readdir(dir, { recursive: true }))
-  .filter((el) => el.endsWith('.test.ts'))
-  .map((el) => join(dir, el));
+const files =
+  positionals.length > 0
+    ? positionals
+    : (await readdir(dir, { recursive: true }))
+        .filter((el) => el.endsWith('.test.ts'))
+        .map((el) => join(dir, el));
 
 run({ files, concurrency: parallel })
   .compose(process.stdout.isTTY ? new spec() : tap)
