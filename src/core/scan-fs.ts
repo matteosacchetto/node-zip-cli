@@ -1,4 +1,4 @@
-import { opendir, readFile, stat } from 'node:fs/promises';
+import { opendir, readFile, lstat } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { FsEntry } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
@@ -48,7 +48,7 @@ const list_dir_content_recursive = async (
 
     if (entry.isDirectory()) {
       if (!gitignore_filter.ignores(`${entry_path}/`)) {
-        const { uid, gid, mode, size, mtime } = await stat(entry_path);
+        const { uid, gid, mode, size, mtime } = await lstat(entry_path);
         const dir_data = <Extract<FsEntry, { type: 'directory' }>>{
           path: entry_path,
           cleaned_path: entry_path,
@@ -75,7 +75,7 @@ const list_dir_content_recursive = async (
     } else if (entry.isFile()) {
       if (!gitignore_filter.ignores(entry_path)) {
         n_children++;
-        const { uid, gid, mode, size, mtime } = await stat(entry_path);
+        const { uid, gid, mode, size, mtime } = await lstat(entry_path);
         walk.push({
           path: entry_path,
           cleaned_path: entry_path,
@@ -96,7 +96,7 @@ const list_dir_content_recursive = async (
 };
 
 const list_dir_content = async (dir: string, parent_rules: string[] = []) => {
-  const { uid, gid, mode, size, mtime } = await stat(dir);
+  const { uid, gid, mode, size, mtime } = await lstat(dir);
 
   const entries: FsEntry[] = [];
 
@@ -162,7 +162,7 @@ export const list_entries = async (
     let fs_entries: FsEntry[] = [];
     let base_dir = '';
 
-    const stats = await stat(entry);
+    const stats = await lstat(entry);
 
     if (stats.isDirectory()) {
       fs_entries = await scan_fs(entry, default_rules);

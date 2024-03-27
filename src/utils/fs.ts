@@ -1,5 +1,5 @@
 import { createReadStream } from 'node:fs';
-import { constants, access, stat } from 'node:fs/promises';
+import { constants, access, lstat } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
 
@@ -49,7 +49,7 @@ export const unique_entries = (list: string[]) => {
 
 export const exists = async (p: string) => {
   try {
-    return !!(await stat(p));
+    return !!(await lstat(p));
   } catch (e) {
     return false;
   }
@@ -57,7 +57,7 @@ export const exists = async (p: string) => {
 
 export const is_directory = async (p: string) => {
   try {
-    return (await stat(p)).isDirectory();
+    return (await lstat(p)).isDirectory();
   } catch (e) {
     return false;
   }
