@@ -1,38 +1,12 @@
 import { sep } from 'node:path';
+import { colorize } from '@/core/dircolors';
 import type { ArchiveEntry, TreePath } from '@/types/fs';
-import chalk from 'chalk';
 import { boolean_filter } from './filter';
 import { get_default_stats } from './fs';
 
-const format_path = (path: string, mode: number) => {
-  switch (mode) {
-    case 0o100777:
-    case 0o100775:
-    case 0o100755: {
-      return chalk.bold.green(path);
-    }
-
-    case 0o40775:
-    case 0o40755: {
-      return chalk.bold.blue(path);
-    }
-
-    case 0o41777: {
-      return chalk.bgGreen.black(path);
-    }
-
-    case 0o40777: {
-      return chalk.bgGreen.blue(path);
-    }
-
-    default: {
-      return path;
-    }
-  }
-};
-
 const print_obj_as_file_tree = (
   obj: TreePath,
+  is_windows: boolean,
   level = 0,
   parentPrefix = ''
 ) => {
@@ -56,9 +30,12 @@ const print_obj_as_file_tree = (
     const entry = obj[el];
     if (entry.type === 'directory') {
       stats.dirs += 1;
-      console.log(`${prefix}${format_path(el + sep, entry.stats.mode)}`);
+      console.log(
+        `${prefix}${colorize(el + sep, entry.stats.mode, is_windows)}`
+      );
       const child_stats = print_obj_as_file_tree(
         entry.children,
+        is_windows,
         level + 1,
         i === keys.length - 1 ? `${parentPrefix}    ` : `${parentPrefix}│   `
       );
@@ -66,14 +43,17 @@ const print_obj_as_file_tree = (
       stats.dirs += child_stats.dirs;
     } else if (entry.type === 'file') {
       stats.files += 1;
-      console.log(`${prefix}${format_path(el, entry.stats.mode)}`);
+      console.log(`${prefix}${colorize(el, entry.stats.mode, is_windows)}`);
     }
   }
 
   return stats;
 };
 
-export const printfile_list_as_file_tree = (entries: ArchiveEntry[]) => {
+export const printfile_list_as_file_tree = (
+  entries: ArchiveEntry[],
+  is_windows: boolean
+) => {
   const now = new Date();
   const root: TreePath = {};
 
@@ -121,7 +101,8 @@ export const printfile_list_as_file_tree = (entries: ArchiveEntry[]) => {
             stats: get_default_stats('directory', now),
             children: root,
           },
-        }
+        },
+    is_windows
   );
 
   console.log(

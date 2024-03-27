@@ -1,3 +1,4 @@
+import { is_windows } from '@/core/constants';
 import { list_entries } from '@/core/scan-fs';
 import { create_tar } from '@/core/tar';
 import { logger } from '@/logger';
@@ -100,7 +101,7 @@ tarCommand.action(async (options) => {
     if (options.dryRun) {
       await exit_on_finish(() => {
         if (num_files > 0) {
-          printfile_list_as_file_tree(unique_list);
+          printfile_list_as_file_tree(unique_list, is_windows);
         } else {
           console.error('Nothing to tar');
         }

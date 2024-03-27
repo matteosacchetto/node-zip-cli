@@ -1,4 +1,5 @@
 import { mkdir, readdir } from 'node:fs/promises';
+import { is_windows } from '@/core/constants';
 import { extract_tar, read_tar } from '@/core/tar';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
@@ -43,7 +44,7 @@ untarCommand.action(async (options) => {
       await exit_on_finish(async () => {
         const filenames = await read_tar(options.input, is_gzip);
         if (filenames.length > 0) {
-          printfile_list_as_file_tree(filenames);
+          printfile_list_as_file_tree(filenames, is_windows);
         } else {
           console.error('Nothing to untar');
         }

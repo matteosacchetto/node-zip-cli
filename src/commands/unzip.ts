@@ -1,4 +1,5 @@
 import { mkdir, readdir } from 'node:fs/promises';
+import { is_windows } from '@/core/constants';
 import { extract_zip, read_zip } from '@/core/zip';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
@@ -42,7 +43,7 @@ unzipCommand.action(async (options) => {
       await exit_on_finish(async () => {
         const filenames = await read_zip(options.input);
         if (filenames.length > 0) {
-          printfile_list_as_file_tree(filenames);
+          printfile_list_as_file_tree(filenames, is_windows);
         } else {
           console.error('Nothing to unzip');
         }
