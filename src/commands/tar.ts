@@ -64,7 +64,7 @@ const tarCommand = createCommand(name, description)
 
 tarCommand.action(async (options) => {
   const output =
-    options.output ?? options.gzip === false ? 'out.tar' : 'out.tgz';
+    options.output ?? (options.gzip === false ? 'out.tar' : 'out.tgz');
   await exit_fail_on_error(async () => {
     const unique_inputs = unique_entries(options.input);
 
