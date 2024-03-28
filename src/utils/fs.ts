@@ -6,6 +6,8 @@ import {
   chown,
   lstat,
   utimes,
+  symlink,
+  rm,
 } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
@@ -121,9 +123,13 @@ export const get_default_stats = (
   };
 };
 
-export const get_default_mode = (type: 'file' | 'directory'): number => {
+export const get_default_mode = (type: 'file' | 'directory' | 'symlink'): number => {
   if (type === 'file') {
     return 0o100664;
+  }
+
+  if(type === 'symlink') {
+    return 0o120777;
   }
 
   return 0o40775;
@@ -180,7 +186,15 @@ export const set_permissions = async (
     gid?: number | null | undefined;
   }
 ) => {
-  if (mode) await chmod(path, mode);
-  if (mtime) await utimes(path, mtime, mtime);
+  if (mode) await ignore_on_error(() => chmod(path, mode));
+  if (mtime) await ignore_on_error(() => utimes(path, mtime, mtime));
   if (uid && gid) await ignore_on_error(() => chown(path, uid, gid));
+};
+
+export const overwrite_symlink_if_exists = async (
+  target: string,
+  path: string
+) => {
+  await rm(path, { force: true });
+  await symlink(target, path);
 };

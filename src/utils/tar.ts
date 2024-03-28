@@ -2,10 +2,11 @@ import { read_file_partial } from './fs';
 
 export const get_full_mode = (
   partial_mode: number | string,
-  type: 'file' | 'directory'
+  type: 'file' | 'directory' | 'symlink'
 ) => {
   if (type === 'file') return +partial_mode + 0o100000;
   if (type === 'directory') return +partial_mode + 0o40000;
+  if (type === 'symlink') return +0o120000;
 
   return +partial_mode;
 };
