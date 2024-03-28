@@ -80,6 +80,7 @@ export const create_zip = async (
           (metadata) => {
             if (
               metadata.currentFile &&
+              !metadata.currentFile.endsWith('/') &&
               isValidFilename(basename(metadata.currentFile)) &&
               lastFile !== metadata.currentFile
             ) {
