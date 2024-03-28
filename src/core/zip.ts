@@ -1,10 +1,10 @@
 import { createReadStream, createWriteStream } from 'node:fs';
-import { chmod, mkdir, readFile, utimes } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, FsEntry } from '@/types/fs';
-import { clean_path, get_default_mode } from '@/utils/fs';
+import { clean_path, get_default_mode, set_permissions } from '@/utils/fs';
 import { log_indent } from '@/utils/log';
 import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
@@ -159,20 +159,18 @@ export const extract_zip = async (input_path: string, output_dir: string) => {
           const file_stream = file.nodeStream('nodebuffer');
           await pipeline(file_stream, createWriteStream(file_path));
 
-          const mode = file.unixPermissions;
-          if (mode) await chmod(file_path, mode);
-
-          const mtime = file.date;
-          if (mtime) await utimes(file_path, mtime, mtime);
+          await set_permissions(file_path, {
+            mode: file.unixPermissions,
+            mtime: file.date,
+          });
         } else {
           const dir_path = join(output_dir, clean_path(filename));
           await mkdir(dirname(dir_path), { recursive: true });
 
-          const mode = file.unixPermissions;
-          if (mode) await chmod(output_dir, mode);
-
-          const mtime = file.date;
-          if (mtime) await utimes(dir_path, mtime, mtime);
+          await set_permissions(dir_path, {
+            mode: file.unixPermissions,
+            mtime: file.date,
+          });
         }
       }
 

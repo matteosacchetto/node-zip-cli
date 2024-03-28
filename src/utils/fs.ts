@@ -1,7 +1,15 @@
 import { createReadStream } from 'node:fs';
-import { constants, access, lstat } from 'node:fs/promises';
+import {
+  constants,
+  access,
+  lstat,
+  chmod,
+  utimes,
+  chown,
+} from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
+import { ignore_on_error } from './process';
 
 export const unique_fs_entries = (
   list: FsEntry[]
@@ -151,4 +159,23 @@ export const fix_mode = (mode: number, is_windows: boolean) => {
   }
 
   return mode;
+};
+
+export const set_permissions = async (
+  path: string,
+  {
+    mode,
+    mtime,
+    uid,
+    gid,
+  }: {
+    mode?: string | number | null | undefined;
+    mtime?: Date | null | undefined;
+    uid?: number | null | undefined;
+    gid?: number | null | undefined;
+  }
+) => {
+  if (mode) await chmod(path, mode);
+  if (mtime) await utimes(path, mtime, mtime);
+  if (uid && gid) await ignore_on_error(() => chown(path, uid, gid));
 };

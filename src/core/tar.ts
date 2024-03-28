@@ -1,11 +1,11 @@
 import { createReadStream, createWriteStream } from 'node:fs';
-import { chmod, chown, mkdir, utimes } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
 import type { ArchiveEntry, FsEntry } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
-import { clean_path, get_default_mode } from '@/utils/fs';
+import { clean_path, get_default_mode, set_permissions } from '@/utils/fs';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { get_full_mode } from '@/utils/tar';
 import chalk from 'chalk';
@@ -145,9 +145,12 @@ export const extract_tar = async (
             const { mtime, uid, gid, mode } = entry.header;
             await mkdir(dir, { recursive: true });
 
-            if (mode) await chmod(dir, mode);
-            if (mtime) await utimes(dir, mtime, mtime);
-            if (uid && gid) await chown(dir, uid, gid);
+            await set_permissions(dir, {
+              mode,
+              mtime,
+              uid,
+              gid,
+            });
 
             break;
           }
@@ -165,9 +168,12 @@ export const extract_tar = async (
             const file_stream = createWriteStream(file);
             await pipeline(entry, file_stream);
 
-            if (mode) await chmod(file, mode);
-            if (mtime) await utimes(file, mtime, mtime);
-            if (uid && gid) await chown(file, uid, gid);
+            await set_permissions(file, {
+              mode,
+              mtime,
+              uid,
+              gid,
+            });
 
             break;
           }

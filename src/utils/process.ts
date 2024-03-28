@@ -106,3 +106,14 @@ export const exit_on_finish = async <T extends unknown[], R>(
     process.exit(1);
   }
 };
+
+export const ignore_on_error = async <T extends unknown[], R>(
+  fn: (...params: T) => R,
+  ...params: T
+) => {
+  try {
+    await fn(...params);
+  } catch (e) {
+    // Ignore
+  }
+};
