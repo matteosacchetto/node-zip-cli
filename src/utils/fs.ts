@@ -80,6 +80,11 @@ export const read_access = async (path: string) => {
   }
 };
 
+/**
+ * This function is a modified version of the implementation in node-tar
+ *
+ * @link https://github.com/isaacs/node-tar/blob/main/lib/strip-absolute-path.js
+ */
 export const clean_path = (path: string) => {
   let final_path = path;
 
