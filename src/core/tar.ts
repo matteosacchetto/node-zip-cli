@@ -62,7 +62,11 @@ export const create_tar = async (
       tar.finalize();
 
       const line = [
-        tar,
+        async function* () {
+          for await (const data of tar) {
+            yield data;
+          }
+        },
         gzip !== false
           ? createGzip({
               level: gzip === true ? undefined : gzip,
@@ -72,6 +76,8 @@ export const create_tar = async (
       ].filter(boolean_filter);
 
       spinner.text = `Creating ${output_path} file (${num_files}/${num_files} files)`;
+      // @ts-ignore
+      // Using async generators with pipeline is supported
       await pipeline(line);
       spinner.text = `Created ${output_path} file (${num_files}/${num_files} files)`;
     },
