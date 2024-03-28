@@ -1,4 +1,4 @@
-import { lstat, opendir, readFile } from 'node:fs/promises';
+import { lstat, opendir, readFile, realpath } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { FsEntry } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
@@ -78,6 +78,24 @@ const list_dir_content_recursive = async (
         const { uid, gid, mode, size, mtime } = await lstat(entry_path);
         walk.push({
           path: entry_path,
+          cleaned_path: entry_path,
+          type: 'file',
+          stats: {
+            uid,
+            gid,
+            mode,
+            size,
+            mtime,
+          },
+        });
+      }
+    } else if (entry.isSymbolicLink()) {
+      if (!gitignore_filter.ignores(entry_path)) {
+        n_children++;
+        const real_path = await realpath(entry_path);
+        const { uid, gid, mode, size, mtime } = await lstat(real_path);
+        walk.push({
+          path: relative(dir, real_path),
           cleaned_path: entry_path,
           type: 'file',
           stats: {
