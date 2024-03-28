@@ -2,10 +2,10 @@ import { createReadStream } from 'node:fs';
 import {
   constants,
   access,
-  lstat,
   chmod,
-  utimes,
   chown,
+  lstat,
+  utimes,
 } from 'node:fs/promises';
 import { isAbsolute, normalize, parse, resolve } from 'node:path';
 import type { ConflictingFsEntry, FsEntry } from '@/types/fs';

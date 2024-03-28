@@ -1,4 +1,4 @@
-import { opendir, readFile, lstat } from 'node:fs/promises';
+import { lstat, opendir, readFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import type { FsEntry } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
