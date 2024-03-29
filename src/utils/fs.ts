@@ -112,7 +112,7 @@ export const clean_path = (path: string) => {
 };
 
 export const get_default_stats = (
-  type: 'file' | 'directory',
+  type: 'file' | 'directory' | 'symlink',
   now: Date
 ): Omit<FsEntry['stats'], 'size'> => {
   return {
@@ -123,12 +123,14 @@ export const get_default_stats = (
   };
 };
 
-export const get_default_mode = (type: 'file' | 'directory' | 'symlink'): number => {
+export const get_default_mode = (
+  type: 'file' | 'directory' | 'symlink'
+): number => {
   if (type === 'file') {
     return 0o100664;
   }
 
-  if(type === 'symlink') {
+  if (type === 'symlink') {
     return 0o120777;
   }
 
@@ -160,12 +162,23 @@ export const read_file_partial = async (
 
 export const fix_mode = (mode: number, is_windows: boolean) => {
   if (is_windows) {
-    if (mode & 0o40000) {
-      return 0o40775;
-    }
+    const type = (mode & 0o770000) >> 12;
 
-    if (mode & 100000) {
-      return 0o100664;
+    switch (type) {
+      case 4: {
+        // Directory
+        return 0o40775;
+      }
+
+      case 8: {
+        // File
+        return 0o100664;
+      }
+
+      case 10: {
+        //Symlink
+        return 0o120777;
+      }
     }
   }
 

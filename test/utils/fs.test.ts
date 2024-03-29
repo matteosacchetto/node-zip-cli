@@ -26,6 +26,10 @@ describe(filename, async () => {
     test('directory', async (context) => {
       assert.strictEqual(get_default_mode('directory'), 0o40775);
     });
+
+    test('symlink', async (context) => {
+      assert.strictEqual(get_default_mode('symlink'), 0o120777);
+    });
   });
 
   describe('fix_mode', async (context) => {
@@ -60,13 +64,29 @@ describe(filename, async () => {
     test('directory: 0o40777 unix/linux', async (context) => {
       assert.strictEqual(fix_mode(0o40777, false), 0o40777);
     });
+
+    test('symlink: 0o120666 windows', async (context) => {
+      assert.strictEqual(fix_mode(0o120666, true), 0o120777);
+    });
+
+    test('symlink: 0o120777 windows', async (context) => {
+      assert.strictEqual(fix_mode(0o120777, true), 0o120777);
+    });
+
+    test('symlink: 0o120666 unix/linux', async (context) => {
+      assert.strictEqual(fix_mode(0o120666, false), 0o120666);
+    });
+
+    test('symlink: 0o120777 unix/linux', async (context) => {
+      assert.strictEqual(fix_mode(0o120777, false), 0o120777);
+    });
   });
 
   describe('get_default_stats', async (context) => {
     test('file', async (context) => {
       const now = new Date();
       assert.deepEqual(get_default_stats('file', now), <
-        Omit<FsEntry['stats'], 'size'>
+        ReturnType<typeof get_default_stats>
       >{
         uid: 1000,
         gid: 1000,
@@ -78,11 +98,23 @@ describe(filename, async () => {
     test('directory', async (context) => {
       const now = new Date();
       assert.deepEqual(get_default_stats('directory', now), <
-        Omit<FsEntry['stats'], 'size'>
+        ReturnType<typeof get_default_stats>
       >{
         uid: 1000,
         gid: 1000,
         mode: 0o40775,
+        mtime: now,
+      });
+    });
+
+    test('symlink', async (context) => {
+      const now = new Date();
+      assert.deepEqual(get_default_stats('symlink', now), <
+        ReturnType<typeof get_default_stats>
+      >{
+        uid: 1000,
+        gid: 1000,
+        mode: 0o120777,
         mtime: now,
       });
     });
