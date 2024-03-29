@@ -10,7 +10,7 @@ const formats = {
   SOCK: chalk.bold.magenta,
   BLK: chalk.bold.bgBlack.yellow,
   CHR: chalk.bold.bgBlack.yellow,
-  // ORPHAN: chalk.bold.bgBlack.red,
+  ORPHAN: chalk.bold.bgBlack.red,
   SETUID: chalk.bgRed.white,
   SETGID: chalk.bgYellow.black,
   // CAPABILITY: chalk.bgRed.black,
@@ -156,7 +156,12 @@ const extensions: ReadonlyMap<string, ChalkInstance> = new Map([
  * This function tries to replicate (in a reduce form) the default behavior of the
  * `dircolors` linux command
  */
-export const colorize = (path: string, mode: number, is_windows: boolean) => {
+export const colorize = (
+  path: string,
+  mode: number,
+  is_windows: boolean,
+  broken_or_missing = false
+) => {
   const type = (mode & 0o770000) >> 12;
   const setuid = !!((mode & 4000) >> 11);
   const setgid = !!((mode & 2000) >> 10);
@@ -199,6 +204,10 @@ export const colorize = (path: string, mode: number, is_windows: boolean) => {
 
     case 8: {
       // FIlE
+      if (broken_or_missing) {
+        return formats.ORPHAN(path);
+      }
+
       if (exec) {
         return formats.EXEC(path);
       }
@@ -225,6 +234,10 @@ export const colorize = (path: string, mode: number, is_windows: boolean) => {
 
     case 10: {
       // LINK
+      if (broken_or_missing) {
+        return formats.ORPHAN(path);
+      }
+
       return formats.LINK(path);
     }
 
