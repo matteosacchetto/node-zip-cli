@@ -94,7 +94,9 @@ zipCommand.action(async (options) => {
       }
     }
 
-    const num_files = unique_list.filter((el) => el.type === 'file').length;
+    const num_files = unique_list.filter(
+      (el) => el.type !== 'directory'
+    ).length;
     if (options.dryRun) {
       await exit_on_finish(() => {
         if (num_files > 0) {

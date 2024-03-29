@@ -28,22 +28,38 @@ const print_obj_as_file_tree = (
     }
 
     const entry = obj[el];
-    if (entry.type === 'directory') {
-      stats.dirs += 1;
-      console.log(
-        `${prefix}${colorize(el + sep, entry.stats.mode, is_windows)}`
-      );
-      const child_stats = print_obj_as_file_tree(
-        entry.children,
-        is_windows,
-        level + 1,
-        i === keys.length - 1 ? `${parentPrefix}    ` : `${parentPrefix}│   `
-      );
-      stats.files += child_stats.files;
-      stats.dirs += child_stats.dirs;
-    } else if (entry.type === 'file') {
-      stats.files += 1;
-      console.log(`${prefix}${colorize(el, entry.stats.mode, is_windows)}`);
+    switch (entry.type) {
+      case 'directory': {
+        stats.dirs += 1;
+        console.log(
+          `${prefix}${colorize(el + sep, entry.stats.mode, is_windows)}`
+        );
+        const child_stats = print_obj_as_file_tree(
+          entry.children,
+          is_windows,
+          level + 1,
+          i === keys.length - 1 ? `${parentPrefix}    ` : `${parentPrefix}│   `
+        );
+        stats.files += child_stats.files;
+        stats.dirs += child_stats.dirs;
+        break;
+      }
+
+      case 'file': {
+        stats.files += 1;
+        console.log(`${prefix}${colorize(el, entry.stats.mode, is_windows)}`);
+        break;
+      }
+
+      case 'symlink': {
+        stats.files += 1;
+        console.log(
+          `${prefix}${colorize(el, entry.stats.mode, is_windows)} -> ${
+            entry.link_path
+          }`
+        );
+        break;
+      }
     }
   }
 
@@ -78,17 +94,32 @@ export const printfile_list_as_file_tree = (
       ).children;
     }
 
-    if (entry.type === 'directory') {
-      node[tokens[tokens.length - 1]] = {
-        stats: entry.stats,
-        children: {},
-        type: 'directory',
-      };
-    } else {
-      node[tokens[tokens.length - 1]] = {
-        stats: entry.stats,
-        type: 'file',
-      };
+    switch (entry.type) {
+      case 'directory': {
+        node[tokens[tokens.length - 1]] = {
+          stats: entry.stats,
+          children: {},
+          type: 'directory',
+        };
+        break;
+      }
+
+      case 'file': {
+        node[tokens[tokens.length - 1]] = {
+          stats: entry.stats,
+          type: 'file',
+        };
+        break;
+      }
+
+      case 'symlink': {
+        node[tokens[tokens.length - 1]] = {
+          stats: entry.stats,
+          type: 'symlink',
+          link_path: entry.link_path,
+        };
+        break;
+      }
     }
   }
 

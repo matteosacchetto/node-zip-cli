@@ -5,7 +5,12 @@ import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
 import type { ArchiveEntry, FsEntry } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
-import { clean_path, get_default_mode, set_permissions } from '@/utils/fs';
+import {
+  clean_path,
+  get_default_mode,
+  overwrite_symlink_if_exists,
+  set_permissions,
+} from '@/utils/fs';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { get_full_mode } from '@/utils/tar';
 import chalk from 'chalk';
@@ -57,6 +62,7 @@ export const create_tar = async (
           }
           entry.end();
         }
+        // TODO: add support for symlinks
       }
 
       tar.finalize();
@@ -98,8 +104,12 @@ export const read_tar = async (input_path: string, is_gzip: boolean) => {
   const fs_entries: ArchiveEntry[] = [];
   const pip = pipeline(line);
   for await (const entry of ex) {
-    if (entry.header.type === 'file' || entry.header.type === 'directory') {
-      fs_entries.push({
+    if (
+      entry.header.type === 'file' ||
+      entry.header.type === 'directory' ||
+      entry.header.type === 'symlink'
+    ) {
+      const fs_entry = <ArchiveEntry>{
         path: entry.header.name,
         cleaned_path: clean_path(entry.header.name),
         type: entry.header.type,
@@ -113,7 +123,13 @@ export const read_tar = async (input_path: string, is_gzip: boolean) => {
           mtime: entry.header.mtime ?? now,
           size: entry.header.size ?? 0,
         },
-      });
+      };
+
+      if (fs_entry.type === 'symlink') {
+        fs_entry.link_path = entry.header.linkname ?? '';
+      }
+
+      fs_entries.push(fs_entry);
     }
 
     entry.resume();
@@ -132,7 +148,7 @@ export const extract_tar = async (
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
       const num_files = (await read_tar(input_path, is_gzip)).filter(
-        (el) => el.type === 'file'
+        (el) => el.type !== 'directory'
       ).length;
 
       const ex = extract();
@@ -183,6 +199,26 @@ export const extract_tar = async (
             });
 
             break;
+          }
+
+          case 'symlink': {
+            const filename = clean_path(entry.header.name);
+            const linked_file = entry.header.linkname;
+
+            if (linked_file) {
+              const file_path = join(output_dir, clean_path(filename));
+              await mkdir(dirname(file_path), { recursive: true });
+              const { mtime, uid, gid, mode } = entry.header;
+
+              await overwrite_symlink_if_exists(linked_file, file_path);
+
+              await set_permissions(file_path, {
+                mode,
+                mtime,
+                uid,
+                gid,
+              });
+            }
           }
         }
 

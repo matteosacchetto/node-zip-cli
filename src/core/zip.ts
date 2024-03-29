@@ -4,7 +4,12 @@ import { basename, dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, FsEntry } from '@/types/fs';
-import { clean_path, get_default_mode, set_permissions } from '@/utils/fs';
+import {
+  clean_path,
+  get_default_mode,
+  overwrite_symlink_if_exists,
+  set_permissions,
+} from '@/utils/fs';
 import { log_indent } from '@/utils/log';
 import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
@@ -12,6 +17,7 @@ import chalk from 'chalk';
 import figureSet from 'figures';
 import JSZip from 'jszip';
 import isValidFilename from 'valid-filename';
+import { is_symlink } from '@/utils/zip';
 
 export const create_zip = async (
   output_path: string,
@@ -57,6 +63,7 @@ export const create_zip = async (
             dir: true,
           });
         }
+        // TODO: add support for symlinks
       }
 
       spinner.text = `Creating ${output_path} file (0/${num_files} files)`;
@@ -111,23 +118,37 @@ export const read_zip = async (input_path: string) => {
 
   const archive = await zip.loadAsync(await readFile(input_path));
   const filenames = Object.entries(archive.files);
+  const entries: ArchiveEntry[] = [];
 
-  return filenames.map(
-    (el) =>
-      <ArchiveEntry>{
+  for (const el of filenames) {
+    const type = el[1].dir
+      ? 'directory'
+      : is_symlink(el[1])
+        ? 'symlink'
+        : 'file';
+
+    if (type === 'file' || type === 'directory' || type === 'symlink') {
+      const entry = <ArchiveEntry>{
         path: el[1].name,
         cleaned_path: clean_path(el[1].name),
-        type: el[1].dir ? 'directory' : 'file',
+        type,
         stats: {
           mtime: el[1].date,
           uid: 1000,
           gid: 1000,
-          mode:
-            el[1].unixPermissions ??
-            get_default_mode(el[1].dir ? 'directory' : 'file'),
+          mode: el[1].unixPermissions ?? get_default_mode(type),
         },
+      };
+
+      if (entry.type === 'symlink') {
+        entry.link_path = await el[1].async('string');
       }
-  );
+
+      entries.push(entry);
+    }
+  }
+
+  return entries;
 };
 
 export const extract_zip = async (input_path: string, output_dir: string) => {
@@ -149,21 +170,36 @@ export const extract_zip = async (input_path: string, output_dir: string) => {
         }
 
         if (!file.dir) {
-          // File
-          spinner.text = `Extracting ${input_path} file to ${output_dir} (${++i}/${
-            filenames.length
-          } files) ${chalk.dim(`[${filename}]`)}`;
+          if (is_symlink(file)) {
+            // Symlink
+            const linked_file = await file.async('string');
 
-          const file_path = join(output_dir, clean_path(filename));
-          await mkdir(dirname(file_path), { recursive: true });
+            const file_path = join(output_dir, clean_path(filename));
+            await mkdir(dirname(file_path), { recursive: true });
 
-          const file_stream = file.nodeStream('nodebuffer');
-          await pipeline(file_stream, createWriteStream(file_path));
+            await overwrite_symlink_if_exists(linked_file, file_path);
 
-          await set_permissions(file_path, {
-            mode: file.unixPermissions,
-            mtime: file.date,
-          });
+            await set_permissions(file_path, {
+              mode: file.unixPermissions,
+              mtime: file.date,
+            });
+          } else {
+            // File
+            spinner.text = `Extracting ${input_path} file to ${output_dir} (${++i}/${
+              filenames.length
+            } files) ${chalk.dim(`[${filename}]`)}`;
+
+            const file_path = join(output_dir, clean_path(filename));
+            await mkdir(dirname(file_path), { recursive: true });
+
+            const file_stream = file.nodeStream('nodebuffer');
+            await pipeline(file_stream, createWriteStream(file_path));
+
+            await set_permissions(file_path, {
+              mode: file.unixPermissions,
+              mtime: file.date,
+            });
+          }
         } else {
           const dir_path = join(output_dir, clean_path(filename));
           await mkdir(dirname(dir_path), { recursive: true });

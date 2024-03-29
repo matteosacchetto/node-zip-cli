@@ -14,7 +14,16 @@ export type FsEntry = {
     }
 );
 
-export type ArchiveEntry = Omit<FsEntry, 'n_children'>;
+export type ArchiveEntry = Omit<FsEntry, 'n_children' | 'type'> &
+  (
+    | {
+        type: 'file' | 'directory';
+      }
+    | {
+        type: 'symlink';
+        link_path: string;
+      }
+  );
 
 export type TreeEntry = Omit<ArchiveEntry, 'stats'> & {
   stats: Pick<Stats, 'mtime' | 'uid' | 'gid' | 'mode'>;
@@ -26,6 +35,10 @@ export type TreePath = {
     | (Omit<TreeEntry, 'type' | 'path' | 'cleaned_path'> & {
         type: 'directory';
         children: TreePath;
+      })
+    | (Omit<TreeEntry, 'type' | 'path' | 'cleaned_path'> & {
+        type: 'symlink';
+        link_path: string;
       });
 };
 
