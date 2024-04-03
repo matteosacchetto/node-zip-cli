@@ -6,7 +6,7 @@ export const get_full_mode = (
 ) => {
   if (type === 'file') return +partial_mode + 0o100000;
   if (type === 'directory') return +partial_mode + 0o40000;
-  if (type === 'symlink') return +0o120000;
+  if (type === 'symlink') return +partial_mode + 0o120000;
 
   return +partial_mode;
 };
