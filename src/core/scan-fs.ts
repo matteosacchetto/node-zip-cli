@@ -1,15 +1,19 @@
 import { lstat, opendir, readFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import type { FsEntry } from '@/types/fs';
+import type {
+  CleanedEntryWithMode,
+  ConflictingFsEntry,
+  FsEntry,
+} from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
 import {
   clean_path,
   fix_mode,
+  map_absolute_path_to_clean_entry_with_mode,
   read_access,
   unique_fs_entries,
 } from '@/utils/fs';
 import ignore, { type Ignore } from 'ignore';
-import { is_windows } from './constants';
 
 const load_ignore_rules = async (path: string) => {
   if (await read_access(path)) {
@@ -24,6 +28,7 @@ const load_ignore_rules = async (path: string) => {
 
 const list_dir_content_recursive = async (
   dir: string,
+  is_windows: boolean,
   parent_rules: string[] = []
 ) => {
   const gitingore_rules = [...parent_rules];
@@ -66,6 +71,7 @@ const list_dir_content_recursive = async (
 
         const subwalk = await list_dir_content_recursive(
           entry_path,
+          is_windows,
           gitingore_rules
         );
         dir_data.n_children = subwalk.n_children;
@@ -99,7 +105,11 @@ const list_dir_content_recursive = async (
   return { walk, n_children };
 };
 
-const list_dir_content = async (dir: string, parent_rules: string[] = []) => {
+const list_dir_content = async (
+  dir: string,
+  is_windows: boolean,
+  parent_rules: string[] = []
+) => {
   const { uid, gid, mode, size, mtime } = await lstat(dir);
 
   const entries: FsEntry[] = [];
@@ -119,18 +129,26 @@ const list_dir_content = async (dir: string, parent_rules: string[] = []) => {
   };
   entries.push(dir_data);
 
-  const subwalk = await list_dir_content_recursive(dir, parent_rules);
+  const subwalk = await list_dir_content_recursive(
+    dir,
+    is_windows,
+    parent_rules
+  );
   dir_data.n_children = subwalk.n_children;
   entries.push(...subwalk.walk);
 
   return entries;
 };
 
-export const scan_fs = async (root_dir: string, default_exclude?: string[]) => {
+export const scan_fs = async (
+  root_dir: string,
+  is_windows: boolean,
+  default_exclude?: string[]
+) => {
   const cwd = process.cwd();
   try {
     process.chdir(root_dir);
-    return (await list_dir_content('.', default_exclude))
+    return (await list_dir_content('.', is_windows, default_exclude))
       .map((el) => {
         el.path = join(root_dir, el.path);
         el.cleaned_path = clean_path(join(root_dir, el.cleaned_path));
@@ -144,10 +162,13 @@ export const scan_fs = async (root_dir: string, default_exclude?: string[]) => {
 
 export const list_entries = async (
   unique_input_entries: string[],
+  is_windows: boolean,
   keep_parent: 'full' | 'last' | 'none',
   allow_git: boolean,
   exclude_list?: string[]
-) => {
+): Promise<
+  [FsEntry[], ConflictingFsEntry[], Map<string, CleanedEntryWithMode>]
+> => {
   const default_rules = [];
 
   if (!allow_git) {
@@ -169,7 +190,7 @@ export const list_entries = async (
     const stats = await lstat(entry);
 
     if (stats.isDirectory()) {
-      fs_entries = await scan_fs(entry, default_rules);
+      fs_entries = await scan_fs(entry, is_windows, default_rules);
       base_dir = entry;
     } else if (stats.isFile()) {
       const path = entry;
@@ -212,8 +233,13 @@ export const list_entries = async (
   }
 
   const non_empty_list = files.filter(
-    (el) => el.type === 'file' || (el.type === 'directory' && el.n_children > 0)
+    (el) =>
+      el.type !== 'directory' || (el.type === 'directory' && el.n_children > 0)
   );
 
-  return unique_fs_entries(non_empty_list);
+  const [unique_list, conflicting_list] = unique_fs_entries(non_empty_list);
+  const absolute_path_to_clean_path =
+    map_absolute_path_to_clean_entry_with_mode(unique_list);
+
+  return [unique_list, conflicting_list, absolute_path_to_clean_path];
 };

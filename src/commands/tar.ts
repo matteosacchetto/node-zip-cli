@@ -80,8 +80,13 @@ tarCommand.action(async (options) => {
       }
     }
 
-    const [unique_list, conflicting_list] = await list_entries(
+    const [
+      unique_list,
+      conflicting_list,
+      map_absolute_path_to_clean_entry_with_mode,
+    ] = await list_entries(
       unique_inputs,
+      is_windows,
       options.keepParent,
       options.allowGit,
       options.exclude
@@ -103,7 +108,11 @@ tarCommand.action(async (options) => {
     if (options.dryRun) {
       await exit_on_finish(() => {
         if (num_files > 0) {
-          printfile_list_as_file_tree(unique_list, is_windows);
+          printfile_list_as_file_tree(
+            unique_list,
+            map_absolute_path_to_clean_entry_with_mode,
+            is_windows
+          );
         } else {
           console.error('Nothing to tar');
         }

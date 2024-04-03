@@ -3,14 +3,19 @@ import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
-import type { ArchiveEntry, FsEntry } from '@/types/fs';
+import { logger } from '@/logger';
+import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
+import { log_broken_symlink } from '@/utils/broken-symlink';
 import { boolean_filter } from '@/utils/filter';
 import {
+  broken_symlinks,
   clean_path,
   get_default_mode,
+  map_absolute_path_to_clean_entry_with_mode,
   overwrite_symlink_if_exists,
   set_permissions,
 } from '@/utils/fs';
+import { log_indent } from '@/utils/log';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { get_full_mode } from '@/utils/tar';
 import chalk from 'chalk';
@@ -22,6 +27,19 @@ export const create_tar = async (
   num_files: number,
   gzip: boolean | number
 ) => {
+  if (num_files === 0) {
+    logger.skip(`Creating ${output_path} file`);
+
+    log_indent({
+      indentation_increment: 2,
+      fn: () => {
+        logger.dimmed_error('Nothing to tar');
+      },
+    });
+
+    return;
+  }
+
   await spinner_wrapper({
     spinner_text: `Reading (0/${num_files} files)`,
     async fn(spinner) {
@@ -91,7 +109,10 @@ export const create_tar = async (
   });
 };
 
-export const read_tar = async (input_path: string, is_gzip: boolean) => {
+export const read_tar = async (
+  input_path: string,
+  is_gzip: boolean
+): Promise<[ArchiveEntry[], Map<string, CleanedEntryWithMode>]> => {
   const ex = extract();
 
   const line = [
@@ -136,7 +157,10 @@ export const read_tar = async (input_path: string, is_gzip: boolean) => {
   }
   await pip;
 
-  return fs_entries;
+  const absolute_path_to_clean_entry_with_mode =
+    map_absolute_path_to_clean_entry_with_mode(fs_entries);
+
+  return [fs_entries, absolute_path_to_clean_entry_with_mode];
 };
 
 export const extract_tar = async (
@@ -144,10 +168,12 @@ export const extract_tar = async (
   output_dir: string,
   is_gzip: boolean
 ) => {
-  await spinner_wrapper({
+  const broken_symlinks_list = await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
-      const num_files = (await read_tar(input_path, is_gzip)).filter(
+      const [filenames, map_absolute_path_to_clean_entry_with_mode] =
+        await read_tar(input_path, is_gzip);
+      const num_files = filenames.filter(
         (el) => el.type !== 'directory'
       ).length;
 
@@ -227,6 +253,15 @@ export const extract_tar = async (
       await pip;
 
       spinner.text = `Extracted ${input_path} file to ${output_dir} (${num_files}/${num_files} files)`;
+
+      return broken_symlinks(
+        filenames,
+        map_absolute_path_to_clean_entry_with_mode
+      );
     },
   });
+
+  if (broken_symlinks_list.length !== 0) {
+    log_broken_symlink(broken_symlinks_list);
+  }
 };

@@ -3,21 +3,23 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
-import type { ArchiveEntry, FsEntry } from '@/types/fs';
+import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
+import { log_broken_symlink } from '@/utils/broken-symlink';
 import {
+  broken_symlinks,
   clean_path,
   get_default_mode,
+  map_absolute_path_to_clean_entry_with_mode,
   overwrite_symlink_if_exists,
   set_permissions,
 } from '@/utils/fs';
 import { log_indent } from '@/utils/log';
 import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
+import { is_symlink } from '@/utils/zip';
 import chalk from 'chalk';
-import figureSet from 'figures';
 import JSZip from 'jszip';
 import isValidFilename from 'valid-filename';
-import { is_symlink } from '@/utils/zip';
 
 export const create_zip = async (
   output_path: string,
@@ -26,9 +28,7 @@ export const create_zip = async (
   deflate: number
 ) => {
   if (num_files === 0) {
-    `${chalk.yellow.bold(
-      figureSet.arrowDown
-    )} Creating ${output_path} file ${chalk.dim('[SKIPPED]')}`;
+    logger.skip(`Creating ${output_path} file`);
 
     log_indent({
       indentation_increment: 2,
@@ -113,7 +113,9 @@ export const create_zip = async (
   });
 };
 
-export const read_zip = async (input_path: string) => {
+export const read_zip = async (
+  input_path: string
+): Promise<[ArchiveEntry[], Map<string, CleanedEntryWithMode>]> => {
   const zip = new JSZip();
 
   const archive = await zip.loadAsync(await readFile(input_path));
@@ -148,11 +150,14 @@ export const read_zip = async (input_path: string) => {
     }
   }
 
-  return entries;
+  const absolute_path_to_clean_entry_with_mode =
+    map_absolute_path_to_clean_entry_with_mode(entries);
+
+  return [entries, absolute_path_to_clean_entry_with_mode];
 };
 
 export const extract_zip = async (input_path: string, output_dir: string) => {
-  await spinner_wrapper({
+  const broken_symlinks_list = await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
       const zip = new JSZip();
@@ -212,6 +217,15 @@ export const extract_zip = async (input_path: string, output_dir: string) => {
       }
 
       spinner.text = `Extracted ${input_path} file to ${output_dir} (${num_files}/${num_files} files)`;
+
+      const [files, map_absolute_path_to_clean_entry_with_mode] =
+        await read_zip(input_path);
+
+      return broken_symlinks(files, map_absolute_path_to_clean_entry_with_mode);
     },
   });
+
+  if (broken_symlinks_list.length !== 0) {
+    log_broken_symlink(broken_symlinks_list);
+  }
 };

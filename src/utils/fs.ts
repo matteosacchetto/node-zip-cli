@@ -5,12 +5,26 @@ import {
   chmod,
   chown,
   lstat,
-  utimes,
-  symlink,
+  readlink,
   rm,
+  symlink,
+  utimes,
 } from 'node:fs/promises';
-import { isAbsolute, normalize, parse, resolve } from 'node:path';
-import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
+import {
+  dirname,
+  isAbsolute,
+  join,
+  normalize,
+  parse,
+  resolve,
+} from 'node:path';
+import type {
+  ArchiveEntry,
+  BrokenSymlink,
+  CleanedEntryWithMode,
+  ConflictingFsEntry,
+  FsEntry,
+} from '@/types/fs';
 import { ignore_on_error } from './process';
 
 export const unique_fs_entries = (
@@ -55,6 +69,46 @@ export const unique_entries = (list: string[]) => {
   }
 
   return Object.entries(unique_paths).map((el) => el[1]);
+};
+
+export const map_absolute_path_to_clean_entry_with_mode = (
+  list: (FsEntry | ArchiveEntry)[]
+): Map<string, CleanedEntryWithMode> => {
+  const absolute_path_to_clean_entry_with_mode = new Map<
+    string,
+    CleanedEntryWithMode
+  >();
+
+  for (const entry of list) {
+    absolute_path_to_clean_entry_with_mode.set(resolve(entry.path), {
+      cleaned_path: entry.cleaned_path,
+      mode: entry.stats.mode,
+    });
+  }
+
+  return absolute_path_to_clean_entry_with_mode;
+};
+
+export const broken_symlinks = (
+  list: (FsEntry | ArchiveEntry)[],
+  map_absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>
+): BrokenSymlink[] => {
+  const broken_symlinks_list: BrokenSymlink[] = [];
+  for (const entry of list) {
+    if (
+      entry.type === 'symlink' &&
+      !map_absolute_path_to_clean_entry_with_mode.has(
+        resolve(get_symlink_path(entry.path, entry.link_path))
+      )
+    ) {
+      broken_symlinks_list.push({
+        path: entry.path,
+        link_path: entry.link_path,
+      });
+    }
+  }
+
+  return broken_symlinks_list;
 };
 
 export const exists = async (p: string) => {
@@ -210,4 +264,21 @@ export const overwrite_symlink_if_exists = async (
 ) => {
   await rm(path, { force: true });
   await symlink(target, path);
+};
+
+export const get_symlink_path = (base_path: string, link_path: string) => {
+  const base_dir = dirname(base_path);
+
+  if (isAbsolute(link_path)) {
+    return link_path;
+  }
+
+  return join(base_dir, link_path);
+};
+
+export const resolve_symlink = async (path: string) => {
+  const base_dir = dirname(path);
+  const link_path = await readlink(path);
+
+  return get_symlink_path(base_dir, link_path);
 };

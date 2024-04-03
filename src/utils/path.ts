@@ -1,8 +1,8 @@
-import { sep } from 'node:path';
+import { resolve, sep } from 'node:path';
 import { colorize } from '@/core/dircolors';
-import type { ArchiveEntry, TreePath } from '@/types/fs';
+import type { ArchiveEntry, CleanedEntryWithMode, TreePath } from '@/types/fs';
 import { boolean_filter } from './filter';
-import { get_default_stats } from './fs';
+import { get_default_mode, get_default_stats, get_symlink_path } from './fs';
 
 const print_obj_as_file_tree = (
   obj: TreePath,
@@ -54,9 +54,17 @@ const print_obj_as_file_tree = (
       case 'symlink': {
         stats.files += 1;
         console.log(
-          `${prefix}${colorize(el, entry.stats.mode, is_windows)} -> ${
-            entry.link_path
-          }`
+          `${prefix}${colorize(
+            el,
+            entry.stats.mode,
+            is_windows,
+            entry.link_mode === undefined
+          )} -> ${colorize(
+            entry.link_path,
+            entry.link_mode ?? get_default_mode('file'),
+            is_windows,
+            entry.link_mode === undefined
+          )}`
         );
         break;
       }
@@ -68,6 +76,7 @@ const print_obj_as_file_tree = (
 
 export const printfile_list_as_file_tree = (
   entries: ArchiveEntry[],
+  map_absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   is_windows: boolean
 ) => {
   const now = new Date();
@@ -117,6 +126,9 @@ export const printfile_list_as_file_tree = (
           stats: entry.stats,
           type: 'symlink',
           link_path: entry.link_path,
+          link_mode: map_absolute_path_to_clean_entry_with_mode.get(
+            resolve(get_symlink_path(entry.cleaned_path, entry.link_path))
+          )?.mode,
         };
         break;
       }
