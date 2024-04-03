@@ -27,7 +27,12 @@ import type {
 } from '@/types/fs';
 import { ignore_on_error } from './process';
 
-const get_priority_for_type = (type: 'directory' | 'file' | 'symlink') => {
+/**
+ * The lower the number the higher the priority
+ */
+export const get_priority_for_type = (
+  type: 'directory' | 'file' | 'symlink'
+) => {
   switch (type) {
     case 'directory':
       return 1;

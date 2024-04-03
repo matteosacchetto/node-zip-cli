@@ -8,6 +8,8 @@ import {
   fix_mode,
   get_default_mode,
   get_default_stats,
+  get_priority_for_type,
+  type_compare,
   unique_entries,
   unique_fs_entries,
 } from '@/utils/fs';
@@ -18,6 +20,58 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
+  describe('get_priority_for_type', async (context) => {
+    test('directory', async () => {
+      assert.strictEqual(get_priority_for_type('directory'), 1);
+    });
+
+    test('file', async () => {
+      assert.strictEqual(get_priority_for_type('file'), 2);
+    });
+
+    test('symlink', async () => {
+      assert.strictEqual(get_priority_for_type('symlink'), 3);
+    });
+  });
+
+  describe('type_compare', async (context) => {
+    test('directory vs directory', async () => {
+      assert.ok(type_compare('directory', 'directory') === 0);
+    });
+
+    test('directory vs file', async () => {
+      assert.ok(type_compare('directory', 'file') < 0);
+    });
+
+    test('directory vs symlink', async () => {
+      assert.ok(type_compare('directory', 'symlink') < 0);
+    });
+
+    test('file vs directory', async () => {
+      assert.ok(type_compare('file', 'directory') > 0);
+    });
+
+    test('file vs file', async () => {
+      assert.ok(type_compare('file', 'file') === 0);
+    });
+
+    test('file vs symlink', async () => {
+      assert.ok(type_compare('file', 'symlink') < 0);
+    });
+
+    test('symlink vs directory', async () => {
+      assert.ok(type_compare('symlink', 'directory') > 0);
+    });
+
+    test('symlink vs file', async () => {
+      assert.ok(type_compare('symlink', 'file') > 0);
+    });
+
+    test('symlink vs symlink', async () => {
+      assert.ok(type_compare('symlink', 'symlink') === 0);
+    });
+  });
+
   describe('get_default_mode', async (context) => {
     test('file', async (context) => {
       assert.strictEqual(get_default_mode('file'), 0o100664);
