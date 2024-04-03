@@ -8,6 +8,7 @@ import type {
 import { boolean_filter } from '@/utils/filter';
 import {
   clean_path,
+  fix_mode,
   get_symlink_path,
   is_directory,
   map_absolute_path_to_clean_entry_with_mode,
@@ -28,9 +29,10 @@ const load_ignore_rules = async (path: string) => {
   return [] as string[];
 };
 
-const create_file = async (
+export const create_file = async (
   path: string,
-  name: string
+  name: string,
+  is_windows: boolean
 ): Promise<Extract<FsEntry, { type: 'file' }>> => {
   const { uid, gid, mode, mtime, size } = await lstat(path);
   return {
@@ -40,17 +42,18 @@ const create_file = async (
     stats: {
       uid,
       gid,
-      mode,
+      mode: fix_mode(mode, is_windows),
       mtime,
       size,
     },
   };
 };
 
-const create_dir = async (
+export const create_dir = async (
   path: string,
   name: string,
-  n_children: number
+  n_children: number,
+  is_windows: boolean
 ): Promise<Extract<FsEntry, { type: 'directory' }>> => {
   const { uid, gid, mode, mtime, size } = await lstat(path);
   return {
@@ -60,7 +63,7 @@ const create_dir = async (
     stats: {
       uid,
       gid,
-      mode,
+      mode: fix_mode(mode, is_windows),
       mtime,
       size,
     },
@@ -68,9 +71,10 @@ const create_dir = async (
   };
 };
 
-const create_symlink = async (
+export const create_symlink = async (
   path: string,
-  name: string
+  name: string,
+  is_windows: boolean
 ): Promise<Extract<FsEntry, { type: 'symlink' }>> => {
   const { uid, gid, mode, mtime, size } = await lstat(path);
   const link_path = await readlink(path);
@@ -81,7 +85,7 @@ const create_symlink = async (
     stats: {
       uid,
       gid,
-      mode,
+      mode: fix_mode(mode, is_windows),
       mtime,
       size,
     },
@@ -118,7 +122,7 @@ export const walk = async (
 
   if (stats.isFile()) {
     n_children++;
-    fs_entries.push(await create_file(path, path_name));
+    fs_entries.push(await create_file(path, path_name, is_windows));
   } else if (stats.isDirectory()) {
     const children_rules = [...gitingore_rules];
     for (const ingore_file of ['.gitignore', '.zipignore']) {
@@ -141,12 +145,14 @@ export const walk = async (
       sub_n_children += res.n_children;
       fs_entries.push(...res.entries);
     }
-    fs_entries.push(await create_dir(path, path_name, sub_n_children));
+    fs_entries.push(
+      await create_dir(path, path_name, sub_n_children, is_windows)
+    );
   } else if (stats.isSymbolicLink()) {
     switch (symlink) {
       case 'keep': {
         n_children++;
-        fs_entries.push(await create_symlink(path, path_name));
+        fs_entries.push(await create_symlink(path, path_name, is_windows));
         break;
       }
 
