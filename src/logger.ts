@@ -1,9 +1,9 @@
 import { Console } from 'node:console';
 import { inspect } from 'node:util';
 import chalk from 'chalk';
+import figureSet from 'figures';
 import logSymbols from 'log-symbols';
 import stripAnsi from 'strip-ansi';
-import figureSet from 'figures';
 
 enum STD_FD {
   OUT = 0,
