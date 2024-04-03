@@ -12,6 +12,8 @@ export const log_broken_symlink = (broken_symlinks_list: BrokenSymlink[]) => {
     'The following list of symlinks point to entries not contained in the archive'
   );
   for (const entry of broken_symlinks_list) {
-    logger.log(`${chalk.cyan(entry.path)} -> ${chalk.red(entry.link_path)}`);
+    logger.log(
+      `${chalk.cyan(entry.cleaned_path)} -> ${chalk.red(entry.link_name)}`
+    );
   }
 };

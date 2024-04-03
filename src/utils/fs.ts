@@ -130,8 +130,8 @@ export const broken_symlinks = (
       )
     ) {
       broken_symlinks_list.push({
-        path: entry.path,
-        link_path: entry.link_path,
+        cleaned_path: entry.cleaned_path,
+        link_name: entry.link_name,
       });
     }
   }

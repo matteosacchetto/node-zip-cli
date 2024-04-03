@@ -61,6 +61,6 @@ export type CleanedEntryWithMode = {
 };
 
 export type BrokenSymlink = {
-  path: string;
-  link_path: string;
+  cleaned_path: string;
+  link_name: string;
 };
