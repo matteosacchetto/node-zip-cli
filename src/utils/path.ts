@@ -1,4 +1,4 @@
-import { resolve, sep } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { colorize } from '@/core/dircolors';
 import type { ArchiveEntry, CleanedEntryWithMode, TreePath } from '@/types/fs';
 import { boolean_filter } from './filter';
@@ -60,7 +60,7 @@ const print_obj_as_file_tree = (
             is_windows,
             entry.link_mode === undefined
           )} -> ${colorize(
-            entry.link_path,
+            entry.link_name,
             entry.link_mode ?? get_default_mode('file'),
             is_windows,
             entry.link_mode === undefined
@@ -126,8 +126,9 @@ export const printfile_list_as_file_tree = (
           stats: entry.stats,
           type: 'symlink',
           link_path: entry.link_path,
+          link_name: entry.link_name,
           link_mode: map_absolute_path_to_clean_entry_with_mode.get(
-            resolve(get_symlink_path(entry.cleaned_path, entry.link_path))
+            resolve(get_symlink_path(entry.path, entry.link_path))
           )?.mode,
         };
         break;
@@ -159,4 +160,13 @@ export const printfile_list_as_file_tree = (
         : ''
     }`
   );
+};
+
+export const clean_base_dir = (path: string) => {
+  const base_dir = join(path, '..');
+  if (base_dir === '..') {
+    return '.';
+  }
+
+  return base_dir;
 };

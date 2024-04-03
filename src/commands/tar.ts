@@ -1,6 +1,6 @@
 import { is_windows } from '@/core/constants';
-import { list_entries } from '@/core/scan-fs';
 import { create_tar } from '@/core/tar';
+import { list_entries } from '@/core/walk';
 import { logger } from '@/logger';
 import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
 import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
@@ -53,6 +53,11 @@ const tarCommand = createCommand(name, description)
       .choices(['none', 'last', 'full'] as const)
       .default('full' as const)
   )
+  .addOption(
+    createOption('--symlink <mode>', 'handle symlinks (experimental)')
+      .choices(['none', 'resolve', 'keep'] as const)
+      .default('none' as const)
+  )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
   .option('--allow-git', 'allow .git to be included in the tar', false)
@@ -88,6 +93,7 @@ tarCommand.action(async (options) => {
       unique_inputs,
       is_windows,
       options.keepParent,
+      options.symlink,
       options.allowGit,
       options.exclude
     );

@@ -1,5 +1,5 @@
 import { is_windows } from '@/core/constants';
-import { list_entries } from '@/core/scan-fs';
+import { list_entries } from '@/core/walk';
 import { create_zip } from '@/core/zip';
 import { logger } from '@/logger';
 import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
@@ -50,6 +50,11 @@ const zipCommand = createCommand(name, description)
       .choices(['none', 'last', 'full'] as const)
       .default('full' as const)
   )
+  .addOption(
+    createOption('--symlink <mode>', 'handle symlinks (experimental)')
+      .choices(['none', 'resolve', 'keep'] as const)
+      .default('none' as const)
+  )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
   .option('--allow-git', 'allow .git to be included in the zip', false)
@@ -85,6 +90,7 @@ zipCommand.action(async (options) => {
       unique_inputs,
       is_windows,
       options.keepParent,
+      options.symlink,
       options.allowGit,
       options.exclude
     );

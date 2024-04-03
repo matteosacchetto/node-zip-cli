@@ -62,8 +62,16 @@ export const create_zip = async (
             unixPermissions: file.stats.mode,
             dir: true,
           });
+        } else if (file.type === 'symlink') {
+          spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
+            `[${file}]`
+          )}`;
+
+          zip.file(file.cleaned_path, file.link_name, {
+            date: file.stats.mtime,
+            unixPermissions: file.stats.mode,
+          });
         }
-        // TODO: add support for symlinks
       }
 
       spinner.text = `Creating ${output_path} file (0/${num_files} files)`;
@@ -143,7 +151,9 @@ export const read_zip = async (
       };
 
       if (entry.type === 'symlink') {
-        entry.link_path = await el[1].async('string');
+        const link_path = await el[1].async('string');
+        entry.link_path = link_path;
+        entry.link_name = link_path;
       }
 
       entries.push(entry);

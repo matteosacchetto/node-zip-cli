@@ -27,12 +27,35 @@ import type {
 } from '@/types/fs';
 import { ignore_on_error } from './process';
 
+const get_priority_for_type = (type: 'directory' | 'file' | 'symlink') => {
+  switch (type) {
+    case 'directory':
+      return 1;
+    case 'file':
+      return 2;
+    case 'symlink':
+      return 3;
+  }
+};
+
+export const type_compare = (
+  a: 'directory' | 'file' | 'symlink',
+  b: 'directory' | 'file' | 'symlink'
+) => {
+  return get_priority_for_type(a) - get_priority_for_type(b);
+};
+
 export const unique_fs_entries = (
   list: FsEntry[]
 ): [FsEntry[], ConflictingFsEntry[]] => {
-  const sorted_list = list.sort((a, b) =>
-    a.cleaned_path.localeCompare(b.cleaned_path)
-  );
+  const sorted_list = list.sort((a, b) => {
+    let cmp = a.cleaned_path.localeCompare(b.cleaned_path);
+    if (cmp === 0) {
+      cmp = type_compare(a.type, b.type);
+    }
+
+    return cmp;
+  });
   const final_list: FsEntry[] = [];
   const conflicting_list: ConflictingFsEntry[] = [];
 

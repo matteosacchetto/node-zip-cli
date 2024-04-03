@@ -44,8 +44,6 @@ unzipCommand.action(async (options) => {
         const [filenames, map_absolute_path_to_clean_entry_with_mode] =
           await read_zip(options.input);
 
-        console.log(map_absolute_path_to_clean_entry_with_mode);
-
         if (filenames.length > 0) {
           printfile_list_as_file_tree(
             filenames,

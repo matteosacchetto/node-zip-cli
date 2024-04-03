@@ -15,6 +15,7 @@ export type FsEntry = {
   | {
       type: 'symlink';
       link_path: string;
+      link_name: string;
     }
 );
 
@@ -26,6 +27,7 @@ export type ArchiveEntry = Omit<FsEntry, 'n_children' | 'type'> &
     | {
         type: 'symlink';
         link_path: string;
+        link_name: string;
       }
   );
 
@@ -43,6 +45,7 @@ export type TreePath = {
     | (Omit<TreeEntry, 'type' | 'path' | 'cleaned_path'> & {
         type: 'symlink';
         link_path: string;
+        link_name: string;
         link_mode: number | undefined;
       });
 };

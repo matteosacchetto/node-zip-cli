@@ -57,8 +57,7 @@ export const create_tar = async (
             gid: fs_entry.stats.gid,
             type: 'directory',
           });
-        }
-        if (fs_entry.type === 'file') {
+        } else if (fs_entry.type === 'file') {
           spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
             `[${fs_entry.cleaned_path}]`
           )}`;
@@ -79,8 +78,22 @@ export const create_tar = async (
             entry.write(chunk);
           }
           entry.end();
+        } else if (fs_entry.type === 'symlink') {
+          spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
+            `[${fs_entry.cleaned_path}]`
+          )}`;
+
+          tar.entry({
+            name: fs_entry.cleaned_path,
+            size: fs_entry.stats.size,
+            mtime: fs_entry.stats.mtime,
+            mode: fs_entry.stats.mode,
+            uid: fs_entry.stats.uid,
+            gid: fs_entry.stats.gid,
+            type: 'symlink',
+            linkname: fs_entry.link_name,
+          });
         }
-        // TODO: add support for symlinks
       }
 
       tar.finalize();
@@ -148,6 +161,7 @@ export const read_tar = async (
 
       if (fs_entry.type === 'symlink') {
         fs_entry.link_path = entry.header.linkname ?? '';
+        fs_entry.link_name = entry.header.linkname ?? '';
       }
 
       fs_entries.push(fs_entry);
