@@ -9,6 +9,7 @@ import {
   get_default_mode,
   get_default_stats,
   get_priority_for_type,
+  get_symlink_path,
   type_compare,
   unique_entries,
   unique_fs_entries,
@@ -287,6 +288,24 @@ describe(filename, async () => {
           },
         ],
       ]);
+    });
+  });
+
+  describe('get_symlink_path', async (context) => {
+    test('relative: ../utils', async () => {
+      assert.equal(get_symlink_path('test', '../utils'), '../utils');
+    });
+
+    test('relative: utils', async () => {
+      assert.equal(get_symlink_path('test', 'utils'), 'utils');
+    });
+
+    test('relative: utils', async () => {
+      assert.equal(get_symlink_path('test/abc', 'utils'), 'test/utils');
+    });
+
+    test('absolute: /utils', async () => {
+      assert.equal(get_symlink_path('test/abc', '/utils'), '/utils');
     });
   });
 });
