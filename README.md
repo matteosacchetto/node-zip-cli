@@ -131,6 +131,7 @@ Options:
   -d, --deflate <compression-level>  deflate the files (default: 0)
   -o, --output <output-file>         the filename of the zip file to create (default: "out.zip")
   -k, --keep-parent <mode>           keep the parent directories (choices: "none", "last", "full", default: "full")
+  --symlink <mode>                   handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
   -y, --yes                          answers yes to every question (default: false)
   -e, --exclude <paths...>           ignore the following paths
   --allow-git                        allow .git to be included in the zip (default: false)
@@ -152,7 +153,7 @@ Specify the compression level of the deflate operation. The compression level ca
 
 Specify the file path of the output zip file. Defaults to out.zip
 
-##### `-k, --keep-parent <mode>`
+###### `-k, --keep-parent <mode>`
 
 This options specifies how to provided input directories. The possible values are `none`, `last` and `full`. These options will do the following:
 
@@ -161,6 +162,18 @@ This options specifies how to provided input directories. The possible values ar
 - `none`: do not preserver the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
 
 The default values is `full`.
+
+###### `--symlink <mode>` \[experimental\]
+
+Allows you to include symlinks in your archive using two different strategies:
+* `resolve`: will resolve the symlink to a file or directory and include it in the archive
+* `keep`: will keep the symlink and include it in the archive
+
+There is also the option `none` which allows you to skip symlinks alltogether.
+
+This functionality is still experimental, and for such reason the current default value for this option is `none`.
+
+Once it will become stable, the default option will be switched to `resolve`.
 
 ###### `-y, --yes`
 
@@ -249,6 +262,7 @@ Options:
   -g, --gzip [compression-level]  gzip the archive (default: false)
   -o, --output <output-file>      the filename of the tar file to create
   -k, --keep-parent <mode>        keep the parent directories (choices: "none", "last", "full", default: "full")
+  --symlink <mode>                handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
   -y, --yes                       answers yes to every question (default: false)
   -e, --exclude <paths...>        ignore the following paths
   --allow-git                     allow .git to be included in the tar (default: false)
@@ -279,6 +293,18 @@ This options specifies how to provided input directories. The possible values ar
 - `none`: do not preserver the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
 
 The default values is `full`.
+
+###### `--symlink <mode>` \[experimental\]
+
+Allows you to include symlinks in your archive using two different strategies:
+* `resolve`: will resolve the symlink to a file or directory and include it in the archive
+* `keep`: will keep the symlink and include it in the archive
+
+There is also the option `none` which allows you to skip symlinks alltogether.
+
+This functionality is still experimental, and for such reason the current default value for this option is `none`.
+
+Once it will become stable, the default option will be switched to `resolve`.
 
 ###### `-y, --yes`
 
@@ -367,4 +393,4 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 > *Current limitaionts*  
 > Up to the current version (0.6.0) the strategy of ignoring `*` and the not ignore some paths (e.g. `!test`, `!src`, ...) is not supported.
 >
-> Up to the current version (0.6.0) you can zip/tar and unzip/untar only files and directories. Symlinks are not yet supported
+> Up to the current version (0.6.0) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected 
