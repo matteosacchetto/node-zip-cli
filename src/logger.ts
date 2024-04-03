@@ -3,6 +3,7 @@ import { inspect } from 'node:util';
 import chalk from 'chalk';
 import logSymbols from 'log-symbols';
 import stripAnsi from 'strip-ansi';
+import figureSet from 'figures';
 
 enum STD_FD {
   OUT = 0,
@@ -96,6 +97,15 @@ class Logger {
   }
   success(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.green(logSymbols.success), ...msg);
+  }
+  skip(...msg: unknown[]) {
+    this.#log(
+      STD_FD.ERR,
+      false,
+      chalk.yellow(figureSet.arrowDown),
+      ...msg,
+      chalk.dim('[SKIPPED]')
+    );
   }
   dimmed_log(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
