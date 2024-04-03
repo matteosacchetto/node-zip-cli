@@ -35,6 +35,10 @@ __node-zip-cli_completion() {
           COMPREPLY=($(compgen -W "full last none" -- "$cur"));
           return 0;
         ;;
+        --symlink)
+          COMPREPLY=($(compgen -W "resolve keep none" -- "$cur"));
+          return 0;
+        ;;
       esac
 
       # Options with variadic arguments
@@ -48,7 +52,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -d --deflate -k --keep-parent -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -d --deflate -k --keep-parent --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac
@@ -89,6 +93,10 @@ __node-zip-cli_completion() {
           COMPREPLY=($(compgen -W "full last none" -- "$cur"));
           return 0;
         ;;
+        --symlink)
+          COMPREPLY=($(compgen -W "resolve keep none" -- "$cur"));
+          return 0;
+        ;;
       esac
 
       # Options with variadic arguments
@@ -102,7 +110,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -g --gzip -k --keep-parent -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -g --gzip -k --keep-parent --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac
