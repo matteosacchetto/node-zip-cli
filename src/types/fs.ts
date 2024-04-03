@@ -12,6 +12,10 @@ export type FsEntry = {
       type: 'directory';
       n_children: number;
     }
+  | {
+      type: 'symlink';
+      link_path: string;
+    }
 );
 
 export type ArchiveEntry = Omit<FsEntry, 'n_children' | 'type'> &
@@ -39,10 +43,21 @@ export type TreePath = {
     | (Omit<TreeEntry, 'type' | 'path' | 'cleaned_path'> & {
         type: 'symlink';
         link_path: string;
+        link_mode: number | undefined;
       });
 };
 
 export type ConflictingFsEntry = {
   conflicting_path: string;
   conflicting_with_path: string;
+};
+
+export type CleanedEntryWithMode = {
+  cleaned_path: string;
+  mode: number;
+};
+
+export type BrokenSymlink = {
+  path: string;
+  link_path: string;
 };
