@@ -24,6 +24,7 @@ import isValidFilename from 'valid-filename';
 export const create_zip = async (
   output_path: string,
   unique_fs_entries: FsEntry[],
+  absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   num_files: number,
   deflate: number
 ) => {
@@ -119,6 +120,15 @@ export const create_zip = async (
       return promise;
     },
   });
+
+  const broken_symlinks_list = broken_symlinks(
+    unique_fs_entries,
+    absolute_path_to_clean_entry_with_mode
+  );
+
+  if (broken_symlinks_list.length !== 0) {
+    log_broken_symlink(broken_symlinks_list);
+  }
 };
 
 export const read_zip = async (
@@ -228,10 +238,10 @@ export const extract_zip = async (input_path: string, output_dir: string) => {
 
       spinner.text = `Extracted ${input_path} file to ${output_dir} (${num_files}/${num_files} files)`;
 
-      const [files, map_absolute_path_to_clean_entry_with_mode] =
+      const [files, absolute_path_to_clean_entry_with_mode] =
         await read_zip(input_path);
 
-      return broken_symlinks(files, map_absolute_path_to_clean_entry_with_mode);
+      return broken_symlinks(files, absolute_path_to_clean_entry_with_mode);
     },
   });
 

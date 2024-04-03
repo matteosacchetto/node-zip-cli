@@ -85,7 +85,7 @@ zipCommand.action(async (options) => {
     const [
       unique_list,
       conflicting_list,
-      map_absolute_path_to_clean_entry_with_mode,
+      absolute_path_to_clean_entry_with_mode,
     ] = await list_entries(
       unique_inputs,
       is_windows,
@@ -113,7 +113,7 @@ zipCommand.action(async (options) => {
         if (num_files > 0) {
           printfile_list_as_file_tree(
             unique_list,
-            map_absolute_path_to_clean_entry_with_mode,
+            absolute_path_to_clean_entry_with_mode,
             is_windows
           );
         } else {
@@ -122,7 +122,13 @@ zipCommand.action(async (options) => {
       });
     }
 
-    await create_zip(options.output, unique_list, num_files, options.deflate);
+    await create_zip(
+      options.output,
+      unique_list,
+      absolute_path_to_clean_entry_with_mode,
+      num_files,
+      options.deflate
+    );
   });
 });
 

@@ -88,7 +88,7 @@ tarCommand.action(async (options) => {
     const [
       unique_list,
       conflicting_list,
-      map_absolute_path_to_clean_entry_with_mode,
+      absolute_path_to_clean_entry_with_mode,
     ] = await list_entries(
       unique_inputs,
       is_windows,
@@ -116,7 +116,7 @@ tarCommand.action(async (options) => {
         if (num_files > 0) {
           printfile_list_as_file_tree(
             unique_list,
-            map_absolute_path_to_clean_entry_with_mode,
+            absolute_path_to_clean_entry_with_mode,
             is_windows
           );
         } else {
@@ -125,7 +125,13 @@ tarCommand.action(async (options) => {
       });
     }
 
-    await create_tar(output, unique_list, num_files, options.gzip);
+    await create_tar(
+      output,
+      unique_list,
+      absolute_path_to_clean_entry_with_mode,
+      num_files,
+      options.gzip
+    );
   });
 });
 

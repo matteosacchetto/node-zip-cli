@@ -119,13 +119,13 @@ export const map_absolute_path_to_clean_entry_with_mode = (
 
 export const broken_symlinks = (
   list: (FsEntry | ArchiveEntry)[],
-  map_absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>
+  absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>
 ): BrokenSymlink[] => {
   const broken_symlinks_list: BrokenSymlink[] = [];
   for (const entry of list) {
     if (
       entry.type === 'symlink' &&
-      !map_absolute_path_to_clean_entry_with_mode.has(
+      !absolute_path_to_clean_entry_with_mode.has(
         resolve(get_symlink_path(entry.path, entry.link_path))
       )
     ) {

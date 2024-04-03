@@ -42,12 +42,12 @@ untarCommand.action(async (options) => {
 
     if (options.dryRun) {
       await exit_on_finish(async () => {
-        const [filenames, map_absolute_path_to_clean_entry_with_mode] =
+        const [filenames, absolute_path_to_clean_entry_with_mode] =
           await read_tar(options.input, is_gzip);
         if (filenames.length > 0) {
           printfile_list_as_file_tree(
             filenames,
-            map_absolute_path_to_clean_entry_with_mode,
+            absolute_path_to_clean_entry_with_mode,
             is_windows
           );
         } else {

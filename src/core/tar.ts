@@ -24,6 +24,7 @@ import { extract, pack } from 'tar-stream';
 export const create_tar = async (
   output_path: string,
   unique_fs_entries: FsEntry[],
+  absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   num_files: number,
   gzip: boolean | number
 ) => {
@@ -120,6 +121,15 @@ export const create_tar = async (
       spinner.text = `Created ${output_path} file (${num_files}/${num_files} files)`;
     },
   });
+
+  const broken_symlinks_list = broken_symlinks(
+    unique_fs_entries,
+    absolute_path_to_clean_entry_with_mode
+  );
+
+  if (broken_symlinks_list.length !== 0) {
+    log_broken_symlink(broken_symlinks_list);
+  }
 };
 
 export const read_tar = async (
@@ -185,7 +195,7 @@ export const extract_tar = async (
   const broken_symlinks_list = await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
-      const [filenames, map_absolute_path_to_clean_entry_with_mode] =
+      const [filenames, absolute_path_to_clean_entry_with_mode] =
         await read_tar(input_path, is_gzip);
       const num_files = filenames.filter(
         (el) => el.type !== 'directory'
@@ -268,10 +278,7 @@ export const extract_tar = async (
 
       spinner.text = `Extracted ${input_path} file to ${output_dir} (${num_files}/${num_files} files)`;
 
-      return broken_symlinks(
-        filenames,
-        map_absolute_path_to_clean_entry_with_mode
-      );
+      return broken_symlinks(filenames, absolute_path_to_clean_entry_with_mode);
     },
   });
 

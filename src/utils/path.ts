@@ -76,7 +76,7 @@ const print_obj_as_file_tree = (
 
 export const printfile_list_as_file_tree = (
   entries: ArchiveEntry[],
-  map_absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
+  absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   is_windows: boolean
 ) => {
   const now = new Date();
@@ -127,7 +127,7 @@ export const printfile_list_as_file_tree = (
           type: 'symlink',
           link_path: entry.link_path,
           link_name: entry.link_name,
-          link_mode: map_absolute_path_to_clean_entry_with_mode.get(
+          link_mode: absolute_path_to_clean_entry_with_mode.get(
             resolve(get_symlink_path(entry.path, entry.link_path))
           )?.mode,
         };
