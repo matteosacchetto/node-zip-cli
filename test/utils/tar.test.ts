@@ -29,6 +29,10 @@ describe(filename, async () => {
   });
 
   describe('is_gzip_archive', async () => {
+    test('empty file', async () => {
+      assert.ok(!(await is_gzip_archive(join(fixture_dir, 'empty'))));
+    });
+
     test('tar archive', async () => {
       assert.ok(!(await is_gzip_archive(join(fixture_dir, 'base.tar'))));
     });

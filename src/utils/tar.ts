@@ -17,7 +17,7 @@ export const is_gzip_archive = async (path: string) => {
     end: 2,
   });
 
-  if (data === null) {
+  if (data === null || data.length < 3) {
     return false;
   }
 
