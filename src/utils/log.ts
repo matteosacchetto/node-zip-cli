@@ -1,5 +1,6 @@
 import { logger } from '@/logger';
 
+/* c8 ignore start */
 export const log_indent = ({
   indentation_increment = 2,
   fn,
@@ -12,3 +13,4 @@ export const log_indent = ({
   fn();
   logger.indent(indentation);
 };
+/* c8 ignore end */

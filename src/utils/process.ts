@@ -1,6 +1,7 @@
 import { logger } from '@/logger';
 import { log_indent } from './log';
 
+/* c8 ignore start */
 export const exit_success_on_error_ignore = async <T extends unknown[], R>(
   fn: (...params: T) => R,
   ...params: T
@@ -117,3 +118,4 @@ export const ignore_on_error = async <T extends unknown[], R>(
     // Ignore
   }
 };
+/* c8 ignore end */

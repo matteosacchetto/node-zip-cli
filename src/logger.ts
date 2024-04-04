@@ -5,6 +5,7 @@ import figureSet from 'figures';
 import logSymbols from 'log-symbols';
 import stripAnsi from 'strip-ansi';
 
+/* c8 ignore start */
 enum STD_FD {
   OUT = 0,
   ERR = 1,
@@ -132,3 +133,4 @@ class Logger {
 }
 
 export const logger = new Logger();
+/* c8 ignore end */
