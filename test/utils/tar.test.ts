@@ -2,7 +2,11 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { get_full_mode, is_gzip } from '@/utils/tar';
+import { get_full_mode, is_gzip, is_gzip_archive } from '@/utils/tar';
+
+const fixture_dir = join(process.cwd(), 'test', '_fixtures_');
+
+console.log(fixture_dir);
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -21,6 +25,16 @@ describe(filename, async () => {
 
     test('symlink', async () => {
       assert.strictEqual(get_full_mode(0o777, 'symlink'), 0o120777);
+    });
+  });
+
+  describe('is_gzip_archive', async () => {
+    test('tar archive', async () => {
+      assert.ok(!(await is_gzip_archive(join(fixture_dir, 'base.tar'))));
+    });
+
+    test('tgz archive', async () => {
+      assert.ok(await is_gzip_archive(join(fixture_dir, 'base.tgz')));
     });
   });
 
