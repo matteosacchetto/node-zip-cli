@@ -245,4 +245,6 @@ export const colorize = (
       return formats.SOCK(path);
     }
   }
+
+  return formats.RESET(path);
 };
