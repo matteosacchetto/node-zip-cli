@@ -110,10 +110,7 @@ export const walk = async (
   const fs_entries: FsEntry[] = [];
   let n_children = 0;
 
-  if (
-    (path_name !== '.' && gitignore_filter.ignores(path_name)) ||
-    !(await read_access(path))
-  ) {
+  if (gitignore_filter.ignores(path_name) || !(await read_access(path))) {
     return {
       entries: fs_entries,
       n_children,
@@ -145,9 +142,12 @@ export const walk = async (
       sub_n_children += res.n_children;
       fs_entries.push(...res.entries);
     }
-    fs_entries.push(
-      await create_dir(path, path_name, sub_n_children, is_windows)
-    );
+
+    if (sub_n_children > 0) {
+      fs_entries.push(
+        await create_dir(path, path_name, sub_n_children, is_windows)
+      );
+    }
   } else if (stats.isSymbolicLink()) {
     switch (symlink) {
       case 'keep': {
@@ -198,7 +198,7 @@ export const list_entries = async (
     default_rules.push(...exclude_list);
   }
 
-  const files: FsEntry[] = [];
+  const non_empty_list: FsEntry[] = [];
   for (const entry_path of unique_input_entries) {
     const entry_name = clean_path(entry_path);
     const res = await walk(
@@ -227,15 +227,10 @@ export const list_entries = async (
       });
     }
 
-    entries = entries.filter((el) => el.cleaned_path !== '.');
+    entries = entries.filter((el) => el.cleaned_path !== '');
 
-    files.push(...entries);
+    non_empty_list.push(...entries);
   }
-
-  const non_empty_list = files.filter(
-    (el) =>
-      el.type !== 'directory' || (el.type === 'directory' && el.n_children > 0)
-  );
 
   const [unique_list, conflicting_list] = unique_fs_entries(non_empty_list);
   const absolute_path_to_clean_path =
