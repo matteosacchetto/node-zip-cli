@@ -110,7 +110,10 @@ export const walk = async (
   const fs_entries: FsEntry[] = [];
   let n_children = 0;
 
-  if (gitignore_filter.ignores(path_name) || !(await read_access(path))) {
+  if (
+    (path_name !== '' && gitignore_filter.ignores(path_name)) ||
+    !(await read_access(path))
+  ) {
     return {
       entries: fs_entries,
       n_children,
