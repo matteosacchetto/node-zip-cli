@@ -1,15 +1,20 @@
 import assert from 'node:assert';
 import { join, relative } from 'node:path';
-import { afterEach, beforeEach, describe, mock, test } from 'node:test';
+import { afterEach, before, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { ArchiveEntry } from '@/types/fs';
 import { map_absolute_path_to_clean_entry_with_mode } from '@/utils/fs';
 import { clean_base_dir, printfile_list_as_file_tree } from '@/utils/path';
+import chalk from 'chalk';
 
 const filename = relative(
   join(process.cwd(), 'test'),
   fileURLToPath(import.meta.url)
 ).replace('.test', '');
+
+before(() => {
+  chalk.level = 0; // Suppress chalk color
+});
 
 describe(filename, async () => {
   describe('clean_base_dir', async () => {
