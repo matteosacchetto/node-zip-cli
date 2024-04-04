@@ -136,6 +136,11 @@ export const printfile_list_as_file_tree = (
     }
   }
 
+  if (Object.keys(root).length === 0) {
+    // Not files to print
+    return;
+  }
+
   const stats = print_obj_as_file_tree(
     Object.keys(root).length === 1
       ? root
@@ -152,9 +157,9 @@ export const printfile_list_as_file_tree = (
   console.log(
     `\n${
       stats.dirs > 0
-        ? `${stats.dirs} ${stats.dirs > 1 ? 'directories' : 'directory'}, `
+        ? `${stats.dirs} ${stats.dirs > 1 ? 'directories' : 'directory'}`
         : ''
-    }${
+    }${stats.dirs > 0 && stats.files > 0 ? ', ' : ''}${
       stats.files > 0
         ? `${stats.files} ${stats.files > 1 ? 'files' : 'file'}`
         : ''
