@@ -186,8 +186,13 @@ export const clean_path = (path: string) => {
   }
 
   final_path = normalize(final_path);
+
+  if (final_path === '.' || final_path === '..') {
+    return '';
+  }
+
   if (final_path.startsWith('..')) {
-    final_path = final_path.replaceAll('../', '');
+    return final_path.replaceAll('../', '');
   }
 
   return final_path;
