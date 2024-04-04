@@ -1,4 +1,4 @@
-import { is_windows } from '@/core/constants';
+import { is_windows, preset_compression_level } from '@/core/constants';
 import { create_tar } from '@/core/tar';
 import { list_entries } from '@/core/walk';
 import { logger } from '@/logger';
@@ -26,23 +26,28 @@ const tarCommand = createCommand(name, description)
   .option('-i, --input <input...>', 'the files or directories to tar', [
     '.',
   ] as string[])
-  .option(
-    '-g, --gzip [compression-level]',
-    'gzip the archive',
-    (compressionLevel) => {
-      if (compressionLevel === '') {
-        return true as boolean;
-      }
+  .addOption(
+    createOption('-g, --gzip [compression-level]', 'gzip the archive')
+      .argParser((compressionLevel) => {
+        if (compressionLevel === '') {
+          return preset_compression_level;
+        }
 
-      const parsedValue = Number.parseInt(compressionLevel, 10);
-      if (parsedValue < 0 || parsedValue > 9) {
-        throw new InvalidArgumentError(
-          'compression level must be a integer number between 0 (no compression) and 9 (maximum compression)'
-        );
-      }
-      return parsedValue;
-    },
-    false
+        const parsedValue = +compressionLevel;
+        if (
+          Number.isNaN(parsedValue) ||
+          !Number.isInteger(parsedValue) ||
+          parsedValue < 0 ||
+          parsedValue > 9
+        ) {
+          throw new InvalidArgumentError(
+            'compression level must be a integer number between 0 (no compression) and 9 (maximum compression)'
+          );
+        }
+        return parsedValue;
+      })
+      .default(false)
+      .preset(preset_compression_level)
   )
   .option(
     '-o, --output <output-file>',

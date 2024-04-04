@@ -26,7 +26,7 @@ export const create_zip = async (
   unique_fs_entries: FsEntry[],
   absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   num_files: number,
-  deflate: number
+  deflate: boolean | number
 ) => {
   if (num_files === 0) {
     logger.skip(`Creating ${output_path} file`);
@@ -87,9 +87,9 @@ export const create_zip = async (
           {
             type: 'nodebuffer',
             streamFiles: true,
-            compression: deflate ? 'DEFLATE' : 'STORE',
+            compression: deflate === false ? 'DEFLATE' : 'STORE',
             compressionOptions: {
-              level: deflate,
+              level: deflate === true ? 6 : +deflate,
             },
             platform: 'UNIX',
           },
