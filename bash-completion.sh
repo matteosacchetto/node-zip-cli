@@ -24,7 +24,7 @@ __node-zip-cli_completion() {
       # Options with one argument
       case $prev in
         -d|--deflate)
-          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9" -- "$cur"));
+          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9 -v --version -i --input -k --keep-parent -s --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
         -o|--output)
@@ -82,7 +82,7 @@ __node-zip-cli_completion() {
       # Options with one argument
       case $prev in
         -g|--gzip)
-          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9" -- "$cur"));
+          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9 -v --version -i --input -k --keep-parent -s --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
         -o|--output)
