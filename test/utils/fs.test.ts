@@ -19,6 +19,7 @@ import {
   get_symlink_path,
   is_directory,
   map_absolute_path_to_clean_entry_with_mode,
+  read_access,
   type_compare,
   unique_entries,
   unique_fs_entries,
@@ -211,8 +212,24 @@ describe(filename, async () => {
       assert.strictEqual(clean_path('//test/src'), 'test/src');
     });
 
-    test('//test/src', async (context) => {
+    test('////test/src', async (context) => {
       assert.strictEqual(clean_path('////test/src'), 'test/src');
+    });
+
+    test('//src', async (context) => {
+      assert.strictEqual(clean_path('//src'), 'src');
+    });
+
+    test('/', async (context) => {
+      assert.strictEqual(clean_path('/'), '');
+    });
+
+    test('//', async (context) => {
+      assert.strictEqual(clean_path('//'), '');
+    });
+
+    test('///', async (context) => {
+      assert.strictEqual(clean_path('///'), '');
     });
 
     test('.', async (context) => {
@@ -550,6 +567,24 @@ describe(filename, async () => {
 
     test('test/_fixtures_/base.tar', async () => {
       assert.ok(!(await is_directory(join(fixture_dir, 'base.tar'))));
+    });
+
+    test('test/_fixtures_/base.nonexists', async () => {
+      assert.ok(!(await is_directory(join(fixture_dir, 'base.nonexists'))));
+    });
+  });
+
+  describe('read_access', async () => {
+    test('test/_fixtures_', async () => {
+      assert.ok(await read_access(fixture_dir));
+    });
+
+    test('test/_fixtures_/base.tar', async () => {
+      assert.ok(await read_access(join(fixture_dir, 'base.tar')));
+    });
+
+    test('test/_fixtures_/base.nonexists', async () => {
+      assert.ok(!(await read_access(join(fixture_dir, 'base.nonexists'))));
     });
   });
 
