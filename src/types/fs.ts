@@ -19,7 +19,10 @@ export type FsEntry = {
     }
 );
 
-export type ArchiveEntry = Omit<FsEntry, 'n_children' | 'type'> &
+export type ArchiveEntry = Omit<
+  FsEntry,
+  'n_children' | 'type' | 'link_path' | 'link_name'
+> &
   (
     | {
         type: 'file' | 'directory';
