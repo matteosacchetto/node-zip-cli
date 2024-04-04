@@ -1,15 +1,22 @@
 import assert from 'node:assert';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import type { ConflictingFsEntry, FsEntry } from '@/types/fs';
+import type {
+  ArchiveEntry,
+  CleanedEntryWithMode,
+  ConflictingFsEntry,
+  FsEntry,
+} from '@/types/fs';
 import {
+  broken_symlinks,
   clean_path,
   fix_mode,
   get_default_mode,
   get_default_stats,
   get_priority_for_type,
   get_symlink_path,
+  map_absolute_path_to_clean_entry_with_mode,
   type_compare,
   unique_entries,
   unique_fs_entries,
@@ -213,27 +220,6 @@ describe(filename, async () => {
     });
   });
 
-  describe('unique_entries', async () => {
-    test('single entry: src', async (context) => {
-      assert.deepStrictEqual(unique_entries(['src']), ['src']);
-    });
-
-    test('mulitple entry: src, ./src', async (context) => {
-      assert.deepStrictEqual(unique_entries(['src', './src']), ['src']);
-    });
-
-    test('mulitple entry: src, ./src, join(process.cwd(), src)', async (context) => {
-      assert.deepStrictEqual(
-        unique_entries(['src', './src', join(process.cwd(), 'src')]),
-        ['src']
-      );
-    });
-
-    test('mulitple entry: src, test', async (context) => {
-      assert.deepStrictEqual(unique_entries(['src', 'test']), ['src', 'test']);
-    });
-  });
-
   describe('unique_fs_entries', async () => {
     test('no conflict', async () => {
       const now = new Date();
@@ -300,6 +286,246 @@ describe(filename, async () => {
           },
         ],
       ]);
+    });
+  });
+
+  describe('unique_entries', async () => {
+    test('single entry: src', async (context) => {
+      assert.deepStrictEqual(unique_entries(['src']), ['src']);
+    });
+
+    test('mulitple entry: src, ./src', async (context) => {
+      assert.deepStrictEqual(unique_entries(['src', './src']), ['src']);
+    });
+
+    test('mulitple entry: src, ./src, join(process.cwd(), src)', async (context) => {
+      assert.deepStrictEqual(
+        unique_entries(['src', './src', join(process.cwd(), 'src')]),
+        ['src']
+      );
+    });
+
+    test('mulitple entry: src, test', async (context) => {
+      assert.deepStrictEqual(unique_entries(['src', 'test']), ['src', 'test']);
+    });
+  });
+
+  describe('map_absolute_path_to_clean_entry_with_mode', async () => {
+    test('1 file, 1 directory and 1 symlink', async (context) => {
+      const now = new Date();
+      const list: ArchiveEntry[] = [
+        {
+          type: 'file',
+          path: 'test.ts',
+          cleaned_path: 'test.ts',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o100664,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'directory',
+          path: 'src',
+          cleaned_path: 'src',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o40775,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'symlink',
+          path: 'link',
+          cleaned_path: 'link',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o120775,
+            mtime: now,
+            size: 4,
+          },
+          link_name: 'src',
+          link_path: './src',
+        },
+      ];
+
+      const map = map_absolute_path_to_clean_entry_with_mode(list);
+
+      assert.strictEqual(map.size, 3);
+      assert.deepStrictEqual(map.get(resolve('test.ts')), <
+        CleanedEntryWithMode
+      >{
+        cleaned_path: list[0].cleaned_path,
+        mode: list[0].stats.mode,
+      });
+      assert.deepStrictEqual(map.get(resolve('src')), <CleanedEntryWithMode>{
+        cleaned_path: list[1].cleaned_path,
+        mode: list[1].stats.mode,
+      });
+
+      assert.deepStrictEqual(map.get(resolve('link')), <CleanedEntryWithMode>{
+        cleaned_path: list[2].cleaned_path,
+        mode: list[2].stats.mode,
+      });
+    });
+  });
+
+  describe('broken_symlinks', async () => {
+    test('symlink: link to existing dir', async (context) => {
+      const now = new Date();
+      const list: ArchiveEntry[] = [
+        {
+          type: 'file',
+          path: 'test.ts',
+          cleaned_path: 'test.ts',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o100664,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'directory',
+          path: 'src',
+          cleaned_path: 'src',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o40775,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'symlink',
+          path: 'link',
+          cleaned_path: 'link',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o120775,
+            mtime: now,
+            size: 4,
+          },
+          link_name: 'src',
+          link_path: './src',
+        },
+      ];
+
+      const map = map_absolute_path_to_clean_entry_with_mode(list);
+      const broken = broken_symlinks(list, map);
+
+      assert.strictEqual(broken.length, 0);
+    });
+
+    test('symlink: link to existing file', async (context) => {
+      const now = new Date();
+      const list: ArchiveEntry[] = [
+        {
+          type: 'file',
+          path: 'test.ts',
+          cleaned_path: 'test.ts',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o100664,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'directory',
+          path: 'src',
+          cleaned_path: 'src',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o40775,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'symlink',
+          path: 'link',
+          cleaned_path: 'link',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o120775,
+            mtime: now,
+            size: 4,
+          },
+          link_name: 'test',
+          link_path: './test.ts',
+        },
+      ];
+
+      const map = map_absolute_path_to_clean_entry_with_mode(list);
+      const broken = broken_symlinks(list, map);
+
+      assert.strictEqual(broken.length, 0);
+    });
+
+    test('symlink: broken link', async (context) => {
+      const now = new Date();
+      const list: ArchiveEntry[] = [
+        {
+          type: 'file',
+          path: 'test.ts',
+          cleaned_path: 'test.ts',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o100664,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'directory',
+          path: 'src',
+          cleaned_path: 'src',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o40775,
+            mtime: now,
+            size: 4,
+          },
+        },
+        {
+          type: 'symlink',
+          path: 'link',
+          cleaned_path: 'link',
+          stats: {
+            uid: 1000,
+            gid: 1000,
+            mode: 0o120775,
+            mtime: now,
+            size: 4,
+          },
+          link_name: 'foo',
+          link_path: './foo.ts',
+        },
+      ];
+
+      const map = map_absolute_path_to_clean_entry_with_mode(list);
+      const broken = broken_symlinks(list, map);
+
+      assert.strictEqual(broken.length, 1);
+      assert.strictEqual(broken[0].cleaned_path, list[2].cleaned_path);
+      assert.strictEqual(
+        broken[0].link_name,
+        (list[2] as Extract<ArchiveEntry, { type: 'symlink' }>).link_name
+      );
     });
   });
 
