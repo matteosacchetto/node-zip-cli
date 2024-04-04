@@ -13,7 +13,6 @@ const formats = {
   ORPHAN: chalk.bold.bgBlack.red,
   SETUID: chalk.bgRed.white,
   SETGID: chalk.bgYellow.black,
-  // CAPABILITY: chalk.bgRed.black,
   STICKY_OTHER_WRITABLE: chalk.bgGreen.black,
   OTHER_WRITABLE: chalk.bgGreen.blue,
   STICKY: chalk.bgBlue.white,
