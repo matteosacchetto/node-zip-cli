@@ -11,16 +11,20 @@ import type {
 import {
   broken_symlinks,
   clean_path,
+  exists,
   fix_mode,
   get_default_mode,
   get_default_stats,
   get_priority_for_type,
   get_symlink_path,
+  is_directory,
   map_absolute_path_to_clean_entry_with_mode,
   type_compare,
   unique_entries,
   unique_fs_entries,
 } from '@/utils/fs';
+
+const fixture_dir = join(process.cwd(), 'test', '_fixtures_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -526,6 +530,26 @@ describe(filename, async () => {
         broken[0].link_name,
         (list[2] as Extract<ArchiveEntry, { type: 'symlink' }>).link_name
       );
+    });
+  });
+
+  describe('exists', async () => {
+    test('base.tar', async () => {
+      assert.ok(await exists(join(fixture_dir, 'base.tar')));
+    });
+
+    test('base.nonexists', async () => {
+      assert.ok(!(await exists(join(fixture_dir, 'base.nonexists'))));
+    });
+  });
+
+  describe('is_directory', async () => {
+    test('test/_fixtures_', async () => {
+      assert.ok(await is_directory(fixture_dir));
+    });
+
+    test('test/_fixtures_/base.tar', async () => {
+      assert.ok(!(await is_directory(join(fixture_dir, 'base.tar'))));
     });
   });
 
