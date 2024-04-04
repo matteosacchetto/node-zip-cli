@@ -128,10 +128,10 @@ zip files and directories ignoring files specified in .zipignore and .gitignore
 Options:
   -v, --version                      output the version number
   -i, --input <input...>             the files or directories to zip (default: ["."])
-  -d, --deflate <compression-level>  deflate the files (default: 0)
+  -d, --deflate [compression-level]  deflate the files (default: false, preset: 6)
   -o, --output <output-file>         the filename of the zip file to create (default: "out.zip")
   -k, --keep-parent <mode>           keep the parent directories (choices: "none", "last", "full", default: "full")
-  --symlink <mode>                   handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
+  -s, --symlink <mode>               handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
   -y, --yes                          answers yes to every question (default: false)
   -e, --exclude <paths...>           ignore the following paths
   --allow-git                        allow .git to be included in the zip (default: false)
@@ -145,9 +145,11 @@ Options:
 
 Specify the list of input files/directories. Defaults to the current directory (`.`). Files and directories can be relative or absolute paths.
 
-###### `-d, --deflate <compression-level>`
+###### `-d, --deflate [compression-level]`
 
-Specify the compression level of the deflate operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). Defaults to 0
+Specify the compression level of the deflate operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default no compression is applied.
+
+If this options is set without any specified compression level, it will fallback to its preset level, which is 6.
 
 ###### `-o, --output <output-file>`
 
@@ -163,7 +165,7 @@ This options specifies how to provided input directories. The possible values ar
 
 The default values is `full`.
 
-###### `--symlink <mode>` \[experimental\]
+###### `-s, --symlink <mode>` \[experimental\]
 
 Allows you to include symlinks in your archive using two different strategies:
 * `resolve`: will resolve the symlink to a file or directory and include it in the archive
@@ -187,18 +189,6 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > To avoid issues with wildcard extension, remember to puth pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
 > 
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
-
-> [!NOTE]
-> The specified paths must be specified considering as root directory the input directory specified with the -i flag
-
-Example:
-If you have the following structure and you want to ignore the file `two`, if you run the command with `-i test/`, you need to exclude it with `-e two` and NOT `-e test/two`
-```
-test/
-├── one
-├── two
-└── three
-```
 
 > [!NOTE]
 > Up to the current version (0.6.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
@@ -259,10 +249,10 @@ tar files and directories ignoring files specified in .zipignore and .gitignore
 Options:
   -v, --version                   output the version number
   -i, --input <input...>          the files or directories to tar (default: ["."])
-  -g, --gzip [compression-level]  gzip the archive (default: false)
+  -g, --gzip [compression-level]  gzip the archive (default: false, preset: 6)
   -o, --output <output-file>      the filename of the tar file to create
   -k, --keep-parent <mode>        keep the parent directories (choices: "none", "last", "full", default: "full")
-  --symlink <mode>                handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
+  -s, --symlink <mode>            handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
   -y, --yes                       answers yes to every question (default: false)
   -e, --exclude <paths...>        ignore the following paths
   --allow-git                     allow .git to be included in the tar (default: false)
@@ -278,7 +268,9 @@ Specify the list of input files/directories. Defaults to the current directory (
 
 ###### `-g, --gzip [compression-level]`
 
-Enable gzip compression and optionally specify the compression level of the gzip operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). Defaults to false.
+Enable gzip compression and optionally specify the compression level of the gzip operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default no compression is applied.
+
+If this options is set without any specified compression level, it will fallback to its preset level, which is 6.
 
 ###### `-o, --output <output-file>`
 
@@ -294,7 +286,7 @@ This options specifies how to provided input directories. The possible values ar
 
 The default values is `full`.
 
-###### `--symlink <mode>` \[experimental\]
+###### `-s, --symlink <mode>` \[experimental\]
 
 Allows you to include symlinks in your archive using two different strategies:
 * `resolve`: will resolve the symlink to a file or directory and include it in the archive
@@ -318,18 +310,6 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > To avoid issues with wildcard extension, remember to puth pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
 > 
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
-
-> [!NOTE]
-> The specified paths must be specified considering as root directory the input directory specified with the -i flag
-
-Example:
-If you have the following structure and you want to ignore the file `two`, if you run the command with `-i test/`, you need to exclude it with `-e two` and NOT `-e test/two`
-```
-test/
-├── one
-├── two
-└── three
-```
 
 > [!NOTE]
 > Up to the current version (0.6.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
@@ -387,7 +367,7 @@ Simply run this CLI providing to each command all the necessary options.
 This file is meant to be placed in a folder which you plan to zip/tar. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
 
 > [!NOTE]
-> Up to the current version (0.6.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore. Keep in mind that this behavior may change in the future
+> Up to the current version (0.6.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
 
 > [!WARN]
 > *Current limitaionts*  
