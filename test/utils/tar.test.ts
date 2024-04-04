@@ -26,6 +26,13 @@ describe(filename, async () => {
     test('symlink', async () => {
       assert.strictEqual(get_full_mode(0o777, 'symlink'), 0o120777);
     });
+
+    test('empty', async () => {
+      assert.strictEqual(
+        get_full_mode(0o777, 'empty' as unknown as 'file'),
+        0o777
+      );
+    });
   });
 
   describe('is_gzip_archive', async () => {
