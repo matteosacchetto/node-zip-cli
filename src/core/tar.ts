@@ -165,7 +165,6 @@ export const read_tar = async (
               ? get_default_mode(entry.header.type)
               : get_full_mode(entry.header.mode, entry.header.type),
           mtime: entry.header.mtime ?? now,
-          size: entry.header.size ?? 0,
         },
       };
 
