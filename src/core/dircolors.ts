@@ -162,9 +162,9 @@ export const colorize = (
   broken_or_missing = false
 ) => {
   const type = (mode & 0o770000) >> 12;
-  const setuid = !!((mode & 4000) >> 11);
-  const setgid = !!((mode & 2000) >> 10);
-  const sticky = !!((mode & 1000) >> 9);
+  const setuid = !!((mode & 0o4000) >> 11);
+  const setgid = !!((mode & 0o2000) >> 10);
+  const sticky = !!((mode & 0o1000) >> 9);
   const exec = !!(mode & 0o000111);
 
   switch (type) {
