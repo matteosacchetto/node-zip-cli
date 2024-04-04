@@ -54,7 +54,7 @@ const tarCommand = createCommand(name, description)
       .default('full' as const)
   )
   .addOption(
-    createOption('--symlink <mode>', 'handle symlinks (experimental)')
+    createOption('-s, --symlink <mode>', 'handle symlinks (experimental)')
       .choices(['none', 'resolve', 'keep'] as const)
       .default('none' as const)
   )
