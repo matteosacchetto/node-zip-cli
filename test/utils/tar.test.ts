@@ -6,8 +6,6 @@ import { get_full_mode, is_gzip, is_gzip_archive } from '@/utils/tar';
 
 const fixture_dir = join(process.cwd(), 'test', '_fixtures_');
 
-console.log(fixture_dir);
-
 const filename = relative(
   join(process.cwd(), 'test'),
   fileURLToPath(import.meta.url)
