@@ -139,17 +139,17 @@ export const broken_symlinks = (
   return broken_symlinks_list;
 };
 
-export const exists = async (p: string) => {
+export const exists = async (path: string) => {
   try {
-    return !!(await lstat(p));
+    return !!(await lstat(path));
   } catch (e) {
     return false;
   }
 };
 
-export const is_directory = async (p: string) => {
+export const is_directory = async (path: string) => {
   try {
-    return (await lstat(p)).isDirectory();
+    return (await lstat(path)).isDirectory();
   } catch (e) {
     return false;
   }
