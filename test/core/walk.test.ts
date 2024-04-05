@@ -1168,5 +1168,162 @@ describe(filename, async () => {
       assert.strictEqual(entries[2].link_path, '../dir-2');
       assert.strictEqual(entries[2].link_name, '../dir-2');
     });
+
+    test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore '.zipignore'", async (ctx) => {
+      const [entries, conflicting_list, map] = await list_entries(
+        ['test/_data_'],
+        is_windows,
+        'full',
+        'none',
+        false,
+        ['.zipignore']
+      );
+
+      assert.strictEqual(entries.length, 2);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 2);
+
+      assert.strictEqual(entries[0].path, 'test/_data_');
+      assert.strictEqual(entries[0].cleaned_path, 'test/_data_');
+      assert.strictEqual(entries[0].type, 'directory');
+      assert.strictEqual(entries[0].n_children, 1);
+
+      assert.strictEqual(entries[1].path, 'test/_data_/empty');
+      assert.strictEqual(entries[1].cleaned_path, 'test/_data_/empty');
+      assert.strictEqual(entries[1].type, 'file');
+      const stats_empty = await lstat(entries[1].path);
+      assert.deepStrictEqual(entries[1].stats, {
+        uid: stats_empty.uid,
+        gid: stats_empty.gid,
+        mtime: stats_empty.mtime,
+        mode: fix_mode(stats_empty.mode, is_windows),
+        size: 0,
+      });
+    });
+
+    test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore 'test/_data_/.zipignore'", async (ctx) => {
+      const [entries, conflicting_list, map] = await list_entries(
+        ['test/_data_'],
+        is_windows,
+        'full',
+        'none',
+        false,
+        ['test/_data_/.zipignore']
+      );
+
+      assert.strictEqual(entries.length, 2);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 2);
+
+      assert.strictEqual(entries[0].path, 'test/_data_');
+      assert.strictEqual(entries[0].cleaned_path, 'test/_data_');
+      assert.strictEqual(entries[0].type, 'directory');
+      assert.strictEqual(entries[0].n_children, 1);
+
+      assert.strictEqual(entries[1].path, 'test/_data_/empty');
+      assert.strictEqual(entries[1].cleaned_path, 'test/_data_/empty');
+      assert.strictEqual(entries[1].type, 'file');
+      const stats_empty = await lstat(entries[1].path);
+      assert.deepStrictEqual(entries[1].stats, {
+        uid: stats_empty.uid,
+        gid: stats_empty.gid,
+        mtime: stats_empty.mtime,
+        mode: fix_mode(stats_empty.mode, is_windows),
+        size: 0,
+      });
+    });
+
+    test("test/_data_/empty: relative {keep_parent: 'full', symlink: 'none'} file", async (ctx) => {
+      const [entries, conflicting_list, map] = await list_entries(
+        ['test/_data_/empty'],
+        is_windows,
+        'full',
+        'none',
+        false
+      );
+
+      assert.strictEqual(entries.length, 1);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 1);
+
+      assert.strictEqual(entries[0].path, 'test/_data_/empty');
+      assert.strictEqual(entries[0].cleaned_path, 'test/_data_/empty');
+      assert.strictEqual(entries[0].type, 'file');
+      const stats_empty = await lstat(entries[0].path);
+      assert.deepStrictEqual(entries[0].stats, {
+        uid: stats_empty.uid,
+        gid: stats_empty.gid,
+        mtime: stats_empty.mtime,
+        mode: fix_mode(stats_empty.mode, is_windows),
+        size: 0,
+      });
+    });
+
+    test("test/_data_/empty: relative {keep_parent: 'last', symlink: 'none'} file", async (ctx) => {
+      const [entries, conflicting_list, map] = await list_entries(
+        ['test/_data_/empty'],
+        is_windows,
+        'last',
+        'none',
+        false
+      );
+
+      assert.strictEqual(entries.length, 1);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 1);
+
+      assert.strictEqual(entries[0].path, 'test/_data_/empty');
+      assert.strictEqual(entries[0].cleaned_path, '_data_/empty');
+      assert.strictEqual(entries[0].type, 'file');
+      const stats_empty = await lstat(entries[0].path);
+      assert.deepStrictEqual(entries[0].stats, {
+        uid: stats_empty.uid,
+        gid: stats_empty.gid,
+        mtime: stats_empty.mtime,
+        mode: fix_mode(stats_empty.mode, is_windows),
+        size: 0,
+      });
+    });
+
+    test("test/_data_/empty: relative {keep_parent: 'none', symlink: 'none'} file", async (ctx) => {
+      const [entries, conflicting_list, map] = await list_entries(
+        ['test/_data_/empty'],
+        is_windows,
+        'none',
+        'none',
+        false
+      );
+
+      assert.strictEqual(entries.length, 1);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 1);
+
+      assert.strictEqual(entries[0].path, 'test/_data_/empty');
+      assert.strictEqual(entries[0].cleaned_path, 'empty');
+      assert.strictEqual(entries[0].type, 'file');
+      const stats_empty = await lstat(entries[0].path);
+      assert.deepStrictEqual(entries[0].stats, {
+        uid: stats_empty.uid,
+        gid: stats_empty.gid,
+        mtime: stats_empty.mtime,
+        mode: fix_mode(stats_empty.mode, is_windows),
+        size: 0,
+      });
+    });
+
+    test("test/_data_/empty: relative {keep_parent: 'full', symlink: 'none'} file then ignored", async (ctx) => {
+      const [entries, conflicting_list, map] = await list_entries(
+        ['test/_data_/empty'],
+        is_windows,
+        'full',
+        'none',
+        false,
+        ['test/_data_/empty']
+      );
+
+      assert.strictEqual(entries.length, 0);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 0);
+    });
   });
 });
