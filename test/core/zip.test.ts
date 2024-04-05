@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { read_zip } from '@/core/zip';
 import type { ArchiveEntry, CleanedEntryWithMode } from '@/types/fs';
 
-const fixture_dir = join(process.cwd(), 'test', '_fixtures_');
+const fixture_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),

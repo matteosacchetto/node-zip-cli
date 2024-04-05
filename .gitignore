@@ -149,7 +149,7 @@ docs
 *.tgz
 
 # Fixtures
-!test/_fixtures_/base.tar
-!test/_fixtures_/base.tar.gz
-!test/_fixtures_/base.zip
-!test/_fixtures_/base.tgz
+!test/_data_/base.tar
+!test/_data_/base.tar.gz
+!test/_data_/base.zip
+!test/_data_/base.tgz

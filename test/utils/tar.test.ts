@@ -4,7 +4,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { get_full_mode, is_gzip, is_gzip_archive } from '@/utils/tar';
 
-const fixture_dir = join(process.cwd(), 'test', '_fixtures_');
+const fixture_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),

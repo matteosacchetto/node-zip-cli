@@ -6,7 +6,7 @@ import { read_tar } from '@/core/tar';
 import type { ArchiveEntry, CleanedEntryWithMode } from '@/types/fs';
 import { is_gzip_archive } from '@/utils/tar';
 
-const fixture_dir = join(process.cwd(), 'test', '_fixtures_');
+const fixture_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
