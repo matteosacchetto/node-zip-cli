@@ -1,6 +1,6 @@
 import assert from 'node:assert';
-import { join, relative, resolve } from 'node:path';
-import { describe, test } from 'node:test';
+import { dirname, join, relative, resolve } from 'node:path';
+import { afterEach, beforeEach, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type {
   ArchiveEntry,
@@ -19,13 +19,26 @@ import {
   get_symlink_path,
   is_directory,
   map_absolute_path_to_clean_entry_with_mode,
+  overwrite_symlink_if_exists,
   read_access,
+  resolve_symlink,
+  set_permissions,
   type_compare,
   unique_entries,
   unique_fs_entries,
 } from '@/utils/fs';
+import { platform } from 'node:os';
+import {
+  lstat,
+  mkdir,
+  rm,
+  writeFile,
+  symlink,
+  readlink,
+} from 'node:fs/promises';
 
 const data_dir = join(process.cwd(), 'test', '_data_');
+const write_dir = join(process.cwd(), 'test', '_write_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -603,6 +616,189 @@ describe(filename, async () => {
 
     test('absolute: /utils', async () => {
       assert.equal(get_symlink_path('test/abc', '/utils'), '/utils');
+    });
+  });
+
+  describe(
+    'set_permissions',
+    {
+      skip:
+        platform() === 'win32'
+          ? 'Windows does not support setting permissions'
+          : undefined,
+    },
+    async () => {
+      const permissions_dir = join(write_dir, 'set_permissions');
+
+      beforeEach(async () => {
+        await mkdir(permissions_dir, { recursive: true });
+      });
+
+      afterEach(async () => {
+        await rm(permissions_dir, { recursive: true });
+      });
+
+      test('set file mode', async () => {
+        const file = join(permissions_dir, 'tmp.txt');
+        await writeFile(file, '');
+
+        await set_permissions(file, { mode: 0o100777 });
+
+        const { mode } = await lstat(file);
+
+        assert.strictEqual(mode, 0o100777);
+      });
+
+      test('set file mtime', async () => {
+        const file = join(permissions_dir, 'tmp1.txt');
+        const now = new Date();
+        const ten_seconds_ago = new Date(now.getTime() - 10000);
+
+        await writeFile(file, '');
+
+        await set_permissions(file, { mtime: ten_seconds_ago });
+
+        const { mtime } = await lstat(file);
+
+        assert.strictEqual(mtime.getTime(), ten_seconds_ago.getTime());
+      });
+
+      test(
+        'set file owner',
+        {
+          skip:
+            !process.getuid || process.getuid() !== 0
+              ? 'Only root can change the owner of a file'
+              : undefined,
+        },
+        async () => {
+          const file = join(permissions_dir, 'tmp2.txt');
+          const _uid = 1000,
+            _gid = 1000;
+
+          await writeFile(file, '');
+
+          await set_permissions(file, { uid: _uid, gid: _gid });
+
+          const { uid, gid } = await lstat(file);
+
+          assert.strictEqual(uid, _uid);
+          assert.strictEqual(gid, _gid);
+        }
+      );
+    }
+  );
+
+  describe('overwrite_symlink_if_exists', async () => {
+    const overwrite_symlink_dir = join(
+      write_dir,
+      'overwrite_symlink_if_exists'
+    );
+
+    beforeEach(async () => {
+      await mkdir(overwrite_symlink_dir, { recursive: true });
+    });
+
+    afterEach(async () => {
+      await rm(overwrite_symlink_dir, { recursive: true });
+    });
+
+    test('create symlink', async () => {
+      const file = join(overwrite_symlink_dir, 'tmp.txt');
+      const link = join(overwrite_symlink_dir, 'link.txt');
+
+      await writeFile(file, '');
+
+      await overwrite_symlink_if_exists(file, link);
+      const new_linked_path = await readlink(link);
+      assert.strictEqual(new_linked_path, file);
+    });
+
+    test('create dangling symlink', async () => {
+      const link = join(overwrite_symlink_dir, 'link.txt');
+
+      await overwrite_symlink_if_exists('./tmp.txt', link);
+      const new_linked_path = await readlink(link);
+      assert.strictEqual(new_linked_path, './tmp.txt');
+    });
+
+    test('create symlink: relative', async () => {
+      const file = join(overwrite_symlink_dir, 'tmp-1.txt');
+      const link = join(overwrite_symlink_dir, 'link-1.txt');
+
+      await writeFile(file, '');
+
+      await overwrite_symlink_if_exists(relative(dirname(link), file), link);
+      const new_linked_path = await readlink(link);
+      assert.strictEqual(new_linked_path, relative(dirname(link), file));
+    });
+
+    test('overwrite existing symlink', async () => {
+      const file = join(overwrite_symlink_dir, 'tmp-2.txt');
+      const file1 = join(overwrite_symlink_dir, 'tmp-3.txt');
+      const link = join(overwrite_symlink_dir, 'link-2.txt');
+
+      await writeFile(file, '');
+      await writeFile(file1, '');
+      await symlink(file, link);
+
+      const linked_path = await readlink(link);
+      assert.strictEqual(linked_path, file);
+
+      await overwrite_symlink_if_exists(file1, link);
+      const new_linked_path = await readlink(link);
+      assert.strictEqual(new_linked_path, file1);
+    });
+
+    test('overwrite existing symlink: relative', async () => {
+      const file = join(overwrite_symlink_dir, 'tmp-4.txt');
+      const file1 = join(overwrite_symlink_dir, 'tmp-5.txt');
+      const link = join(overwrite_symlink_dir, 'link-4.txt');
+
+      await writeFile(file, '');
+      await writeFile(file1, '');
+      await symlink(relative(dirname(link), file), link);
+
+      const linked_path = await readlink(link);
+      assert.strictEqual(linked_path, relative(dirname(link), file));
+
+      await overwrite_symlink_if_exists(relative(dirname(link), file1), link);
+      const new_linked_path = await readlink(link);
+      assert.strictEqual(new_linked_path, relative(dirname(link), file1));
+    });
+  });
+
+  describe('resolve_symlink', async () => {
+    const resolve_symlink_dir = join(write_dir, 'resolve_symlink');
+
+    beforeEach(async () => {
+      await mkdir(resolve_symlink_dir, { recursive: true });
+    });
+
+    afterEach(async () => {
+      await rm(resolve_symlink_dir, { recursive: true });
+    });
+
+    test('symlink: absolute', async () => {
+      const file = join(resolve_symlink_dir, 'tmp.txt');
+      const link = join(resolve_symlink_dir, 'link.txt');
+
+      await writeFile(file, '');
+
+      await symlink(file, link);
+      const link_path = await resolve_symlink(link);
+      assert.strictEqual(link_path, file);
+    });
+
+    test('symlink: relative', async () => {
+      const file = join(resolve_symlink_dir, 'tmp-1.txt');
+      const link = join(resolve_symlink_dir, 'link-1.txt');
+
+      await writeFile(file, '');
+
+      await symlink(relative(dirname(link), file), link);
+      const link_path = await resolve_symlink(link);
+      assert.strictEqual(link_path, file);
     });
   });
 });

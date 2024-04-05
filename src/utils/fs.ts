@@ -310,8 +310,7 @@ export const get_symlink_path = (base_path: string, link_path: string) => {
 };
 
 export const resolve_symlink = async (path: string) => {
-  const base_dir = dirname(path);
   const link_path = await readlink(path);
 
-  return get_symlink_path(base_dir, link_path);
+  return get_symlink_path(path, link_path);
 };

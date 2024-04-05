@@ -148,8 +148,10 @@ docs
 *.tar.gz
 *.tgz
 
-# Fixtures
+# Test directories
 !test/_data_/base.tar
 !test/_data_/base.tar.gz
 !test/_data_/base.zip
 !test/_data_/base.tgz
+test/_write_/*
+!test/_write_/.gitkeep
