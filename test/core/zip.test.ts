@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { read_zip } from '@/core/zip';
 import type { ArchiveEntry, CleanedEntryWithMode } from '@/types/fs';
 
-const fixture_dir = join(process.cwd(), 'test', '_data_');
+const data_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -15,7 +15,7 @@ const filename = relative(
 describe(filename, async () => {
   describe('read_zip', async () => {
     test('base.zip', async (context) => {
-      const [entries, map] = await read_zip(join(fixture_dir, 'base.zip'));
+      const [entries, map] = await read_zip(join(data_dir, 'base.zip'));
 
       assert.strictEqual(entries.length, 2);
       assert.deepStrictEqual(entries[0], <ArchiveEntry>{

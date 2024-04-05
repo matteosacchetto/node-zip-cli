@@ -6,7 +6,7 @@ import { read_tar } from '@/core/tar';
 import type { ArchiveEntry, CleanedEntryWithMode } from '@/types/fs';
 import { is_gzip_archive } from '@/utils/tar';
 
-const fixture_dir = join(process.cwd(), 'test', '_data_');
+const data_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -16,7 +16,7 @@ const filename = relative(
 describe(filename, async () => {
   describe('read_tar', async () => {
     test('base.tar', async (context) => {
-      const tar_path = join(fixture_dir, 'base.tar');
+      const tar_path = join(data_dir, 'base.tar');
       const [entries, map] = await read_tar(
         tar_path,
         await is_gzip_archive(tar_path)
@@ -61,7 +61,7 @@ describe(filename, async () => {
     });
 
     test('base.tgz', async (context) => {
-      const tar_path = join(fixture_dir, 'base.tgz');
+      const tar_path = join(data_dir, 'base.tgz');
       const [entries, map] = await read_tar(
         tar_path,
         await is_gzip_archive(tar_path)

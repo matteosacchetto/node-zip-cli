@@ -25,7 +25,7 @@ import {
   unique_fs_entries,
 } from '@/utils/fs';
 
-const fixture_dir = join(process.cwd(), 'test', '_data_');
+const data_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -552,39 +552,39 @@ describe(filename, async () => {
 
   describe('exists', async () => {
     test('base.tar', async () => {
-      assert.ok(await exists(join(fixture_dir, 'base.tar')));
+      assert.ok(await exists(join(data_dir, 'base.tar')));
     });
 
     test('base.nonexists', async () => {
-      assert.ok(!(await exists(join(fixture_dir, 'base.nonexists'))));
+      assert.ok(!(await exists(join(data_dir, 'base.nonexists'))));
     });
   });
 
   describe('is_directory', async () => {
     test('test/_data_', async () => {
-      assert.ok(await is_directory(fixture_dir));
+      assert.ok(await is_directory(data_dir));
     });
 
     test('test/_data_/base.tar', async () => {
-      assert.ok(!(await is_directory(join(fixture_dir, 'base.tar'))));
+      assert.ok(!(await is_directory(join(data_dir, 'base.tar'))));
     });
 
     test('test/_data_/base.nonexists', async () => {
-      assert.ok(!(await is_directory(join(fixture_dir, 'base.nonexists'))));
+      assert.ok(!(await is_directory(join(data_dir, 'base.nonexists'))));
     });
   });
 
   describe('read_access', async () => {
     test('test/_data_', async () => {
-      assert.ok(await read_access(fixture_dir));
+      assert.ok(await read_access(data_dir));
     });
 
     test('test/_data_/base.tar', async () => {
-      assert.ok(await read_access(join(fixture_dir, 'base.tar')));
+      assert.ok(await read_access(join(data_dir, 'base.tar')));
     });
 
     test('test/_data_/base.nonexists', async () => {
-      assert.ok(!(await read_access(join(fixture_dir, 'base.nonexists'))));
+      assert.ok(!(await read_access(join(data_dir, 'base.nonexists'))));
     });
   });
 

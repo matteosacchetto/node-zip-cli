@@ -4,7 +4,7 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { get_full_mode, is_gzip, is_gzip_archive } from '@/utils/tar';
 
-const fixture_dir = join(process.cwd(), 'test', '_data_');
+const data_dir = join(process.cwd(), 'test', '_data_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -35,15 +35,15 @@ describe(filename, async () => {
 
   describe('is_gzip_archive', async () => {
     test('empty file', async () => {
-      assert.ok(!(await is_gzip_archive(join(fixture_dir, 'empty'))));
+      assert.ok(!(await is_gzip_archive(join(data_dir, 'empty'))));
     });
 
     test('tar archive', async () => {
-      assert.ok(!(await is_gzip_archive(join(fixture_dir, 'base.tar'))));
+      assert.ok(!(await is_gzip_archive(join(data_dir, 'base.tar'))));
     });
 
     test('tgz archive', async () => {
-      assert.ok(await is_gzip_archive(join(fixture_dir, 'base.tgz')));
+      assert.ok(await is_gzip_archive(join(data_dir, 'base.tgz')));
     });
   });
 
