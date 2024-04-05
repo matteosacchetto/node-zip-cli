@@ -306,6 +306,19 @@ describe(filename, async () => {
         assert.strictEqual(clean_path('..\\src\\test'), 'src\\test');
       }
     );
+
+    test(
+      'C:\\src\\test',
+      {
+        skip:
+          platform() !== 'win32'
+            ? 'This test checks if on windows it properly handles C:\\ separator'
+            : undefined,
+      },
+      async (context) => {
+        assert.strictEqual(clean_path('C:\\src\\test'), 'src\\test');
+      }
+    );
   });
 
   describe('unique_fs_entries', async () => {
