@@ -191,7 +191,6 @@ export const clean_path = (path: string) => {
       final_path = final_path.slice(root.length);
       parsed_path = parse(final_path);
     }
-    return final_path;
   }
 
   final_path = normalize(final_path);
