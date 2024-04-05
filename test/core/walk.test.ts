@@ -1,5 +1,6 @@
 import assert from 'node:assert';
 import { lstat } from 'node:fs/promises';
+import { platform } from 'node:os';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -1044,130 +1045,148 @@ describe(filename, async () => {
       process.chdir(cwd);
     });
 
-    test("test/_data_/dir-5: relative {keep_parent: 'full', symlink: 'resolve'}", async (ctx) => {
-      const [entries, conflicting_list, map] = await list_entries(
-        ['test/_data_/dir-5'],
-        is_windows,
-        'full',
-        'resolve',
-        false
-      );
+    test(
+      "test/_data_/dir-5: relative {keep_parent: 'full', symlink: 'resolve'}",
+      {
+        skip:
+          platform() === 'win32'
+            ? 'Windows does not handle symlinks'
+            : undefined,
+      },
+      async (ctx) => {
+        const [entries, conflicting_list, map] = await list_entries(
+          ['test/_data_/dir-5'],
+          is_windows,
+          'full',
+          'resolve',
+          false
+        );
 
-      assert.strictEqual(entries.length, 5);
-      assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 5);
+        assert.strictEqual(entries.length, 5);
+        assert.strictEqual(conflicting_list.length, 0);
+        assert.strictEqual(map.size, 5);
 
-      assert.strictEqual(entries[0].path, 'test/_data_/dir-5');
-      assert.strictEqual(entries[0].cleaned_path, 'test/_data_/dir-5');
-      assert.strictEqual(entries[0].type, 'directory');
-      assert.strictEqual(entries[0].n_children, 3);
+        assert.strictEqual(entries[0].path, 'test/_data_/dir-5');
+        assert.strictEqual(entries[0].cleaned_path, 'test/_data_/dir-5');
+        assert.strictEqual(entries[0].type, 'directory');
+        assert.strictEqual(entries[0].n_children, 3);
 
-      assert.strictEqual(entries[1].path, 'test/_data_/dir-1/a.txt');
-      assert.strictEqual(
-        entries[1].cleaned_path,
-        'test/_data_/dir-5/symlink-a'
-      );
-      assert.strictEqual(entries[1].type, 'file');
-      const stats_a = await lstat(entries[1].path);
-      assert.deepStrictEqual(entries[1].stats, {
-        uid: stats_a.uid,
-        gid: stats_a.gid,
-        mtime: stats_a.mtime,
-        mode: fix_mode(stats_a.mode, is_windows),
-        size: 1,
-      });
+        assert.strictEqual(entries[1].path, 'test/_data_/dir-1/a.txt');
+        assert.strictEqual(
+          entries[1].cleaned_path,
+          'test/_data_/dir-5/symlink-a'
+        );
+        assert.strictEqual(entries[1].type, 'file');
+        const stats_a = await lstat(entries[1].path);
+        assert.deepStrictEqual(entries[1].stats, {
+          uid: stats_a.uid,
+          gid: stats_a.gid,
+          mtime: stats_a.mtime,
+          mode: fix_mode(stats_a.mode, is_windows),
+          size: 1,
+        });
 
-      assert.strictEqual(entries[2].path, 'test/_data_/dir-2');
-      assert.strictEqual(
-        entries[2].cleaned_path,
-        'test/_data_/dir-5/symlink-dir-2'
-      );
-      assert.strictEqual(entries[2].type, 'directory');
-      assert.strictEqual(entries[2].n_children, 2);
+        assert.strictEqual(entries[2].path, 'test/_data_/dir-2');
+        assert.strictEqual(
+          entries[2].cleaned_path,
+          'test/_data_/dir-5/symlink-dir-2'
+        );
+        assert.strictEqual(entries[2].type, 'directory');
+        assert.strictEqual(entries[2].n_children, 2);
 
-      assert.strictEqual(entries[3].path, 'test/_data_/dir-2/c.txt');
-      assert.strictEqual(
-        entries[3].cleaned_path,
-        'test/_data_/dir-5/symlink-dir-2/c.txt'
-      );
-      assert.strictEqual(entries[3].type, 'file');
-      const stats_c = await lstat(entries[3].path);
-      assert.deepStrictEqual(entries[3].stats, {
-        uid: stats_c.uid,
-        gid: stats_c.gid,
-        mtime: stats_c.mtime,
-        mode: fix_mode(stats_c.mode, is_windows),
-        size: 1,
-      });
+        assert.strictEqual(entries[3].path, 'test/_data_/dir-2/c.txt');
+        assert.strictEqual(
+          entries[3].cleaned_path,
+          'test/_data_/dir-5/symlink-dir-2/c.txt'
+        );
+        assert.strictEqual(entries[3].type, 'file');
+        const stats_c = await lstat(entries[3].path);
+        assert.deepStrictEqual(entries[3].stats, {
+          uid: stats_c.uid,
+          gid: stats_c.gid,
+          mtime: stats_c.mtime,
+          mode: fix_mode(stats_c.mode, is_windows),
+          size: 1,
+        });
 
-      assert.strictEqual(entries[4].path, 'test/_data_/dir-2/d.txt');
-      assert.strictEqual(
-        entries[4].cleaned_path,
-        'test/_data_/dir-5/symlink-dir-2/d.txt'
-      );
-      assert.strictEqual(entries[4].type, 'file');
-      const stats_d = await lstat(entries[4].path);
-      assert.deepStrictEqual(entries[4].stats, {
-        uid: stats_d.uid,
-        gid: stats_d.gid,
-        mtime: stats_d.mtime,
-        mode: fix_mode(stats_d.mode, is_windows),
-        size: 1,
-      });
-    });
+        assert.strictEqual(entries[4].path, 'test/_data_/dir-2/d.txt');
+        assert.strictEqual(
+          entries[4].cleaned_path,
+          'test/_data_/dir-5/symlink-dir-2/d.txt'
+        );
+        assert.strictEqual(entries[4].type, 'file');
+        const stats_d = await lstat(entries[4].path);
+        assert.deepStrictEqual(entries[4].stats, {
+          uid: stats_d.uid,
+          gid: stats_d.gid,
+          mtime: stats_d.mtime,
+          mode: fix_mode(stats_d.mode, is_windows),
+          size: 1,
+        });
+      }
+    );
 
-    test("test/_data_/dir-5: relative {keep_parent: 'full', symlink: 'keep'}", async (ctx) => {
-      const [entries, conflicting_list, map] = await list_entries(
-        ['test/_data_/dir-5'],
-        is_windows,
-        'full',
-        'keep',
-        false
-      );
+    test(
+      "test/_data_/dir-5: relative {keep_parent: 'full', symlink: 'keep'}",
+      {
+        skip:
+          platform() === 'win32'
+            ? 'Windows does not handle symlinks'
+            : undefined,
+      },
+      async (ctx) => {
+        const [entries, conflicting_list, map] = await list_entries(
+          ['test/_data_/dir-5'],
+          is_windows,
+          'full',
+          'keep',
+          false
+        );
 
-      assert.strictEqual(entries.length, 3);
-      assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 3);
+        assert.strictEqual(entries.length, 3);
+        assert.strictEqual(conflicting_list.length, 0);
+        assert.strictEqual(map.size, 3);
 
-      assert.strictEqual(entries[0].path, 'test/_data_/dir-5');
-      assert.strictEqual(entries[0].cleaned_path, 'test/_data_/dir-5');
-      assert.strictEqual(entries[0].type, 'directory');
-      assert.strictEqual(entries[0].n_children, 2);
+        assert.strictEqual(entries[0].path, 'test/_data_/dir-5');
+        assert.strictEqual(entries[0].cleaned_path, 'test/_data_/dir-5');
+        assert.strictEqual(entries[0].type, 'directory');
+        assert.strictEqual(entries[0].n_children, 2);
 
-      assert.strictEqual(entries[1].path, 'test/_data_/dir-5/symlink-a');
-      assert.strictEqual(
-        entries[1].cleaned_path,
-        'test/_data_/dir-5/symlink-a'
-      );
-      assert.strictEqual(entries[1].type, 'symlink');
-      const stats_a = await lstat(entries[1].path);
-      assert.deepStrictEqual(entries[1].stats, {
-        uid: stats_a.uid,
-        gid: stats_a.gid,
-        mtime: stats_a.mtime,
-        mode: fix_mode(stats_a.mode, is_windows),
-        size: stats_a.size,
-      });
-      assert.strictEqual(entries[1].link_path, '../dir-1/a.txt');
-      assert.strictEqual(entries[1].link_name, '../dir-1/a.txt');
+        assert.strictEqual(entries[1].path, 'test/_data_/dir-5/symlink-a');
+        assert.strictEqual(
+          entries[1].cleaned_path,
+          'test/_data_/dir-5/symlink-a'
+        );
+        assert.strictEqual(entries[1].type, 'symlink');
+        const stats_a = await lstat(entries[1].path);
+        assert.deepStrictEqual(entries[1].stats, {
+          uid: stats_a.uid,
+          gid: stats_a.gid,
+          mtime: stats_a.mtime,
+          mode: fix_mode(stats_a.mode, is_windows),
+          size: stats_a.size,
+        });
+        assert.strictEqual(entries[1].link_path, '../dir-1/a.txt');
+        assert.strictEqual(entries[1].link_name, '../dir-1/a.txt');
 
-      assert.strictEqual(entries[2].path, 'test/_data_/dir-5/symlink-dir-2');
-      assert.strictEqual(
-        entries[2].cleaned_path,
-        'test/_data_/dir-5/symlink-dir-2'
-      );
-      assert.strictEqual(entries[2].type, 'symlink');
-      const stats_dir2 = await lstat(entries[2].path);
-      assert.deepStrictEqual(entries[2].stats, {
-        uid: stats_dir2.uid,
-        gid: stats_dir2.gid,
-        mtime: stats_dir2.mtime,
-        mode: fix_mode(stats_dir2.mode, is_windows),
-        size: stats_dir2.size,
-      });
-      assert.strictEqual(entries[2].link_path, '../dir-2');
-      assert.strictEqual(entries[2].link_name, '../dir-2');
-    });
+        assert.strictEqual(entries[2].path, 'test/_data_/dir-5/symlink-dir-2');
+        assert.strictEqual(
+          entries[2].cleaned_path,
+          'test/_data_/dir-5/symlink-dir-2'
+        );
+        assert.strictEqual(entries[2].type, 'symlink');
+        const stats_dir2 = await lstat(entries[2].path);
+        assert.deepStrictEqual(entries[2].stats, {
+          uid: stats_dir2.uid,
+          gid: stats_dir2.gid,
+          mtime: stats_dir2.mtime,
+          mode: fix_mode(stats_dir2.mode, is_windows),
+          size: stats_dir2.size,
+        });
+        assert.strictEqual(entries[2].link_path, '../dir-2');
+        assert.strictEqual(entries[2].link_name, '../dir-2');
+      }
+    );
 
     test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore '.zipignore'", async (ctx) => {
       const [entries, conflicting_list, map] = await list_entries(
@@ -1326,44 +1345,53 @@ describe(filename, async () => {
       assert.strictEqual(map.size, 0);
     });
 
-    test("test/_data_/dir-1/a.txt, test/_data_/dir-5/symlink-a: relative {keep_parent: 'none', symlink: 'keep'}", async (ctx) => {
-      const [entries, conflicting_list, map] = await list_entries(
-        ['test/_data_/dir-1/a.txt', 'test/_data_/dir-5/symlink-a'],
-        is_windows,
-        'none',
-        'keep',
-        false
-      );
+    test(
+      "test/_data_/dir-1/a.txt, test/_data_/dir-5/symlink-a: relative {keep_parent: 'none', symlink: 'keep'}",
+      {
+        skip:
+          platform() === 'win32'
+            ? 'Windows does not handle symlinks'
+            : undefined,
+      },
+      async (ctx) => {
+        const [entries, conflicting_list, map] = await list_entries(
+          ['test/_data_/dir-1/a.txt', 'test/_data_/dir-5/symlink-a'],
+          is_windows,
+          'none',
+          'keep',
+          false
+        );
 
-      assert.strictEqual(entries.length, 2);
-      assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 2);
+        assert.strictEqual(entries.length, 2);
+        assert.strictEqual(conflicting_list.length, 0);
+        assert.strictEqual(map.size, 2);
 
-      assert.strictEqual(entries[0].path, 'test/_data_/dir-1/a.txt');
-      assert.strictEqual(entries[0].cleaned_path, 'a.txt');
-      assert.strictEqual(entries[0].type, 'file');
-      const stats_a = await lstat(entries[0].path);
-      assert.deepStrictEqual(entries[0].stats, {
-        uid: stats_a.uid,
-        gid: stats_a.gid,
-        mtime: stats_a.mtime,
-        mode: fix_mode(stats_a.mode, is_windows),
-        size: 1,
-      });
+        assert.strictEqual(entries[0].path, 'test/_data_/dir-1/a.txt');
+        assert.strictEqual(entries[0].cleaned_path, 'a.txt');
+        assert.strictEqual(entries[0].type, 'file');
+        const stats_a = await lstat(entries[0].path);
+        assert.deepStrictEqual(entries[0].stats, {
+          uid: stats_a.uid,
+          gid: stats_a.gid,
+          mtime: stats_a.mtime,
+          mode: fix_mode(stats_a.mode, is_windows),
+          size: 1,
+        });
 
-      assert.strictEqual(entries[1].path, 'test/_data_/dir-5/symlink-a');
-      assert.strictEqual(entries[1].cleaned_path, 'symlink-a');
-      assert.strictEqual(entries[1].type, 'symlink');
-      const stats_symlink_a = await lstat(entries[1].path);
-      assert.deepStrictEqual(entries[1].stats, {
-        uid: stats_symlink_a.uid,
-        gid: stats_symlink_a.gid,
-        mtime: stats_symlink_a.mtime,
-        mode: fix_mode(stats_symlink_a.mode, is_windows),
-        size: stats_symlink_a.size,
-      });
-      assert.strictEqual(entries[1].link_path, '../dir-1/a.txt');
-      assert.strictEqual(entries[1].link_name, 'a.txt');
-    });
+        assert.strictEqual(entries[1].path, 'test/_data_/dir-5/symlink-a');
+        assert.strictEqual(entries[1].cleaned_path, 'symlink-a');
+        assert.strictEqual(entries[1].type, 'symlink');
+        const stats_symlink_a = await lstat(entries[1].path);
+        assert.deepStrictEqual(entries[1].stats, {
+          uid: stats_symlink_a.uid,
+          gid: stats_symlink_a.gid,
+          mtime: stats_symlink_a.mtime,
+          mode: fix_mode(stats_symlink_a.mode, is_windows),
+          size: stats_symlink_a.size,
+        });
+        assert.strictEqual(entries[1].link_path, '../dir-1/a.txt');
+        assert.strictEqual(entries[1].link_name, 'a.txt');
+      }
+    );
   });
 });
