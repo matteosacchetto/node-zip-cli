@@ -136,7 +136,8 @@ zipCommand.action(async (options) => {
       unique_list,
       absolute_path_to_clean_entry_with_mode,
       num_files,
-      options.deflate
+      options.deflate,
+      is_windows
     );
   });
 });

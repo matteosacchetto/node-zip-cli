@@ -10,6 +10,7 @@ import {
   clean_path,
   get_default_mode,
   map_absolute_path_to_clean_entry_with_mode,
+  normalize_windows_path,
   overwrite_symlink_if_exists,
   set_permissions,
 } from '@/utils/fs';
@@ -26,7 +27,8 @@ export const create_zip = async (
   unique_fs_entries: FsEntry[],
   absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   num_files: number,
-  deflate: boolean | number
+  deflate: boolean | number,
+  is_windows: boolean
 ) => {
   if (num_files === 0) {
     logger.skip(`Creating ${output_path} file`);
@@ -53,25 +55,37 @@ export const create_zip = async (
             `[${file}]`
           )}`;
 
-          zip.file(file.cleaned_path, createReadStream(file.path), {
-            date: file.stats.mtime,
-            unixPermissions: file.stats.mode,
-          });
+          zip.file(
+            normalize_windows_path(file.cleaned_path, is_windows),
+            createReadStream(file.path),
+            {
+              date: file.stats.mtime,
+              unixPermissions: file.stats.mode,
+            }
+          );
         } else if (file.type === 'directory') {
-          zip.file(file.cleaned_path, null, {
-            date: file.stats.mtime,
-            unixPermissions: file.stats.mode,
-            dir: true,
-          });
+          zip.file(
+            normalize_windows_path(file.cleaned_path, is_windows),
+            null,
+            {
+              date: file.stats.mtime,
+              unixPermissions: file.stats.mode,
+              dir: true,
+            }
+          );
         } else if (file.type === 'symlink') {
           spinner.text = `Reading (${++i}/${num_files} files) ${chalk.dim(
             `[${file}]`
           )}`;
 
-          zip.file(file.cleaned_path, file.link_name, {
-            date: file.stats.mtime,
-            unixPermissions: file.stats.mode,
-          });
+          zip.file(
+            normalize_windows_path(file.cleaned_path, is_windows),
+            normalize_windows_path(file.link_name, is_windows),
+            {
+              date: file.stats.mtime,
+              unixPermissions: file.stats.mode,
+            }
+          );
         }
       }
 

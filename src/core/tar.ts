@@ -12,6 +12,7 @@ import {
   clean_path,
   get_default_mode,
   map_absolute_path_to_clean_entry_with_mode,
+  normalize_windows_path,
   overwrite_symlink_if_exists,
   set_permissions,
 } from '@/utils/fs';
@@ -26,7 +27,8 @@ export const create_tar = async (
   unique_fs_entries: FsEntry[],
   absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   num_files: number,
-  gzip: boolean | number
+  gzip: boolean | number,
+  is_windows: boolean
 ) => {
   if (num_files === 0) {
     logger.skip(`Creating ${output_path} file`);
@@ -51,7 +53,7 @@ export const create_tar = async (
       for (const fs_entry of unique_fs_entries) {
         if (fs_entry.type === 'directory') {
           tar.entry({
-            name: fs_entry.cleaned_path,
+            name: normalize_windows_path(fs_entry.cleaned_path, is_windows),
             mtime: fs_entry.stats.mtime,
             mode: fs_entry.stats.mode,
             uid: fs_entry.stats.uid,
@@ -63,7 +65,7 @@ export const create_tar = async (
             `[${fs_entry.cleaned_path}]`
           )}`;
           const entry = tar.entry({
-            name: fs_entry.cleaned_path,
+            name: normalize_windows_path(fs_entry.cleaned_path, is_windows),
             size: fs_entry.stats.size,
             mtime: fs_entry.stats.mtime,
             mode: fs_entry.stats.mode,
@@ -85,14 +87,14 @@ export const create_tar = async (
           )}`;
 
           tar.entry({
-            name: fs_entry.cleaned_path,
+            name: normalize_windows_path(fs_entry.cleaned_path, is_windows),
             size: fs_entry.stats.size,
             mtime: fs_entry.stats.mtime,
             mode: fs_entry.stats.mode,
             uid: fs_entry.stats.uid,
             gid: fs_entry.stats.gid,
             type: 'symlink',
-            linkname: fs_entry.link_name,
+            linkname: normalize_windows_path(fs_entry.link_name, is_windows),
           });
         }
       }
