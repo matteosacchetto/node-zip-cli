@@ -17,8 +17,8 @@ const filename = relative(
 describe(filename, async () => {
   describe('spinner_wrapper', async () => {
     beforeEach(() => {
-      mock.method(process.stderr, 'write', (...msg: unknown[]) => {
-        return msg.map((el) => `${el}`).join('\n');
+      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+        return msg;
       });
     });
 
