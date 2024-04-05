@@ -19,6 +19,7 @@ import {
   get_symlink_path,
   is_directory,
   map_absolute_path_to_clean_entry_with_mode,
+  normalize_windows_path,
   overwrite_symlink_if_exists,
   read_access,
   resolve_symlink,
@@ -197,6 +198,40 @@ describe(filename, async () => {
         mode: 0o120777,
         mtime: now,
       });
+    });
+  });
+
+  describe('normalize_windows_path', async (context) => {
+    test('src: posix/unix', async (context) => {
+      assert.strictEqual(normalize_windows_path('src', false), 'src');
+    });
+
+    test('./src: posix/unix', async (context) => {
+      assert.strictEqual(normalize_windows_path('./src', false), './src');
+    });
+
+    test('.\\src: posix/unix', async (context) => {
+      assert.strictEqual(normalize_windows_path('.\\src', false), '.\\src');
+    });
+
+    test('.\\src: windows', async (context) => {
+      assert.strictEqual(normalize_windows_path('.\\src', true), './src');
+    });
+
+    test('..\\src: posix/unix', async (context) => {
+      assert.strictEqual(normalize_windows_path('..\\src', false), '..\\src');
+    });
+
+    test('..\\src: windows', async (context) => {
+      assert.strictEqual(normalize_windows_path('..\\src', true), '../src');
+    });
+
+    test('..\\src\\a\\b: posix/unix', async (context) => {
+      assert.strictEqual(normalize_windows_path('..\\src\\a\\b', false), '..\\src\\a\\b');
+    });
+
+    test('..\\src\\a\\b: windows', async (context) => {
+      assert.strictEqual(normalize_windows_path('..\\src\\a\\b', true), '../src/a/b');
     });
   });
 

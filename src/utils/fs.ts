@@ -17,6 +17,7 @@ import {
   normalize,
   parse,
   resolve,
+  sep,
 } from 'node:path';
 import type {
   ArchiveEntry,
@@ -164,13 +165,21 @@ export const read_access = async (path: string) => {
   }
 };
 
+export const normalize_windows_path = (path: string, is_windows: boolean) => {
+  if (is_windows) {
+    return path.replaceAll('\\', '/');
+  }
+
+  return path;
+};
+
 /**
  * This function is a modified version of the implementation in node-tar
  *
  * @link https://github.com/isaacs/node-tar/blob/main/lib/strip-absolute-path.js
  */
 export const clean_path = (path: string) => {
-  let final_path = path;
+  let final_path = path.split(sep).join('/');
 
   if (isAbsolute(path)) {
     let parsed_path = parse(final_path);
@@ -192,7 +201,7 @@ export const clean_path = (path: string) => {
   }
 
   if (final_path.startsWith('..')) {
-    return final_path.replaceAll('../', '');
+    return final_path.replaceAll(`..${sep}`, '');
   }
 
   return final_path;
