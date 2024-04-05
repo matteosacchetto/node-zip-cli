@@ -12,13 +12,31 @@ const filename = relative(
 
 describe(filename, async () => {
   describe('is_windows', async () => {
-    test('windows', { skip: platform() !== 'win32' }, async (context) => {
-      assert.strictEqual(is_windows, true);
-    });
+    test(
+      'windows',
+      {
+        skip:
+          platform() !== 'win32'
+            ? 'This test is only valid on Windows'
+            : undefined,
+      },
+      async (context) => {
+        assert.strictEqual(is_windows, true);
+      }
+    );
 
-    test('not windows', { skip: platform() === 'win32' }, async (context) => {
-      assert.strictEqual(is_windows, false);
-    });
+    test(
+      'posix/unix like',
+      {
+        skip:
+          platform() === 'win32'
+            ? 'This test is not valid on Windows'
+            : undefined,
+      },
+      async (context) => {
+        assert.strictEqual(is_windows, false);
+      }
+    );
   });
 
   describe('preset_compression_level', async () => {
