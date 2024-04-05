@@ -145,6 +145,7 @@ export const walk = async (
       sub_n_children += res.n_children;
       fs_entries.push(...res.entries);
     }
+    n_children += sub_n_children;
 
     if (sub_n_children > 0) {
       fs_entries.push(
