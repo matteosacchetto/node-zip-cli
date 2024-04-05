@@ -190,7 +190,11 @@ export const read_zip = async (
   return [entries, absolute_path_to_clean_entry_with_mode];
 };
 
-export const extract_zip = async (input_path: string, output_dir: string) => {
+export const extract_zip = async (
+  input_path: string,
+  output_dir: string,
+  is_windows: boolean
+) => {
   const broken_symlinks_list = await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
@@ -209,7 +213,8 @@ export const extract_zip = async (input_path: string, output_dir: string) => {
         }
 
         if (!file.dir) {
-          if (is_symlink(file)) {
+          // TODO: decide how to handle symlinks on windows
+          if (is_symlink(file) && !is_windows) {
             // Symlink
             const linked_file = await file.async('string');
 

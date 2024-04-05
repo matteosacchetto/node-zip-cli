@@ -373,4 +373,4 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 > *Current limitaionts*  
 > Up to the current version (0.6.0) the strategy of ignoring `*` and the not ignore some paths (e.g. `!test`, `!src`, ...) is not supported.
 >
-> Up to the current version (0.6.0) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected 
+> Up to the current version (0.6.0) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported

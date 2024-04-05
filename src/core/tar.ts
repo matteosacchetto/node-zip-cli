@@ -191,7 +191,8 @@ export const read_tar = async (
 export const extract_tar = async (
   input_path: string,
   output_dir: string,
-  is_gzip: boolean
+  is_gzip: boolean,
+  is_windows: boolean
 ) => {
   const broken_symlinks_list = await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
@@ -253,23 +254,28 @@ export const extract_tar = async (
           }
 
           case 'symlink': {
-            const filename = clean_path(entry.header.name);
-            const linked_file = entry.header.linkname;
+            // TODO: decide how to handle symlinks on windows
+            if (!is_windows) {
+              const filename = clean_path(entry.header.name);
+              const linked_file = entry.header.linkname;
 
-            if (linked_file) {
-              const file_path = join(output_dir, clean_path(filename));
-              await mkdir(dirname(file_path), { recursive: true });
-              const { mtime, uid, gid, mode } = entry.header;
+              if (linked_file) {
+                const file_path = join(output_dir, clean_path(filename));
+                await mkdir(dirname(file_path), { recursive: true });
+                const { mtime, uid, gid, mode } = entry.header;
 
-              await overwrite_symlink_if_exists(linked_file, file_path);
+                await overwrite_symlink_if_exists(linked_file, file_path);
 
-              await set_permissions(file_path, {
-                mode,
-                mtime,
-                uid,
-                gid,
-              });
+                await set_permissions(file_path, {
+                  mode,
+                  mtime,
+                  uid,
+                  gid,
+                });
+              }
             }
+
+            break;
           }
         }
 

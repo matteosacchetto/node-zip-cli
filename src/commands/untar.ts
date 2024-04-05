@@ -74,7 +74,7 @@ untarCommand.action(async (options) => {
 
     await mkdir(options.output, { recursive: true });
 
-    await extract_tar(options.input, options.output, is_gzip);
+    await extract_tar(options.input, options.output, is_gzip, is_windows);
   });
 });
 

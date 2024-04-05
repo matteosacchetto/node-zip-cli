@@ -74,7 +74,7 @@ unzipCommand.action(async (options) => {
 
     await mkdir(options.output, { recursive: true });
 
-    await extract_zip(options.input, options.output);
+    await extract_zip(options.input, options.output, is_windows);
   });
 });
 
