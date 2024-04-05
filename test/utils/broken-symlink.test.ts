@@ -1,11 +1,11 @@
-import type { BrokenSymlink } from '@/types/fs';
-import { log_broken_symlink } from '@/utils/broken-symlink';
-import chalk from 'chalk';
-import figureSet from 'figures';
 import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import type { BrokenSymlink } from '@/types/fs';
+import { log_broken_symlink } from '@/utils/broken-symlink';
+import chalk from 'chalk';
+import figureSet from 'figures';
 
 const filename = relative(
   join(process.cwd(), 'test'),

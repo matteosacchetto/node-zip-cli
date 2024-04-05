@@ -1,12 +1,12 @@
+import assert from 'node:assert';
+import { join, relative } from 'node:path';
+import { afterEach, beforeEach, describe, mock, test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import {
   scoped_spinner_wrapper,
   spinner_wrapper,
 } from '@/utils/spinner-wrapper';
 import chalk from 'chalk';
-import assert from 'node:assert';
-import { join, relative } from 'node:path';
-import { afterEach, beforeEach, describe, mock, test } from 'node:test';
-import { fileURLToPath } from 'node:url';
 import type { Ora } from 'ora';
 
 const filename = relative(
