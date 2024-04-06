@@ -1,5 +1,6 @@
 import { is_windows, preset_compression_level } from '@/core/constants';
 import { create_tar } from '@/core/tar';
+import { printfile_list_as_file_tree } from '@/core/tree';
 import { list_entries } from '@/core/walk';
 import { logger } from '@/logger';
 import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
@@ -7,7 +8,7 @@ import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
 import { createCommand } from '@/utils/command';
 import { log_conflicts } from '@/utils/conflicts';
 import { exists, unique_entries } from '@/utils/fs';
-import { printfile_list_as_file_tree } from '@/utils/path';
+import { normalize_entries } from '@/utils/path';
 import {
   exit_fail_on_error,
   exit_on_finish,
@@ -76,7 +77,7 @@ tarCommand.action(async (options) => {
   const output =
     options.output ?? (options.gzip === false ? 'out.tar' : 'out.tgz');
   await exit_fail_on_error(async () => {
-    const unique_inputs = unique_entries(options.input);
+    const unique_inputs = unique_entries(normalize_entries(options.input));
 
     await validation_spinner({
       name: 'output path',

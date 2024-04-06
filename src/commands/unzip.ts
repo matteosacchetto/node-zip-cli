@@ -1,10 +1,10 @@
 import { mkdir, readdir } from 'node:fs/promises';
 import { is_windows } from '@/core/constants';
+import { printfile_list_as_file_tree } from '@/core/tree';
 import { extract_zip, read_zip } from '@/core/zip';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
 import { exists, is_directory } from '@/utils/fs';
-import { printfile_list_as_file_tree } from '@/utils/path';
 import {
   exit_fail_on_error,
   exit_on_finish,
