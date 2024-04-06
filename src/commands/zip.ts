@@ -5,6 +5,7 @@ import { create_zip } from '@/core/zip';
 import { logger } from '@/logger';
 import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
 import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
+import type { KeepParentOption, SymlinkOption } from '@/types/fs';
 import { createCommand } from '@/utils/command';
 import { log_conflicts } from '@/utils/conflicts';
 import { exists, unique_entries } from '@/utils/fs';
@@ -57,13 +58,13 @@ const zipCommand = createCommand(name, description)
   )
   .addOption(
     createOption('-k, --keep-parent <mode>', 'keep the parent directories')
-      .choices(['none', 'last', 'full'] as const)
-      .default('full' as const)
+      .choices<KeepParentOption[]>(['none', 'last', 'full'])
+      .default<KeepParentOption>('full')
   )
   .addOption(
     createOption('-s, --symlink <mode>', 'handle symlinks (experimental)')
-      .choices(['none', 'resolve', 'keep'] as const)
-      .default('none' as const)
+      .choices<SymlinkOption[]>(['none', 'resolve', 'keep'])
+      .default<SymlinkOption>('none')
   )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')

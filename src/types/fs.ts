@@ -67,3 +67,6 @@ export type BrokenSymlink = {
   cleaned_path: string;
   link_name: string;
 };
+
+export type SymlinkOption = 'none' | 'resolve' | 'keep';
+export type KeepParentOption = 'full' | 'last' | 'none';

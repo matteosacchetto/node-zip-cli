@@ -4,6 +4,8 @@ import type {
   CleanedEntryWithMode,
   ConflictingFsEntry,
   FsEntry,
+  KeepParentOption,
+  SymlinkOption,
 } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
 import {
@@ -98,7 +100,7 @@ export const walk = async (
   path: string,
   path_name: string,
   is_windows: boolean,
-  symlink: 'none' | 'resolve' | 'keep',
+  symlink: SymlinkOption,
   parent_rules: string[]
 ) => {
   const gitingore_rules = [...parent_rules];
@@ -185,8 +187,8 @@ export const walk = async (
 export const list_entries = async (
   unique_input_entries: string[],
   is_windows: boolean,
-  keep_parent: 'full' | 'last' | 'none',
-  symlink: 'none' | 'resolve' | 'keep',
+  keep_parent: KeepParentOption,
+  symlink: SymlinkOption,
   allow_git: boolean,
   exclude_list?: string[]
 ): Promise<
