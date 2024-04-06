@@ -247,7 +247,7 @@ describe(filename, async () => {
     });
 
     test('../src', async (context) => {
-      assert.strictEqual(clean_path('../src'), 'src');
+      assert.strictEqual(clean_path(join('..', 'src')), 'src');
     });
 
     test('./src', async (context) => {
@@ -259,15 +259,15 @@ describe(filename, async () => {
     });
 
     test('../test/src', async (context) => {
-      assert.strictEqual(clean_path('../test/src'), 'test/src');
+      assert.strictEqual(clean_path('../test/src'), join('test', 'src'));
     });
 
     test('//test/src', async (context) => {
-      assert.strictEqual(clean_path('//test/src'), 'test/src');
+      assert.strictEqual(clean_path('//test/src'), join('test', 'src'));
     });
 
     test('////test/src', async (context) => {
-      assert.strictEqual(clean_path('////test/src'), 'test/src');
+      assert.strictEqual(clean_path('////test/src'), join('test', 'src'));
     });
 
     test('//src', async (context) => {
