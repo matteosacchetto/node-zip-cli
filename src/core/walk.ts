@@ -3,6 +3,7 @@ import { dirname, join, normalize, relative, resolve } from 'node:path';
 import type {
   CleanedEntryWithMode,
   ConflictingFsEntry,
+  DisableIgnoreOption,
   FsEntry,
   KeepParentOption,
   SymlinkOption,
@@ -101,7 +102,8 @@ export const walk = async (
   path_name: string,
   is_windows: boolean,
   symlink: SymlinkOption,
-  parent_rules: string[]
+  parent_rules: string[],
+  disable_ignore: DisableIgnoreOption
 ) => {
   const gitingore_rules = [...parent_rules];
   const gitignore_filter: Ignore = ignore();
@@ -128,9 +130,16 @@ export const walk = async (
   } else if (stats.isDirectory()) {
     const children_rules = [...gitingore_rules];
     for (const ingore_file of ['.gitignore', '.zipignore']) {
-      children_rules.push(
-        ...(await load_ignore_rules(join(path, ingore_file)))
-      );
+      if (
+        disable_ignore !== 'all' &&
+        disable_ignore !== 'ignore-files' &&
+        ((ingore_file === '.gitignore' && disable_ignore !== 'gitignore') ||
+          (ingore_file === '.zipignore' && disable_ignore !== 'zipignore'))
+      ) {
+        children_rules.push(
+          ...(await load_ignore_rules(join(path, ingore_file)))
+        );
+      }
     }
 
     const children = await opendir(path);
@@ -142,7 +151,8 @@ export const walk = async (
         join(path_name, child_entry.name),
         is_windows,
         symlink,
-        children_rules
+        children_rules,
+        disable_ignore
       );
       sub_n_children += res.n_children;
       fs_entries.push(...res.entries);
@@ -169,7 +179,8 @@ export const walk = async (
           path_name,
           is_windows,
           symlink,
-          parent_rules
+          parent_rules,
+          disable_ignore
         );
         n_children += res.n_children;
         fs_entries.push(...res.entries);
@@ -190,7 +201,8 @@ export const list_entries = async (
   keep_parent: KeepParentOption,
   symlink: SymlinkOption,
   allow_git: boolean,
-  exclude_list?: string[]
+  exclude_list: string[] = [],
+  disable_ignore: DisableIgnoreOption = 'none'
 ): Promise<
   [FsEntry[], ConflictingFsEntry[], Map<string, CleanedEntryWithMode>]
 > => {
@@ -200,8 +212,10 @@ export const list_entries = async (
     default_rules.push('.git/');
   }
 
-  if (exclude_list && exclude_list.length > 0) {
-    default_rules.push(...exclude_list);
+  if (disable_ignore !== 'all' && disable_ignore !== 'exclude-rules') {
+    if (exclude_list && exclude_list.length > 0) {
+      default_rules.push(...exclude_list);
+    }
   }
 
   const non_empty_list: FsEntry[] = [];
@@ -212,7 +226,8 @@ export const list_entries = async (
       entry_name,
       is_windows,
       symlink,
-      default_rules
+      default_rules,
+      disable_ignore
     );
     let entries = res.entries;
 

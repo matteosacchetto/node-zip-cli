@@ -5,7 +5,11 @@ import { create_zip } from '@/core/zip';
 import { logger } from '@/logger';
 import { confirm_conflict_prompt } from '@/prompts/confirm-conflict';
 import { confirm_overwrite_prompt } from '@/prompts/confirm-overwrite';
-import type { KeepParentOption, SymlinkOption } from '@/types/fs';
+import type {
+  DisableIgnoreOption,
+  KeepParentOption,
+  SymlinkOption,
+} from '@/types/fs';
 import { createCommand } from '@/utils/command';
 import { log_conflicts } from '@/utils/conflicts';
 import { exists, unique_entries } from '@/utils/fs';
@@ -66,6 +70,18 @@ const zipCommand = createCommand(name, description)
       .choices<SymlinkOption[]>(['none', 'resolve', 'keep'])
       .default<SymlinkOption>('none')
   )
+  .addOption(
+    createOption('--disable-ignore <mode>', 'disable some or all ignore rules')
+      .choices<DisableIgnoreOption[]>([
+        'none',
+        'zipignore',
+        'gitignore',
+        'ignore-files',
+        'exclude-rules',
+        'all',
+      ])
+      .default<DisableIgnoreOption>('none')
+  )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
   .option('--allow-git', 'allow .git to be included in the zip', false)
@@ -103,7 +119,8 @@ zipCommand.action(async (options) => {
       options.keepParent,
       options.symlink,
       options.allowGit,
-      options.exclude
+      options.exclude,
+      options.disableIgnore
     );
 
     if (conflicting_list.length) {

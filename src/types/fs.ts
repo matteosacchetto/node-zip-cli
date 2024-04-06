@@ -70,3 +70,10 @@ export type BrokenSymlink = {
 
 export type SymlinkOption = 'none' | 'resolve' | 'keep';
 export type KeepParentOption = 'full' | 'last' | 'none';
+export type DisableIgnoreOption =
+  | 'none'
+  | 'zipignore'
+  | 'gitignore'
+  | 'ignore-files'
+  | 'exclude-rules'
+  | 'all';
