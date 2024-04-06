@@ -13,28 +13,26 @@ const filename = relative(
 describe(filename, async () => {
   describe('is_windows', async () => {
     test(
-      'windows',
-      {
-        skip:
-          platform() !== 'win32'
-            ? 'This test is only valid on Windows'
-            : undefined,
-      },
-      async (context) => {
-        assert.strictEqual(is_windows, true);
-      }
-    );
-
-    test(
-      'posix/unix like',
+      'posix/unix',
       {
         skip:
           platform() === 'win32'
-            ? 'This test is not valid on Windows'
+            ? 'This test is only for POSIX/Unix platforms'
             : undefined,
       },
       async (context) => {
         assert.strictEqual(is_windows, false);
+      }
+    );
+
+    test(
+      'windows',
+      {
+        skip:
+          platform() !== 'win32' ? 'This test is only for Windows' : undefined,
+      },
+      async (context) => {
+        assert.strictEqual(is_windows, true);
       }
     );
   });
