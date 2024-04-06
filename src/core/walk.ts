@@ -1,5 +1,5 @@
 import { lstat, opendir, readFile, readlink, realpath } from 'node:fs/promises';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, normalize, relative, resolve } from 'node:path';
 import type {
   CleanedEntryWithMode,
   ConflictingFsEntry,
@@ -77,7 +77,7 @@ export const create_symlink = async (
   is_windows: boolean
 ): Promise<Extract<FsEntry, { type: 'symlink' }>> => {
   const { uid, gid, mode, mtime, size } = await lstat(path);
-  const link_path = await readlink(path);
+  const link_path = normalize(await readlink(path));
   return {
     path,
     cleaned_path: clean_path(name),
