@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { afterEach, before, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { printfile_list_as_file_tree } from '@/core/tree';
@@ -97,7 +97,7 @@ describe(filename, async () => {
       assert.strictEqual(mocked_console.mock.calls.length, 2);
       assert.strictEqual(
         mocked_console.mock.calls[0].result,
-        `${files[0].cleaned_path}/`
+        `${files[0].cleaned_path}${sep}`
       );
       assert.strictEqual(mocked_console.mock.calls[1].result, '\n1 directory');
     });
@@ -144,7 +144,7 @@ describe(filename, async () => {
       >;
 
       assert.strictEqual(mocked_console.mock.calls.length, 4);
-      assert.strictEqual(mocked_console.mock.calls[0].result, './');
+      assert.strictEqual(mocked_console.mock.calls[0].result, `.${sep}`);
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
         `├── ${files[0].cleaned_path}`
@@ -175,8 +175,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test/test.test.ts',
-          cleaned_path: 'test/test.test.ts',
+          path: join('test', 'test.test.ts'),
+          cleaned_path: join('test', 'test.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -187,8 +187,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test/test1.test.ts',
-          cleaned_path: 'test/test1.test.ts',
+          path: join('test', 'test1.test.ts'),
+          cleaned_path: join('test', 'test1.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -215,15 +215,15 @@ describe(filename, async () => {
       assert.strictEqual(mocked_console.mock.calls.length, 4);
       assert.strictEqual(
         mocked_console.mock.calls[0].result,
-        `${files[0].cleaned_path}/`
+        `${files[0].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        `├── ${files[1].cleaned_path.split('/').at(-1)!}`
+        `├── ${files[1].cleaned_path.split(sep).at(-1)!}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
-        `└── ${files[2].cleaned_path.split('/').at(-1)!}`
+        `└── ${files[2].cleaned_path.split(sep).at(-1)!}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[3].result,
@@ -247,8 +247,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test/test.test.ts',
-          cleaned_path: 'test/test.test.ts',
+          path: join('test', 'test.test.ts'),
+          cleaned_path: join('test', 'test.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -271,8 +271,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test1/test1.test.ts',
-          cleaned_path: 'test1/test1.test.ts',
+          path: join('test1', 'test1.test.ts'),
+          cleaned_path: join('test1', 'test1.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -297,22 +297,22 @@ describe(filename, async () => {
       >;
 
       assert.strictEqual(mocked_console.mock.calls.length, 6);
-      assert.strictEqual(mocked_console.mock.calls[0].result, './');
+      assert.strictEqual(mocked_console.mock.calls[0].result, `.${sep}`);
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        `├── ${files[0].cleaned_path}/`
+        `├── ${files[0].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
-        `│   └── ${files[1].cleaned_path.split('/').at(-1)!}`
+        `│   └── ${files[1].cleaned_path.split(sep).at(-1)!}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[3].result,
-        `└── ${files[2].cleaned_path}/`
+        `└── ${files[2].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[4].result,
-        `    └── ${files[3].cleaned_path.split('/').at(-1)!}`
+        `    └── ${files[3].cleaned_path.split(sep).at(-1)!}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[5].result,
@@ -336,8 +336,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test/test.test.ts',
-          cleaned_path: 'test/test.test.ts',
+          path: join('test', 'test.test.ts'),
+          cleaned_path: join('test', 'test.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -360,8 +360,8 @@ describe(filename, async () => {
         },
         {
           type: 'symlink',
-          path: 'test1/test1.test.ts',
-          cleaned_path: 'test1/test1.test.ts',
+          path: join('test1', 'test1.test.ts'),
+          cleaned_path: join('test1', 'test1.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -369,8 +369,8 @@ describe(filename, async () => {
             mtime: new Date(),
             size: 0,
           },
-          link_path: '../test/test.test.ts',
-          link_name: '../test/test.test.ts',
+          link_path: join('..', 'test', 'test.test.ts'),
+          link_name: join('..', 'test', 'test.test.ts'),
         },
       ];
 
@@ -388,22 +388,22 @@ describe(filename, async () => {
       >;
 
       assert.strictEqual(mocked_console.mock.calls.length, 6);
-      assert.strictEqual(mocked_console.mock.calls[0].result, './');
+      assert.strictEqual(mocked_console.mock.calls[0].result, `.${sep}`);
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        `├── ${files[0].cleaned_path}/`
+        `├── ${files[0].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
-        `│   └── ${files[1].cleaned_path.split('/').at(-1)!}`
+        `│   └── ${files[1].cleaned_path.split(sep).at(-1)!}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[3].result,
-        `└── ${files[2].cleaned_path}/`
+        `└── ${files[2].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[4].result,
-        `    └── ${files[3].cleaned_path.split('/').at(-1)!} -> ${
+        `    └── ${files[3].cleaned_path.split(sep).at(-1)!} -> ${
           (files[3] as Extract<ArchiveEntry, { type: 'symlink' }>).link_name
         }`
       );
@@ -429,8 +429,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test/test.test.ts',
-          cleaned_path: 'test/test.test.ts',
+          path: join('test', 'test.test.ts'),
+          cleaned_path: join('test', 'test.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -453,8 +453,8 @@ describe(filename, async () => {
         },
         {
           type: 'symlink',
-          path: 'test1/test1.test.ts',
-          cleaned_path: 'test1/test1.test.ts',
+          path: join('test1', 'test1.test.ts'),
+          cleaned_path: join('test1', 'test1.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -462,8 +462,8 @@ describe(filename, async () => {
             mtime: new Date(),
             size: 0,
           },
-          link_path: '../test/test1.test.ts',
-          link_name: '../test/test1.test.ts',
+          link_path: join('..', 'test', 'test1.test.ts'),
+          link_name: join('..', 'test', 'test1.test.ts'),
         },
       ];
 
@@ -481,22 +481,22 @@ describe(filename, async () => {
       >;
 
       assert.strictEqual(mocked_console.mock.calls.length, 6);
-      assert.strictEqual(mocked_console.mock.calls[0].result, './');
+      assert.strictEqual(mocked_console.mock.calls[0].result, `.${sep}`);
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        `├── ${files[0].cleaned_path}/`
+        `├── ${files[0].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
-        `│   └── ${files[1].cleaned_path.split('/').at(-1)!}`
+        `│   └── ${files[1].cleaned_path.split(sep).at(-1)!}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[3].result,
-        `└── ${files[2].cleaned_path}/`
+        `└── ${files[2].cleaned_path}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[4].result,
-        `    └── ${files[3].cleaned_path.split('/').at(-1)!} -> ${
+        `    └── ${files[3].cleaned_path.split(sep).at(-1)!} -> ${
           (files[3] as Extract<ArchiveEntry, { type: 'symlink' }>).link_name
         }`
       );
@@ -510,8 +510,8 @@ describe(filename, async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'file',
-          path: 'test/test.test.ts',
-          cleaned_path: 'test/test.test.ts',
+          path: join('test', 'test.test.ts'),
+          cleaned_path: join('test', 'test.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -522,8 +522,8 @@ describe(filename, async () => {
         },
         {
           type: 'file',
-          path: 'test1/test1.test.ts',
-          cleaned_path: 'test1/test1.test.ts',
+          path: join('test1', 'test1.test.ts'),
+          cleaned_path: join('test1', 'test1.test.ts'),
           stats: {
             uid: 1000,
             gid: 1000,
@@ -548,22 +548,22 @@ describe(filename, async () => {
       >;
 
       assert.strictEqual(mocked_console.mock.calls.length, 6);
-      assert.strictEqual(mocked_console.mock.calls[0].result, './');
+      assert.strictEqual(mocked_console.mock.calls[0].result, `.${sep}`);
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        `├── ${files[0].cleaned_path.split('/')[0]}/`
+        `├── ${files[0].cleaned_path.split(sep)[0]}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
-        `│   └── ${files[0].cleaned_path.split('/')[1]}`
+        `│   └── ${files[0].cleaned_path.split(sep)[1]}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[3].result,
-        `└── ${files[1].cleaned_path.split('/')[0]}/`
+        `└── ${files[1].cleaned_path.split(sep)[0]}${sep}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[4].result,
-        `    └── ${files[1].cleaned_path.split('/')[1]}`
+        `    └── ${files[1].cleaned_path.split(sep)[1]}`
       );
       assert.strictEqual(
         mocked_console.mock.calls[5].result,
