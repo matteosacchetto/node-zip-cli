@@ -6,13 +6,18 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
 const {
-  values: { parallel },
+  values: { parallel, only },
   positionals,
 } = parseArgs({
   options: {
     parallel: {
       type: 'boolean',
       short: 'p',
+      default: false,
+    },
+    only: {
+      type: 'boolean',
+      short: 'o',
       default: false,
     },
   },
@@ -29,6 +34,6 @@ const files =
         .filter((el) => el.endsWith('.test.ts'))
         .map((el) => join(dir, el));
 
-run({ files, concurrency: parallel })
+run({ files, concurrency: parallel, only })
   .compose(process.stdout.isTTY ? new spec() : tap)
   .pipe(process.stdout);
