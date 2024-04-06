@@ -311,7 +311,7 @@ export const get_symlink_path = (base_path: string, link_path: string) => {
   const base_dir = dirname(base_path);
 
   if (isAbsolute(link_path)) {
-    return link_path;
+    return normalize(link_path);
   }
 
   return join(base_dir, link_path);

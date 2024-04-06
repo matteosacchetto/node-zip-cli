@@ -8,7 +8,7 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { platform } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, normalize, relative, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type {
@@ -670,7 +670,14 @@ describe(filename, async () => {
 
   describe('get_symlink_path', async (context) => {
     test('relative: ../utils', async () => {
-      assert.equal(get_symlink_path('test', '../utils'), '../utils');
+      assert.equal(get_symlink_path('test', '../utils'), join('..', 'utils'));
+    });
+
+    test('relative: ../utils', async () => {
+      assert.equal(
+        get_symlink_path('test', join('..', 'utils')),
+        join('..', 'utils')
+      );
     });
 
     test('relative: utils', async () => {
@@ -678,11 +685,17 @@ describe(filename, async () => {
     });
 
     test('relative: utils', async () => {
-      assert.equal(get_symlink_path('test/abc', 'utils'), 'test/utils');
+      assert.equal(
+        get_symlink_path(join('test', 'abc'), 'utils'),
+        join('test', 'utils')
+      );
     });
 
     test('absolute: /utils', async () => {
-      assert.equal(get_symlink_path('test/abc', '/utils'), '/utils');
+      assert.equal(
+        get_symlink_path(join('test', 'abc'), '/utils'),
+        normalize('/utils')
+      );
     });
   });
 
