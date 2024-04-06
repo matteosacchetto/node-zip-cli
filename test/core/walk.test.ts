@@ -1,13 +1,15 @@
 import assert from 'node:assert';
-import { lstat } from 'node:fs/promises';
+import { lstat, mkdir, rm, writeFile } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { join, relative } from 'node:path';
-import { describe, test } from 'node:test';
+import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { is_windows } from '@/core/constants';
 import { list_entries } from '@/core/walk';
 import type { ConflictingFsEntry } from '@/types/fs';
 import { clean_path, fix_mode } from '@/utils/fs';
+
+const write_dir = join(process.cwd(), 'test', '_write_');
 
 const cwd = process.cwd();
 
@@ -1483,5 +1485,288 @@ describe(filename, async () => {
         assert.strictEqual(entries[1].link_name, 'a.txt');
       }
     );
+  });
+
+  describe('list_entries: disable ignore rules', async () => {
+    const list_entries_dir = join(write_dir, 'list_entries');
+    const relative_list_entries_dir = relative(process.cwd(), list_entries_dir);
+
+    before(async () => {
+      await mkdir(list_entries_dir);
+      await mkdir(join(list_entries_dir, 'dir-1'));
+      await writeFile(join(list_entries_dir, 'dir-1', 'a.txt'), 'a');
+      await writeFile(join(list_entries_dir, 'dir-1', 'b.txt'), 'b');
+      await mkdir(join(list_entries_dir, 'dir-2'));
+      await writeFile(join(list_entries_dir, 'dir-2', 'c.txt'), 'c');
+      await writeFile(join(list_entries_dir, 'dir-2', 'd.txt'), 'd');
+      await writeFile(join(list_entries_dir, 'e.txt'), 'e');
+
+      await writeFile(join(list_entries_dir, '.gitignore'), 'a.txt\nc.txt\n');
+      await writeFile(join(list_entries_dir, '.zipignore'), 'b.txt\nd.txt\n');
+    });
+
+    after(async () => {
+      await rm(list_entries_dir, { recursive: true });
+    });
+
+    test('disable rules: none', async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        [],
+        'none'
+      );
+
+      assert.strictEqual(entries.length, 4);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 4);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+
+      assert.strictEqual(entries[3].path, join(input[0], 'e.txt'));
+      assert.strictEqual(entries[3].type, 'file');
+    });
+
+    test("disable rules: none - exclude 'e.txt'", async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        ['e.txt'],
+        'none'
+      );
+
+      assert.strictEqual(entries.length, 3);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 3);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+    });
+
+    test('disable rules: zipignore', async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        [],
+        'zipignore'
+      );
+
+      assert.strictEqual(entries.length, 8);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 8);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+
+      assert.strictEqual(entries[3].path, join(input[0], 'dir-1'));
+      assert.strictEqual(entries[3].type, 'directory');
+
+      assert.strictEqual(entries[4].path, join(input[0], 'dir-1', 'b.txt'));
+      assert.strictEqual(entries[4].type, 'file');
+
+      assert.strictEqual(entries[5].path, join(input[0], 'dir-2'));
+      assert.strictEqual(entries[5].type, 'directory');
+
+      assert.strictEqual(entries[6].path, join(input[0], 'dir-2', 'd.txt'));
+      assert.strictEqual(entries[6].type, 'file');
+
+      assert.strictEqual(entries[7].path, join(input[0], 'e.txt'));
+      assert.strictEqual(entries[7].type, 'file');
+    });
+
+    test('disable rules: gitignore', async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        [],
+        'gitignore'
+      );
+
+      assert.strictEqual(entries.length, 8);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 8);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+
+      assert.strictEqual(entries[3].path, join(input[0], 'dir-1'));
+      assert.strictEqual(entries[3].type, 'directory');
+
+      assert.strictEqual(entries[4].path, join(input[0], 'dir-1', 'a.txt'));
+      assert.strictEqual(entries[4].type, 'file');
+
+      assert.strictEqual(entries[5].path, join(input[0], 'dir-2'));
+      assert.strictEqual(entries[5].type, 'directory');
+
+      assert.strictEqual(entries[6].path, join(input[0], 'dir-2', 'c.txt'));
+      assert.strictEqual(entries[6].type, 'file');
+
+      assert.strictEqual(entries[7].path, join(input[0], 'e.txt'));
+      assert.strictEqual(entries[7].type, 'file');
+    });
+
+    test('disable rules: ignore-files', async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        [],
+        'ignore-files'
+      );
+
+      assert.strictEqual(entries.length, 10);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 10);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+
+      assert.strictEqual(entries[3].path, join(input[0], 'dir-1'));
+      assert.strictEqual(entries[3].type, 'directory');
+
+      assert.strictEqual(entries[4].path, join(input[0], 'dir-1', 'a.txt'));
+      assert.strictEqual(entries[4].type, 'file');
+
+      assert.strictEqual(entries[5].path, join(input[0], 'dir-1', 'b.txt'));
+      assert.strictEqual(entries[5].type, 'file');
+
+      assert.strictEqual(entries[6].path, join(input[0], 'dir-2'));
+      assert.strictEqual(entries[6].type, 'directory');
+
+      assert.strictEqual(entries[7].path, join(input[0], 'dir-2', 'c.txt'));
+      assert.strictEqual(entries[7].type, 'file');
+
+      assert.strictEqual(entries[8].path, join(input[0], 'dir-2', 'd.txt'));
+      assert.strictEqual(entries[8].type, 'file');
+
+      assert.strictEqual(entries[9].path, join(input[0], 'e.txt'));
+      assert.strictEqual(entries[9].type, 'file');
+    });
+
+    test("disable rules: exclude-rules - exclude 'e.txt'", async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        ['e.txt'],
+        'exclude-rules'
+      );
+
+      assert.strictEqual(entries.length, 4);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 4);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+
+      assert.strictEqual(entries[3].path, join(input[0], 'e.txt'));
+      assert.strictEqual(entries[3].type, 'file');
+    });
+
+    test("disable rules: all - exclude 'e.txt'", async (ctx) => {
+      const input = [relative_list_entries_dir];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'full',
+        'none',
+        false,
+        ['e.txt'],
+        'all'
+      );
+
+      assert.strictEqual(entries.length, 10);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 10);
+
+      assert.strictEqual(entries[0].path, input[0]);
+      assert.strictEqual(entries[0].type, 'directory');
+
+      assert.strictEqual(entries[1].path, join(input[0], '.gitignore'));
+      assert.strictEqual(entries[1].type, 'file');
+
+      assert.strictEqual(entries[2].path, join(input[0], '.zipignore'));
+      assert.strictEqual(entries[2].type, 'file');
+
+      assert.strictEqual(entries[3].path, join(input[0], 'dir-1'));
+      assert.strictEqual(entries[3].type, 'directory');
+
+      assert.strictEqual(entries[4].path, join(input[0], 'dir-1', 'a.txt'));
+      assert.strictEqual(entries[4].type, 'file');
+
+      assert.strictEqual(entries[5].path, join(input[0], 'dir-1', 'b.txt'));
+      assert.strictEqual(entries[5].type, 'file');
+
+      assert.strictEqual(entries[6].path, join(input[0], 'dir-2'));
+      assert.strictEqual(entries[6].type, 'directory');
+
+      assert.strictEqual(entries[7].path, join(input[0], 'dir-2', 'c.txt'));
+      assert.strictEqual(entries[7].type, 'file');
+
+      assert.strictEqual(entries[8].path, join(input[0], 'dir-2', 'd.txt'));
+      assert.strictEqual(entries[8].type, 'file');
+
+      assert.strictEqual(entries[9].path, join(input[0], 'e.txt'));
+      assert.strictEqual(entries[9].type, 'file');
+    });
   });
 });
