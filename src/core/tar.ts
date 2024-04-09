@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname, join, normalize } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
 import { logger } from '@/logger';
@@ -156,8 +156,8 @@ export const read_tar = async (
       entry.header.type === 'symlink'
     ) {
       const fs_entry = <ArchiveEntry>{
-        path: entry.header.name,
-        cleaned_path: clean_path(entry.header.name),
+        path: normalize(entry.header.name),
+        cleaned_path: clean_path(normalize(entry.header.name)),
         type: entry.header.type,
         stats: {
           uid: entry.header.uid ?? 1000,
@@ -171,8 +171,12 @@ export const read_tar = async (
       };
 
       if (fs_entry.type === 'symlink') {
-        fs_entry.link_path = entry.header.linkname ?? '';
-        fs_entry.link_name = entry.header.linkname ?? '';
+        fs_entry.link_path = entry.header.linkname
+          ? normalize(entry.header.linkname)
+          : '';
+        fs_entry.link_name = entry.header.linkname
+          ? normalize(entry.header.linkname)
+          : '';
       }
 
       fs_entries.push(fs_entry);
@@ -216,7 +220,10 @@ export const extract_tar = async (
       for await (const entry of ex) {
         switch (entry.header.type) {
           case 'directory': {
-            const dir = join(output_dir, clean_path(entry.header.name));
+            const dir = join(
+              output_dir,
+              clean_path(normalize(entry.header.name))
+            );
             const { mtime, uid, gid, mode } = entry.header;
             await mkdir(dir, { recursive: true });
 
@@ -231,11 +238,11 @@ export const extract_tar = async (
           }
 
           case 'file': {
-            const filename = clean_path(entry.header.name);
+            const filename = clean_path(normalize(entry.header.name));
             spinner.text = `Extracting ${input_path} file to ${output_dir} (${++i}/${num_files} files) ${chalk.dim(
               `[${filename}]`
             )}`;
-            const file = join(output_dir, clean_path(filename));
+            const file = join(output_dir, filename);
             const dir = dirname(file);
             const { mtime, uid, gid, mode } = entry.header;
 
@@ -256,11 +263,13 @@ export const extract_tar = async (
           case 'symlink': {
             // TODO: decide how to handle symlinks on windows
             if (!is_windows) {
-              const filename = clean_path(entry.header.name);
-              const linked_file = entry.header.linkname;
+              const filename = clean_path(normalize(entry.header.name));
+              const linked_file = entry.header.linkname
+                ? normalize(entry.header.linkname)
+                : '';
 
               if (linked_file) {
-                const file_path = join(output_dir, clean_path(filename));
+                const file_path = join(output_dir, filename);
                 await mkdir(dirname(file_path), { recursive: true });
                 const { mtime, uid, gid, mode } = entry.header;
 

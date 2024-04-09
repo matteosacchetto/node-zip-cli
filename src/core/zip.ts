@@ -1,6 +1,6 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, normalize } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
@@ -163,8 +163,8 @@ export const read_zip = async (
 
     if (type === 'file' || type === 'directory' || type === 'symlink') {
       const entry = <ArchiveEntry>{
-        path: el[1].name,
-        cleaned_path: clean_path(el[1].name),
+        path: normalize(el[1].name),
+        cleaned_path: clean_path(normalize(el[1].name)),
         type,
         stats: {
           mtime: el[1].date,
@@ -176,8 +176,8 @@ export const read_zip = async (
 
       if (entry.type === 'symlink') {
         const link_path = await el[1].async('string');
-        entry.link_path = link_path;
-        entry.link_name = link_path;
+        entry.link_path = link_path ? normalize(link_path) : '';
+        entry.link_name = link_path ? normalize(link_path) : '';
       }
 
       entries.push(entry);
@@ -212,28 +212,33 @@ export const extract_zip = async (
           continue;
         }
 
+        const cleaned_path = clean_path(normalize(filename));
+
         if (!file.dir) {
           // TODO: decide how to handle symlinks on windows
           if (is_symlink(file) && !is_windows) {
             // Symlink
-            const linked_file = await file.async('string');
+            const tmp_link_path = await file.async('string');
+            const link_path = tmp_link_path ? normalize(tmp_link_path) : '';
 
-            const file_path = join(output_dir, clean_path(filename));
-            await mkdir(dirname(file_path), { recursive: true });
+            if (link_path) {
+              const file_path = join(output_dir, cleaned_path);
+              await mkdir(dirname(file_path), { recursive: true });
 
-            await overwrite_symlink_if_exists(linked_file, file_path);
+              await overwrite_symlink_if_exists(link_path, file_path);
 
-            await set_permissions(file_path, {
-              mode: file.unixPermissions,
-              mtime: file.date,
-            });
+              await set_permissions(file_path, {
+                mode: file.unixPermissions,
+                mtime: file.date,
+              });
+            }
           } else {
             // File
             spinner.text = `Extracting ${input_path} file to ${output_dir} (${++i}/${
               filenames.length
             } files) ${chalk.dim(`[${filename}]`)}`;
 
-            const file_path = join(output_dir, clean_path(filename));
+            const file_path = join(output_dir, cleaned_path);
             await mkdir(dirname(file_path), { recursive: true });
 
             const file_stream = file.nodeStream('nodebuffer');
@@ -245,7 +250,7 @@ export const extract_zip = async (
             });
           }
         } else {
-          const dir_path = join(output_dir, clean_path(filename));
+          const dir_path = join(output_dir, cleaned_path);
           await mkdir(dirname(dir_path), { recursive: true });
 
           await set_permissions(dir_path, {
