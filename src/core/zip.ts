@@ -206,26 +206,24 @@ export const extract_zip = async (
       const content = await readFile(input_path);
       const archive = await zip.loadAsync(content);
 
-      const filenames = Object.keys(archive.files);
-      const num_files = filenames.filter((el) => !el.endsWith('/')).length;
+      const filenames = Object.entries(archive.files);
+      const num_files = filenames.filter((el) => !el[0].endsWith('/')).length;
 
       let i = 0;
-      for (const filename of filenames) {
-        const file = archive.file(filename);
-        if (!file) {
-          continue;
-        }
+      for (const el of filenames) {
+        const filename = el[0];
 
+        /* c8 ignore next 3 */
         const path = filename.endsWith('/')
           ? filename.slice(0, -1) // Remove trailing slash
           : filename;
         const cleaned_path = clean_path(normalize(path));
 
-        if (!file.dir) {
+        if (!el[1].dir) {
           // TODO: decide how to handle symlinks on windows
-          if (is_symlink(file) && !is_windows) {
+          if (is_symlink(el[1]) && !is_windows) {
             // Symlink
-            const tmp_link_path = await file.async('string');
+            const tmp_link_path = await el[1].async('string');
             const link_path = tmp_link_path ? normalize(tmp_link_path) : '';
 
             if (link_path) {
@@ -235,8 +233,8 @@ export const extract_zip = async (
               await overwrite_symlink_if_exists(link_path, file_path);
 
               await set_permissions(file_path, {
-                mode: file.unixPermissions,
-                mtime: file.date,
+                mode: el[1].unixPermissions,
+                mtime: el[1].date,
               });
             }
           } else {
@@ -248,12 +246,12 @@ export const extract_zip = async (
             const file_path = join(output_dir, cleaned_path);
             await mkdir(dirname(file_path), { recursive: true });
 
-            const file_stream = file.nodeStream('nodebuffer');
+            const file_stream = el[1].nodeStream('nodebuffer');
             await pipeline(file_stream, createWriteStream(file_path));
 
             await set_permissions(file_path, {
-              mode: file.unixPermissions,
-              mtime: file.date,
+              mode: el[1].unixPermissions,
+              mtime: el[1].date,
             });
           }
         } else {
@@ -261,8 +259,8 @@ export const extract_zip = async (
           await mkdir(dirname(dir_path), { recursive: true });
 
           await set_permissions(dir_path, {
-            mode: file.unixPermissions,
-            mtime: file.date,
+            mode: el[1].unixPermissions,
+            mtime: el[1].date,
           });
         }
       }
