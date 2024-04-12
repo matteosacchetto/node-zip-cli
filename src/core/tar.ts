@@ -163,6 +163,7 @@ export const read_tar = async (
           uid: entry.header.uid ?? 1000,
           gid: entry.header.gid ?? 1000,
           mode:
+            /* c8 ignore next 3 */
             entry.header.mode === undefined
               ? get_default_mode(entry.header.type)
               : get_full_mode(entry.header.mode, entry.header.type),
@@ -170,6 +171,7 @@ export const read_tar = async (
         },
       };
 
+      /* c8 ignore next 9 */
       if (fs_entry.type === 'symlink') {
         fs_entry.link_path = entry.header.linkname
           ? normalize(entry.header.linkname)

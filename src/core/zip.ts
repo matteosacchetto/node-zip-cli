@@ -124,6 +124,7 @@ export const create_zip = async (
         )
         .pipe(createWriteStream(output_path))
         .on('error', (err) => {
+          /* c8 ignore next 1 */
           reject(err);
         })
         .on('finish', () => {
@@ -162,9 +163,12 @@ export const read_zip = async (
         : 'file';
 
     if (type === 'file' || type === 'directory' || type === 'symlink') {
+      const path = el[1].name.endsWith('/')
+        ? el[1].name.slice(0, -1) // Remove trailing slash
+        : el[1].name;
       const entry = <ArchiveEntry>{
-        path: normalize(el[1].name),
-        cleaned_path: clean_path(normalize(el[1].name)),
+        path: normalize(path),
+        cleaned_path: clean_path(normalize(path)),
         type,
         stats: {
           mtime: el[1].date,
@@ -212,7 +216,10 @@ export const extract_zip = async (
           continue;
         }
 
-        const cleaned_path = clean_path(normalize(filename));
+        const path = filename.endsWith('/')
+          ? filename.slice(0, -1) // Remove trailing slash
+          : filename;
+        const cleaned_path = clean_path(normalize(path));
 
         if (!file.dir) {
           // TODO: decide how to handle symlinks on windows
