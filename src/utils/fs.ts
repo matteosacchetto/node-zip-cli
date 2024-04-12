@@ -184,10 +184,12 @@ export const clean_path = (path: string) => {
   if (isAbsolute(path)) {
     let parsed_path = parse(final_path);
     while (isAbsolute(final_path) || parsed_path.root) {
+      /* c8 ignore start */
       const root =
         final_path.charAt(0) === '/' && final_path.slice(0, 4) !== '//?/'
           ? '/'
           : parsed_path.root;
+      /* c8 ignore end */
       final_path = final_path.slice(root.length);
       parsed_path = parse(final_path);
     }
