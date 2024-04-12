@@ -639,7 +639,7 @@ describe(filename, async () => {
 
     test('files-dir.tar', async () => {
       const archive = join(archives_dir, 'files-dir.tar');
-      const output_dir = join(write_dir, 'files-dir-tar');
+      const output_dir = join(extract_tar_dir, 'files-dir-tar');
 
       await extract_tar(archive, output_dir, false, is_windows);
 
@@ -686,7 +686,7 @@ describe(filename, async () => {
 
     test('files-dir.tgz', async () => {
       const archive = join(archives_dir, 'files-dir.tgz');
-      const output_dir = join(write_dir, 'files-dir-tgz');
+      const output_dir = join(extract_tar_dir, 'files-dir-tgz');
 
       await extract_tar(archive, output_dir, true, is_windows);
 
@@ -733,7 +733,7 @@ describe(filename, async () => {
 
     test('files-dir-sym.tar', async () => {
       const archive = join(archives_dir, 'files-dir-sym.tar');
-      const output_dir = join(write_dir, 'files-dir-sym-tar');
+      const output_dir = join(extract_tar_dir, 'files-dir-sym-tar');
 
       await extract_tar(archive, output_dir, false, is_windows);
 
@@ -747,7 +747,7 @@ describe(filename, async () => {
         'none'
       );
 
-      assert.strictEqual(files.length, 10);
+      assert.strictEqual(files.length, is_windows ? 11 : 10);
 
       assert.strictEqual(files[0].path, join(output_dir, 'dir-1'));
       assert.strictEqual(files[0].cleaned_path, 'dir-1');
@@ -788,14 +788,30 @@ describe(filename, async () => {
       assert.strictEqual(files[8].cleaned_path, join('dir-5', 'symlink-dir-2'));
       assert.strictEqual(files[8].type, is_windows ? 'file' : 'symlink');
 
-      assert.strictEqual(files[9].path, join(output_dir, 'empty'));
-      assert.strictEqual(files[9].cleaned_path, 'empty');
-      assert.strictEqual(files[9].type, 'file');
+      if (is_windows) {
+        assert.strictEqual(
+          files[9].path,
+          join(output_dir, 'dir-5', 'symlink-dir-6')
+        );
+        assert.strictEqual(
+          files[9].cleaned_path,
+          join('dir-5', 'symlink-dir-6')
+        );
+        assert.strictEqual(files[9].type, 'file');
+
+        assert.strictEqual(files[10].path, join(output_dir, 'empty'));
+        assert.strictEqual(files[10].cleaned_path, 'empty');
+        assert.strictEqual(files[10].type, 'file');
+      } else {
+        assert.strictEqual(files[9].path, join(output_dir, 'empty'));
+        assert.strictEqual(files[9].cleaned_path, 'empty');
+        assert.strictEqual(files[9].type, 'file');
+      }
     });
 
     test('files-dir-sym.tgz', async () => {
       const archive = join(archives_dir, 'files-dir-sym.tgz');
-      const output_dir = join(write_dir, 'files-dir-sym-tgz');
+      const output_dir = join(extract_tar_dir, 'files-dir-sym-tgz');
 
       await extract_tar(archive, output_dir, true, is_windows);
 
@@ -809,7 +825,7 @@ describe(filename, async () => {
         'none'
       );
 
-      assert.strictEqual(files.length, 10);
+      assert.strictEqual(files.length, is_windows ? 11 : 10);
 
       assert.strictEqual(files[0].path, join(output_dir, 'dir-1'));
       assert.strictEqual(files[0].cleaned_path, 'dir-1');
@@ -850,9 +866,25 @@ describe(filename, async () => {
       assert.strictEqual(files[8].cleaned_path, join('dir-5', 'symlink-dir-2'));
       assert.strictEqual(files[8].type, is_windows ? 'file' : 'symlink');
 
-      assert.strictEqual(files[9].path, join(output_dir, 'empty'));
-      assert.strictEqual(files[9].cleaned_path, 'empty');
-      assert.strictEqual(files[9].type, 'file');
+      if (is_windows) {
+        assert.strictEqual(
+          files[9].path,
+          join(output_dir, 'dir-5', 'symlink-dir-6')
+        );
+        assert.strictEqual(
+          files[9].cleaned_path,
+          join('dir-5', 'symlink-dir-6')
+        );
+        assert.strictEqual(files[9].type, 'file');
+
+        assert.strictEqual(files[10].path, join(output_dir, 'empty'));
+        assert.strictEqual(files[10].cleaned_path, 'empty');
+        assert.strictEqual(files[10].type, 'file');
+      } else {
+        assert.strictEqual(files[9].path, join(output_dir, 'empty'));
+        assert.strictEqual(files[9].cleaned_path, 'empty');
+        assert.strictEqual(files[9].type, 'file');
+      }
     });
   });
 });
