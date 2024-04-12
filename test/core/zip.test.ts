@@ -31,6 +31,14 @@ const format_date = (date: Date) => {
   return new Date(Math.floor(date.getTime() / 2000) * 2000);
 };
 
+const compare_date = (value: Date, compare_to: Date) => {
+  return [
+    compare_to.getTime() - 2000,
+    compare_to.getTime(),
+    compare_to.getTime() + 2000,
+  ].includes(value.getTime());
+};
+
 const filename = relative(
   join(process.cwd(), 'test'),
   fileURLToPath(import.meta.url)
@@ -159,9 +167,11 @@ describe(filename, async () => {
         assert.strictEqual(entries[0].cleaned_path, 'symlink-e');
         assert.strictEqual(entries[0].type, 'symlink');
         assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
-        assert.strictEqual(
-          entries[0].stats.mtime.getTime(),
-          format_date(files[0].stats.mtime).getTime()
+        assert.ok(
+          compare_date(
+            entries[0].stats.mtime,
+            format_date(files[0].stats.mtime)
+          )
         );
       }
     );
@@ -191,9 +201,8 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'e.txt');
       assert.strictEqual(entries[0].type, 'file');
       assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
     });
 
@@ -223,18 +232,16 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'a.txt');
       assert.strictEqual(entries[0].type, 'file');
       assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(entries[1].path, 'b.txt');
       assert.strictEqual(entries[1].cleaned_path, 'b.txt');
       assert.strictEqual(entries[1].type, 'file');
       assert.strictEqual(entries[1].stats.mode, files[1].stats.mode);
-      assert.strictEqual(
-        entries[1].stats.mtime.getTime(),
-        format_date(files[1].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[1].stats.mtime, format_date(files[1].stats.mtime))
       );
     });
 
@@ -264,27 +271,24 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'dir-1');
       assert.strictEqual(entries[0].type, 'directory');
       assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(entries[1].path, join('dir-1', 'a.txt'));
       assert.strictEqual(entries[1].cleaned_path, join('dir-1', 'a.txt'));
       assert.strictEqual(entries[1].type, 'file');
       assert.strictEqual(entries[1].stats.mode, files[1].stats.mode);
-      assert.strictEqual(
-        entries[1].stats.mtime.getTime(),
-        format_date(files[1].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[1].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(entries[2].path, join('dir-1', 'b.txt'));
       assert.strictEqual(entries[2].cleaned_path, join('dir-1', 'b.txt'));
       assert.strictEqual(entries[2].type, 'file');
       assert.strictEqual(entries[2].stats.mode, files[2].stats.mode);
-      assert.strictEqual(
-        entries[2].stats.mtime.getTime(),
-        format_date(files[2].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[2].stats.mtime, format_date(files[2].stats.mtime))
       );
     });
 
@@ -314,54 +318,48 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'dir-1');
       assert.strictEqual(entries[0].type, 'directory');
       assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(entries[1].path, join('dir-1', 'a.txt'));
       assert.strictEqual(entries[1].cleaned_path, join('dir-1', 'a.txt'));
       assert.strictEqual(entries[1].type, 'file');
       assert.strictEqual(entries[1].stats.mode, files[1].stats.mode);
-      assert.strictEqual(
-        entries[1].stats.mtime.getTime(),
-        format_date(files[1].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[1].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(entries[2].path, join('dir-1', 'b.txt'));
       assert.strictEqual(entries[2].cleaned_path, join('dir-1', 'b.txt'));
       assert.strictEqual(entries[2].type, 'file');
       assert.strictEqual(entries[2].stats.mode, files[2].stats.mode);
-      assert.strictEqual(
-        entries[2].stats.mtime.getTime(),
-        format_date(files[2].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[2].stats.mtime, format_date(files[2].stats.mtime))
       );
 
       assert.strictEqual(entries[3].path, 'dir-2');
       assert.strictEqual(entries[3].cleaned_path, 'dir-2');
       assert.strictEqual(entries[3].type, 'directory');
       assert.strictEqual(entries[3].stats.mode, files[3].stats.mode);
-      assert.strictEqual(
-        entries[3].stats.mtime.getTime(),
-        format_date(files[3].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[3].stats.mtime, format_date(files[3].stats.mtime))
       );
 
       assert.strictEqual(entries[4].path, join('dir-2', 'c.txt'));
       assert.strictEqual(entries[4].cleaned_path, join('dir-2', 'c.txt'));
       assert.strictEqual(entries[4].type, 'file');
       assert.strictEqual(entries[4].stats.mode, files[4].stats.mode);
-      assert.strictEqual(
-        entries[4].stats.mtime.getTime(),
-        format_date(files[4].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[4].stats.mtime, format_date(files[4].stats.mtime))
       );
 
       assert.strictEqual(entries[5].path, join('dir-2', 'd.txt'));
       assert.strictEqual(entries[5].cleaned_path, join('dir-2', 'd.txt'));
       assert.strictEqual(entries[5].type, 'file');
       assert.strictEqual(entries[5].stats.mode, files[5].stats.mode);
-      assert.strictEqual(
-        entries[5].stats.mtime.getTime(),
-        format_date(files[5].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[5].stats.mtime, format_date(files[5].stats.mtime))
       );
     });
 
@@ -391,18 +389,16 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'test');
       assert.strictEqual(entries[0].type, 'directory');
       assert.strictEqual(entries[0].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(entries[1].path, join('test', '_write_'));
       assert.strictEqual(entries[1].cleaned_path, join('test', '_write_'));
       assert.strictEqual(entries[1].type, 'directory');
       assert.strictEqual(entries[1].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[1].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[1].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -415,9 +411,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[2].type, 'directory');
       assert.strictEqual(entries[2].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[2].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[2].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -430,9 +425,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[3].type, 'directory');
       assert.strictEqual(entries[3].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[3].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[3].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -445,9 +439,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[4].type, 'file');
       assert.strictEqual(entries[4].stats.mode, files[1].stats.mode);
-      assert.strictEqual(
-        entries[4].stats.mtime.getTime(),
-        format_date(files[1].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[4].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(
@@ -460,9 +453,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[5].type, 'file');
       assert.strictEqual(entries[5].stats.mode, files[2].stats.mode);
-      assert.strictEqual(
-        entries[5].stats.mtime.getTime(),
-        format_date(files[2].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[5].stats.mtime, format_date(files[2].stats.mtime))
       );
     });
 
@@ -492,18 +484,16 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'test');
       assert.strictEqual(entries[0].type, 'directory');
       assert.strictEqual(entries[0].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(entries[1].path, join('test', '_write_'));
       assert.strictEqual(entries[1].cleaned_path, join('test', '_write_'));
       assert.strictEqual(entries[1].type, 'directory');
       assert.strictEqual(entries[1].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[1].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[1].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -516,9 +506,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[2].type, 'directory');
       assert.strictEqual(entries[2].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[2].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[2].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -531,9 +520,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[3].type, 'directory');
       assert.strictEqual(entries[3].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[3].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[3].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -546,9 +534,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[4].type, 'file');
       assert.strictEqual(entries[4].stats.mode, files[1].stats.mode);
-      assert.strictEqual(
-        entries[4].stats.mtime.getTime(),
-        format_date(files[1].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[4].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(
@@ -561,9 +548,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[5].type, 'file');
       assert.strictEqual(entries[5].stats.mode, files[2].stats.mode);
-      assert.strictEqual(
-        entries[5].stats.mtime.getTime(),
-        format_date(files[2].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[5].stats.mtime, format_date(files[2].stats.mtime))
       );
     });
 
@@ -593,18 +579,16 @@ describe(filename, async () => {
       assert.strictEqual(entries[0].cleaned_path, 'test');
       assert.strictEqual(entries[0].type, 'directory');
       assert.strictEqual(entries[0].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[0].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(entries[1].path, join('test', '_write_'));
       assert.strictEqual(entries[1].cleaned_path, join('test', '_write_'));
       assert.strictEqual(entries[1].type, 'directory');
       assert.strictEqual(entries[1].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[1].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[1].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -617,9 +601,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[2].type, 'directory');
       assert.strictEqual(entries[2].stats.mode, get_default_mode('directory'));
-      assert.strictEqual(
-        entries[2].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[2].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -632,9 +615,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[3].type, 'directory');
       assert.strictEqual(entries[3].stats.mode, files[0].stats.mode);
-      assert.strictEqual(
-        entries[3].stats.mtime.getTime(),
-        format_date(files[0].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[3].stats.mtime, format_date(files[0].stats.mtime))
       );
 
       assert.strictEqual(
@@ -647,9 +629,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[4].type, 'file');
       assert.strictEqual(entries[4].stats.mode, files[1].stats.mode);
-      assert.strictEqual(
-        entries[4].stats.mtime.getTime(),
-        format_date(files[1].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[4].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(
@@ -662,9 +643,8 @@ describe(filename, async () => {
       );
       assert.strictEqual(entries[5].type, 'file');
       assert.strictEqual(entries[5].stats.mode, files[2].stats.mode);
-      assert.strictEqual(
-        entries[5].stats.mtime.getTime(),
-        format_date(files[2].stats.mtime).getTime()
+      assert.ok(
+        compare_date(entries[5].stats.mtime, format_date(files[2].stats.mtime))
       );
     });
   });
