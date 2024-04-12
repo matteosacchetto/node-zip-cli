@@ -14,12 +14,13 @@ import {
 import { fileURLToPath } from 'node:url';
 import { is_windows } from '@/core/constants';
 import { list_entries } from '@/core/walk';
-import { create_zip, read_zip } from '@/core/zip';
+import { create_zip, extract_zip, read_zip } from '@/core/zip';
 import type { ArchiveEntry, CleanedEntryWithMode } from '@/types/fs';
 import { get_default_mode } from '@/utils/fs';
 
 const data_dir = join(process.cwd(), 'test', '_data_');
 const write_dir = join(process.cwd(), 'test', '_write_');
+const archives_dir = join(process.cwd(), 'test', '_archives_');
 
 const format_date = (date: Date) => {
   // In the zip archive the mtime has milliseconds set to 0
@@ -665,6 +666,153 @@ describe(filename, async () => {
         entries[5].stats.mtime.getTime(),
         format_date(files[2].stats.mtime).getTime()
       );
+    });
+  });
+
+  describe('extract_zip', async () => {
+    const extract_zip_dir = join(write_dir, 'extract_zip');
+
+    before(async () => {
+      await mkdir(extract_zip_dir, { recursive: true });
+    });
+
+    after(async () => {
+      await rm(extract_zip_dir, { recursive: true });
+    });
+
+    beforeEach(async () => {
+      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+        return msg;
+      });
+    });
+
+    afterEach(async () => {
+      mock.restoreAll();
+    });
+
+    test('files-dir.zip', async () => {
+      const archive = join(archives_dir, 'files-dir.zip');
+      const output_dir = join(write_dir, 'files-dir-zip');
+
+      await extract_zip(archive, output_dir, is_windows);
+
+      const [files] = await list_entries(
+        [output_dir],
+        is_windows,
+        'none',
+        'none',
+        false,
+        [],
+        'none'
+      );
+
+      assert.strictEqual(files.length, 7);
+
+      assert.strictEqual(files[0].path, join(output_dir, 'dir-1'));
+      assert.strictEqual(files[0].cleaned_path, 'dir-1');
+      assert.strictEqual(files[0].type, 'directory');
+
+      assert.strictEqual(files[1].path, join(output_dir, 'dir-1', 'a.txt'));
+      assert.strictEqual(files[1].cleaned_path, join('dir-1', 'a.txt'));
+      assert.strictEqual(files[1].type, 'file');
+
+      assert.strictEqual(files[2].path, join(output_dir, 'dir-1', 'b.txt'));
+      assert.strictEqual(files[2].cleaned_path, join('dir-1', 'b.txt'));
+      assert.strictEqual(files[2].type, 'file');
+
+      assert.strictEqual(files[3].path, join(output_dir, 'dir-2'));
+      assert.strictEqual(files[3].cleaned_path, 'dir-2');
+      assert.strictEqual(files[3].type, 'directory');
+
+      assert.strictEqual(files[4].path, join(output_dir, 'dir-2', 'c.txt'));
+      assert.strictEqual(files[4].cleaned_path, join('dir-2', 'c.txt'));
+      assert.strictEqual(files[4].type, 'file');
+
+      assert.strictEqual(files[5].path, join(output_dir, 'dir-2', 'd.txt'));
+      assert.strictEqual(files[5].cleaned_path, join('dir-2', 'd.txt'));
+      assert.strictEqual(files[5].type, 'file');
+
+      assert.strictEqual(files[6].path, join(output_dir, 'empty'));
+      assert.strictEqual(files[6].cleaned_path, 'empty');
+      assert.strictEqual(files[6].type, 'file');
+    });
+
+    test('files-dir-sym.zip', async () => {
+      const archive = join(archives_dir, 'files-dir-sym.zip');
+      const output_dir = join(write_dir, 'files-dir-sym-zip');
+
+      await extract_zip(archive, output_dir, is_windows);
+
+      const [files] = await list_entries(
+        [output_dir],
+        is_windows,
+        'none',
+        'keep',
+        false,
+        [],
+        'none'
+      );
+
+      if (is_windows) {
+        assert.strictEqual(files.length, 8);
+      } else {
+        assert.strictEqual(files.length, 10);
+      }
+
+      assert.strictEqual(files[0].path, join(output_dir, 'dir-1'));
+      assert.strictEqual(files[0].cleaned_path, 'dir-1');
+      assert.strictEqual(files[0].type, 'directory');
+
+      assert.strictEqual(files[1].path, join(output_dir, 'dir-1', 'a.txt'));
+      assert.strictEqual(files[1].cleaned_path, join('dir-1', 'a.txt'));
+      assert.strictEqual(files[1].type, 'file');
+
+      assert.strictEqual(files[2].path, join(output_dir, 'dir-1', 'b.txt'));
+      assert.strictEqual(files[2].cleaned_path, join('dir-1', 'b.txt'));
+      assert.strictEqual(files[2].type, 'file');
+
+      assert.strictEqual(files[3].path, join(output_dir, 'dir-2'));
+      assert.strictEqual(files[3].cleaned_path, 'dir-2');
+      assert.strictEqual(files[3].type, 'directory');
+
+      assert.strictEqual(files[4].path, join(output_dir, 'dir-2', 'c.txt'));
+      assert.strictEqual(files[4].cleaned_path, join('dir-2', 'c.txt'));
+      assert.strictEqual(files[4].type, 'file');
+
+      assert.strictEqual(files[5].path, join(output_dir, 'dir-2', 'd.txt'));
+      assert.strictEqual(files[5].cleaned_path, join('dir-2', 'd.txt'));
+      assert.strictEqual(files[5].type, 'file');
+
+      assert.strictEqual(files[6].path, join(output_dir, 'dir-5'));
+      assert.strictEqual(files[6].cleaned_path, 'dir-5');
+      assert.strictEqual(files[6].type, 'directory');
+
+      if (is_windows) {
+        assert.strictEqual(files[7].path, join(output_dir, 'empty'));
+        assert.strictEqual(files[7].cleaned_path, 'empty');
+        assert.strictEqual(files[7].type, 'file');
+      } else {
+        assert.strictEqual(
+          files[7].path,
+          join(output_dir, 'dir-5', 'symlink-a')
+        );
+        assert.strictEqual(files[7].cleaned_path, join('dir-5', 'symlink-a'));
+        assert.strictEqual(files[7].type, 'symlink');
+
+        assert.strictEqual(
+          files[8].path,
+          join(output_dir, 'dir-5', 'symlink-dir-2')
+        );
+        assert.strictEqual(
+          files[8].cleaned_path,
+          join('dir-5', 'symlink-dir-2')
+        );
+        assert.strictEqual(files[8].type, 'symlink');
+
+        assert.strictEqual(files[9].path, join(output_dir, 'empty'));
+        assert.strictEqual(files[9].cleaned_path, 'empty');
+        assert.strictEqual(files[9].type, 'file');
+      }
     });
   });
 });

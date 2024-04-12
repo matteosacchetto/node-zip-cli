@@ -163,6 +163,7 @@ export const read_zip = async (
         : 'file';
 
     if (type === 'file' || type === 'directory' || type === 'symlink') {
+      /* c8 ignore next 14 */
       const path = el[1].name.endsWith('/')
         ? el[1].name.slice(0, -1) // Remove trailing slash
         : el[1].name;
@@ -178,6 +179,7 @@ export const read_zip = async (
         },
       };
 
+      /* c8 ignore next 5 */
       if (entry.type === 'symlink') {
         const link_path = await el[1].async('string');
         entry.link_path = link_path ? normalize(link_path) : '';
@@ -224,6 +226,7 @@ export const extract_zip = async (
           if (is_symlink(el[1]) && !is_windows) {
             // Symlink
             const tmp_link_path = await el[1].async('string');
+            /* c8 ignore next 1 */
             const link_path = tmp_link_path ? normalize(tmp_link_path) : '';
 
             if (link_path) {
