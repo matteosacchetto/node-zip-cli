@@ -222,7 +222,6 @@ export const extract_zip = async (
         const cleaned_path = clean_path(normalize(path));
 
         if (!el[1].dir) {
-          // TODO: decide how to handle symlinks on windows
           if (is_symlink(el[1]) && !is_windows) {
             // Symlink
             const tmp_link_path = await el[1].async('string');

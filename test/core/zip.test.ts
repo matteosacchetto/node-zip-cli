@@ -753,11 +753,7 @@ describe(filename, async () => {
         'none'
       );
 
-      if (is_windows) {
-        assert.strictEqual(files.length, 8);
-      } else {
-        assert.strictEqual(files.length, 10);
-      }
+      assert.strictEqual(files.length, 10);
 
       assert.strictEqual(files[0].path, join(output_dir, 'dir-1'));
       assert.strictEqual(files[0].cleaned_path, 'dir-1');
@@ -787,32 +783,20 @@ describe(filename, async () => {
       assert.strictEqual(files[6].cleaned_path, 'dir-5');
       assert.strictEqual(files[6].type, 'directory');
 
-      if (is_windows) {
-        assert.strictEqual(files[7].path, join(output_dir, 'empty'));
-        assert.strictEqual(files[7].cleaned_path, 'empty');
-        assert.strictEqual(files[7].type, 'file');
-      } else {
-        assert.strictEqual(
-          files[7].path,
-          join(output_dir, 'dir-5', 'symlink-a')
-        );
-        assert.strictEqual(files[7].cleaned_path, join('dir-5', 'symlink-a'));
-        assert.strictEqual(files[7].type, 'symlink');
+      assert.strictEqual(files[7].path, join(output_dir, 'dir-5', 'symlink-a'));
+      assert.strictEqual(files[7].cleaned_path, join('dir-5', 'symlink-a'));
+      assert.strictEqual(files[7].type, is_windows ? 'file' : 'symlink');
 
-        assert.strictEqual(
-          files[8].path,
-          join(output_dir, 'dir-5', 'symlink-dir-2')
-        );
-        assert.strictEqual(
-          files[8].cleaned_path,
-          join('dir-5', 'symlink-dir-2')
-        );
-        assert.strictEqual(files[8].type, 'symlink');
+      assert.strictEqual(
+        files[8].path,
+        join(output_dir, 'dir-5', 'symlink-dir-2')
+      );
+      assert.strictEqual(files[8].cleaned_path, join('dir-5', 'symlink-dir-2'));
+      assert.strictEqual(files[8].type, is_windows ? 'file' : 'symlink');
 
-        assert.strictEqual(files[9].path, join(output_dir, 'empty'));
-        assert.strictEqual(files[9].cleaned_path, 'empty');
-        assert.strictEqual(files[9].type, 'file');
-      }
+      assert.strictEqual(files[9].path, join(output_dir, 'empty'));
+      assert.strictEqual(files[9].cleaned_path, 'empty');
+      assert.strictEqual(files[9].type, 'file');
     });
   });
 });

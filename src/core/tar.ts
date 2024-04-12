@@ -1,5 +1,5 @@
 import { createReadStream, createWriteStream } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, normalize } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
@@ -263,7 +263,6 @@ export const extract_tar = async (
           }
 
           case 'symlink': {
-            // TODO: decide how to handle symlinks on windows
             if (!is_windows) {
               const filename = clean_path(normalize(entry.header.name));
               /* c8 ignore next 3 */
@@ -285,6 +284,26 @@ export const extract_tar = async (
                   gid,
                 });
               }
+            } else {
+              const filename = clean_path(normalize(entry.header.name));
+              /* c8 ignore next 3 */
+              const content = entry.header.linkname
+                ? normalize(entry.header.linkname)
+                : '';
+
+              const file = join(output_dir, filename);
+              const dir = dirname(file);
+              const { mtime, uid, gid, mode } = entry.header;
+
+              await mkdir(dir, { recursive: true });
+              await writeFile(file, content);
+
+              await set_permissions(file, {
+                mode,
+                mtime,
+                uid,
+                gid,
+              });
             }
 
             break;
