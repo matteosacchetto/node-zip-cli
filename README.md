@@ -132,6 +132,8 @@ Options:
   -o, --output <output-file>         the filename of the zip file to create (default: "out.zip")
   -k, --keep-parent <mode>           keep the parent directories (choices: "none", "last", "full", default: "full")
   -s, --symlink <mode>               handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
+  --disable-ignore <mode>            disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
+                                     "exclude-rules", "all", default: "none")
   -y, --yes                          answers yes to every question (default: false)
   -e, --exclude <paths...>           ignore the following paths
   --allow-git                        allow .git to be included in the zip (default: false)
@@ -176,6 +178,17 @@ There is also the option `none` which allows you to skip symlinks alltogether.
 This functionality is still experimental, and for such reason the current default value for this option is `none`.
 
 Once it will become stable, the default option will be switched to `resolve`.
+
+###### `--disable-ignore <mode>`
+
+Allows you to skip some ignore rules.
+The available modes are:
+* `none`: do not skip any rule, so all rules are active
+* `zipignore`: do not consider rules in the .zipignore file
+* `gitignore`: do not consider rules in the .gitignore file
+* `ignore-files`: do not consider rules in the .zipignore and .gitignore files
+* `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
+* `all`: disable all rules
 
 ###### `-y, --yes`
 
@@ -253,6 +266,8 @@ Options:
   -o, --output <output-file>      the filename of the tar file to create
   -k, --keep-parent <mode>        keep the parent directories (choices: "none", "last", "full", default: "full")
   -s, --symlink <mode>            handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
+  --disable-ignore <mode>         disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
+                                  "exclude-rules", "all", default: "none")
   -y, --yes                       answers yes to every question (default: false)
   -e, --exclude <paths...>        ignore the following paths
   --allow-git                     allow .git to be included in the tar (default: false)
@@ -297,6 +312,17 @@ There is also the option `none` which allows you to skip symlinks alltogether.
 This functionality is still experimental, and for such reason the current default value for this option is `none`.
 
 Once it will become stable, the default option will be switched to `resolve`.
+
+###### `--disable-ignore <mode>`
+
+Allows you to skip some ignore rules.
+The available modes are:
+* `none`: do not skip any rule, so all rules are active
+* `zipignore`: do not consider rules in the .zipignore file
+* `gitignore`: do not consider rules in the .gitignore file
+* `ignore-files`: do not consider rules in the .zipignore and .gitignore files
+* `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
+* `all`: disable all rules
 
 ###### `-y, --yes`
 
