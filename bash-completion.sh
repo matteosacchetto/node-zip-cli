@@ -24,7 +24,7 @@ __node-zip-cli_completion() {
       # Options with one argument
       case $prev in
         -d|--deflate)
-          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9 -v --version -i --input -k --keep-parent -s --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9 -v --version -i --input -o --output -k --keep-parent -s --symlink --disable-ignore -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
         -o|--output)
@@ -37,6 +37,10 @@ __node-zip-cli_completion() {
         ;;
         -s|--symlink)
           COMPREPLY=($(compgen -W "resolve keep none" -- "$cur"));
+          return 0;
+        ;;
+        --disable-ignore)
+          COMPREPLY=($(compgen -W "none zipignore gitignore ignore-files exclude-rules all" -- "$cur"));
           return 0;
         ;;
       esac
@@ -52,7 +56,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -d --deflate -k --keep-parent -s --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -d --deflate -o --output -k --keep-parent -s --symlink --disable-ignore  -- -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac
@@ -82,7 +86,7 @@ __node-zip-cli_completion() {
       # Options with one argument
       case $prev in
         -g|--gzip)
-          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9 -v --version -i --input -k --keep-parent -s --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "0 1 2 3 4 5 6 7 8 9 -v --version -i --input -k -o --output --keep-parent -s --symlink --disable-ignore -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
         -o|--output)
@@ -95,6 +99,10 @@ __node-zip-cli_completion() {
         ;;
         -s|--symlink)
           COMPREPLY=($(compgen -W "resolve keep none" -- "$cur"));
+          return 0;
+        ;;
+        --disable-ignore)
+          COMPREPLY=($(compgen -W "none zipignore gitignore ignore-files exclude-rules all" -- "$cur"));
           return 0;
         ;;
       esac
@@ -110,7 +118,7 @@ __node-zip-cli_completion() {
           return 0;
         ;;
         *)
-          COMPREPLY=($(compgen -W "-v --version -i --input -g --gzip -k --keep-parent -s --symlink -o --output -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
+          COMPREPLY=($(compgen -W "-v --version -i --input -g --gzip -o --output -k --keep-parent -s --symlink --disable-ignore -y --yes -e --exclude --allow-git --dry-run -h --help" -- "$cur"));
           return 0;
         ;;
       esac
