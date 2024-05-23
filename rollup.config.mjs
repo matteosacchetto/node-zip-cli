@@ -1,56 +1,61 @@
-// rollup.config.mjs
+// @ts-check
+import { createRequire } from 'node:module';
 import json from '@rollup/plugin-json';
+import replace from '@rollup/plugin-replace';
 import run from '@rollup/plugin-run';
-import typescript from '@rollup/plugin-typescript';
+import { defineConfig } from 'rollup';
 import esbuild from 'rollup-plugin-esbuild';
 import externals from 'rollup-plugin-node-externals';
 import { typescriptPaths } from 'rollup-plugin-typescript-paths';
 
+const require = createRequire(import.meta.url);
+const pkg = require('./package.json');
+
 const preferConst = true; // Use "const" instead of "var"
-const usePreserveModules = false; // `true` -> keep modules structure, `false` -> combine everything into a single file
-const useThrowOnError = true; // On error throw and exception
-const useEsbuild = true; // `true` -> use esbuild, `false` use tsc
+const usePreserveModules = true; // `true` -> keep modules structure, `false` -> combine everything into a single file
+const usePreserveModulesProduction = true; // `true` -> keep modules structure, `false` -> combine everything into a single file
 
-const isCli = true; // `true` -> is a CLI so bunlde to a single file, `false` not a cli, so use `usePreserveModules`
+const isProduction = process.env.NODE_ENV === 'production';
 const isWatched = process.env.ROLLUP_WATCH === 'true'; // `true` if -w option is used
-const useSourceMaps = process.env.NODE_ENV === 'debug'; // gerenetae sourcemaps only for debug
+const useSourceMaps = process.env.NODE_ENV === 'debug';
 
-/**
- * @type {import('rollup').RollupOptions}
- */
-export default {
-  input: 'src/app.ts',
+export default defineConfig({
+  input: 'src/index.ts',
   output: {
     dir: 'dist',
     format: 'es',
     generatedCode: {
       constBindings: preferConst,
     },
-    preserveModules: isCli ? false : usePreserveModules,
+    preserveModules: isProduction
+      ? usePreserveModulesProduction
+      : usePreserveModules,
+    preserveModulesRoot: 'src',
     strict: true,
     entryFileNames: '[name].mjs',
-    banner: isCli ? '#!/usr/bin/env node' : undefined,
     sourcemap: useSourceMaps,
   },
+  treeshake: 'smallest',
   plugins: [
     externals(),
     json({
       preferConst: preferConst,
     }),
-    useEsbuild
-      ? [
-          typescriptPaths({
-            preserveExtensions: true,
-          }),
-          esbuild({
-            legalComments: 'none',
-            target: 'esnext',
-          }),
-        ]
-      : typescript({
-          noEmitOnError: useThrowOnError,
-          removeComments: true,
-        }),
+    replace({
+      'process.env.PKG_NAME': `"${pkg.name}"`,
+      'process.env.PKG_VERSION': `"${pkg.version}"`,
+      'process.env.PKG_DESCRIPTION': `"${pkg.description}"`,
+      'process.env.BUILD_NODE_ENV': `"${process.env.NODE_ENV}"`,
+      preventAssignment: true,
+      sourceMap: useSourceMaps,
+    }),
+    typescriptPaths({
+      preserveExtensions: true,
+    }),
+    esbuild({
+      legalComments: 'none',
+      target: 'esnext',
+    }),
     isWatched ? run() : undefined,
   ],
-};
+});

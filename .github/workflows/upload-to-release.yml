@@ -16,10 +16,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup NodeJS 18.19.0
+      - name: Setup NodeJS 18.20.3
         uses: actions/setup-node@v4
         with:
-          node-version: 18.19.0
+          node-version: 18.20.3
 
       - run: npm ci
       - run: echo "archive=$(npm pack 2>/dev/null | tail -1)" >> $GITHUB_ENV

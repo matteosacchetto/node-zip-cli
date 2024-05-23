@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Main",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/app.ts",
+      "program": "${workspaceFolder}/src/index.ts",
       "preLaunchTask": "npm: build:debug",
       "outFiles": ["${workspaceFolder}/dist/**/*.mjs"],
       "console": "externalTerminal"

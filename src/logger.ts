@@ -1,9 +1,11 @@
 import { Console } from 'node:console';
 import { inspect } from 'node:util';
 import chalk from 'chalk';
+import figureSet from 'figures';
 import logSymbols from 'log-symbols';
 import stripAnsi from 'strip-ansi';
 
+/* c8 ignore start */
 enum STD_FD {
   OUT = 0,
   ERR = 1,
@@ -79,11 +81,14 @@ class Logger {
       );
     }
   }
-  log(...msg: unknown[]) {
+  write(...msg: unknown[]) {
     this.#log(STD_FD.OUT, true, ' ', ...msg);
   }
+  log(...msg: unknown[]) {
+    this.#log(STD_FD.ERR, true, ' ', ...msg);
+  }
   info(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, false, chalk.cyan(logSymbols.info), ...msg);
+    this.#log(STD_FD.ERR, false, chalk.cyan(logSymbols.info), ...msg);
   }
   error(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.red(logSymbols.error), ...msg);
@@ -92,10 +97,19 @@ class Logger {
     this.#log(STD_FD.ERR, false, chalk.yellow(logSymbols.warning), ...msg);
   }
   success(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, false, chalk.green(logSymbols.success), ...msg);
+    this.#log(STD_FD.ERR, false, chalk.green(logSymbols.success), ...msg);
+  }
+  skip(...msg: unknown[]) {
+    this.#log(
+      STD_FD.ERR,
+      false,
+      chalk.yellow(figureSet.arrowDown),
+      ...msg,
+      chalk.dim('[SKIPPED]')
+    );
   }
   dimmed_log(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
+    this.#log(STD_FD.ERR, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
   }
   dimmed_error(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
@@ -119,3 +133,4 @@ class Logger {
 }
 
 export const logger = new Logger();
+/* c8 ignore end */

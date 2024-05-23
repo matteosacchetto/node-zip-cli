@@ -144,5 +144,17 @@ docs
 
 # Archives
 *.zip
+*.tar
 *.tar.gz
 *.tgz
+
+# Test directories
+!test/_data_/base.tar
+!test/_data_/base.tar.gz
+!test/_data_/base.zip
+!test/_data_/base.tgz
+test/_write_/*
+!test/_write_/.gitkeep
+!test/_archives_/*.tar
+!test/_archives_/*.tgz
+!test/_archives_/*.zip
