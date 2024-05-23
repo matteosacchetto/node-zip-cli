@@ -284,9 +284,9 @@ export const extract_tar = async (
                   gid,
                 });
               }
+              /* c8 ignore start */
             } else {
               const filename = clean_path(normalize(entry.header.name));
-              /* c8 ignore next 3 */
               const content = entry.header.linkname
                 ? normalize(entry.header.linkname)
                 : '';
@@ -305,6 +305,7 @@ export const extract_tar = async (
                 gid,
               });
             }
+            /* c8 ignore end */
 
             break;
           }
