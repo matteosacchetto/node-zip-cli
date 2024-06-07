@@ -198,7 +198,7 @@ Answers yes to every confirmation question
 
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
-> [!WARN]
+> [!WARNING]
 > To avoid issues with wildcard extension, remember to puth pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
 > 
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
@@ -332,7 +332,7 @@ Answers yes to every confirmation question
 
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
-> [!WARN]
+> [!WARNING]
 > To avoid issues with wildcard extension, remember to puth pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
 > 
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
@@ -395,7 +395,7 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 > [!NOTE]
 > Up to the current version (0.6.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
 
-> [!WARN]
+> [!WARNING]
 > *Current limitaionts*  
 > Up to the current version (0.6.0) the strategy of ignoring `*` and the not ignore some paths (e.g. `!test`, `!src`, ...) is not supported.
 >
