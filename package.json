@@ -40,7 +40,7 @@
     "ignore"
   ],
   "devDependencies": {
-    "@biomejs/biome": "^1.8.0",
+    "@biomejs/biome": "^1.8.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-run": "^3.1.0",
@@ -54,7 +54,7 @@
     "rollup-plugin-esbuild": "^6.1.1",
     "rollup-plugin-node-externals": "^7.1.2",
     "rollup-plugin-typescript-paths": "^1.5.0",
-    "tsx": "^4.15.1",
+    "tsx": "^4.15.5",
     "typescript": "^5.4.5"
   },
   "engines": {
