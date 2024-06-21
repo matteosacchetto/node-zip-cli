@@ -1485,6 +1485,62 @@ describe(filename, async () => {
         assert.strictEqual(entries[1].link_name, 'a.txt');
       }
     );
+
+    test("test/_case-sensitive_: relative {keep_parent: 'none', symlink: 'none'} ignore 'a.txt", async (ctx) => {
+      const input = [join('test', '_case-sensitive_')];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'none',
+        'none',
+        false,
+        ['a.txt']
+      );
+
+      assert.strictEqual(entries.length, 1);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 1);
+
+      assert.strictEqual(entries[0].path, join(input[0], 'A.txt'));
+      assert.strictEqual(entries[0].cleaned_path, 'A.txt');
+      assert.strictEqual(entries[0].type, 'file');
+      const stats_a = await lstat(entries[0].path);
+      assert.deepStrictEqual(entries[0].stats, {
+        uid: stats_a.uid,
+        gid: stats_a.gid,
+        mtime: stats_a.mtime,
+        mode: fix_mode(stats_a.mode, is_windows),
+        size: 1,
+      });
+    });
+
+    test("test/_case-sensitive_: relative {keep_parent: 'none', symlink: 'none'} ignore 'A.txt", async (ctx) => {
+      const input = [join('test', '_case-sensitive_')];
+      const [entries, conflicting_list, map] = await list_entries(
+        input,
+        is_windows,
+        'none',
+        'none',
+        false,
+        ['A.txt']
+      );
+
+      assert.strictEqual(entries.length, 1);
+      assert.strictEqual(conflicting_list.length, 0);
+      assert.strictEqual(map.size, 1);
+
+      assert.strictEqual(entries[0].path, join(input[0], 'a.txt'));
+      assert.strictEqual(entries[0].cleaned_path, 'a.txt');
+      assert.strictEqual(entries[0].type, 'file');
+      const stats_a = await lstat(entries[0].path);
+      assert.deepStrictEqual(entries[0].stats, {
+        uid: stats_a.uid,
+        gid: stats_a.gid,
+        mtime: stats_a.mtime,
+        mode: fix_mode(stats_a.mode, is_windows),
+        size: 1,
+      });
+    });
   });
 
   describe('list_entries: disable ignore rules', async () => {

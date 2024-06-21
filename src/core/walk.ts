@@ -106,7 +106,10 @@ export const walk = async (
   disable_ignore: DisableIgnoreOption
 ) => {
   const gitingore_rules = [...parent_rules];
-  const gitignore_filter: Ignore = ignore();
+  const gitignore_filter: Ignore = ignore({
+    ignoreCase: false,
+  });
+
   gitignore_filter.add(gitingore_rules);
 
   const stats = await lstat(path);
