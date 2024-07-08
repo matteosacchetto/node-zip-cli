@@ -10,13 +10,13 @@ Simple nodejs cli which allows you to create and extract zip/tar files with supp
 Install it locally with
 
 ```bash
-npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.6.1/node-zip-cli-0.6.1.tgz
+npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.6.2/node-zip-cli-0.6.2.tgz
 ```
 
 Or install it globally with
 
 ```bash
-npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.6.1/node-zip-cli-0.6.1.tgz
+npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.6.2/node-zip-cli-0.6.2.tgz
 ```
 
 ### Other version
@@ -204,7 +204,7 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.6.1) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.6.2) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
@@ -338,7 +338,7 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.6.1) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.6.2) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
@@ -393,10 +393,10 @@ Simply run this CLI providing to each command all the necessary options.
 This file is meant to be placed in a folder which you plan to zip/tar. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
 
 > [!NOTE]
-> Up to the current version (0.6.1) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
+> Up to the current version (0.6.2) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
 
 > [!WARNING]
 > *Current limitaionts*  
-> Up to the current version (0.6.1) the strategy of ignoring `*` and the not ignore some paths (e.g. `!test`, `!src`, ...) is not supported.
+> Up to the current version (0.6.2) the strategy of ignoring `*` and the not ignore some paths (e.g. `!test`, `!src`, ...) is not supported.
 >
-> Up to the current version (0.6.1) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported
+> Up to the current version (0.6.2) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported
