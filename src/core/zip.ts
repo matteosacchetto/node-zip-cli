@@ -101,7 +101,7 @@ export const create_zip = async (
           {
             type: 'nodebuffer',
             streamFiles: true,
-            compression: deflate === false ? 'DEFLATE' : 'STORE',
+            compression: deflate === false ? 'STORE' : 'DEFLATE',
             compressionOptions: {
               level: deflate === true ? 6 : +deflate,
             },
