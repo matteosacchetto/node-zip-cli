@@ -3,8 +3,8 @@ import { relative } from 'node:path';
 import type { IgnoreFilter } from '@/types/ignore';
 import { boolean_filter } from '@/utils/filter';
 import { read_access } from '@/utils/fs';
-import ignore from 'ignore';
 import { ensure_trailing_separator } from '@/utils/path';
+import ignore from 'ignore';
 
 export const load_ignore_rules = async (path: string) => {
   if (await read_access(path)) {
