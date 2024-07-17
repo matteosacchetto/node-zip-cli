@@ -1,0 +1,12 @@
+# Comment
+src
+*.ts
+**/*.js
+
+# Comment 2
+log.*
+
+# Comment multiline
+# Comment multiline 2
+dist/
+test/**/*
