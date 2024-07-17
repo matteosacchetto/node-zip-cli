@@ -396,12 +396,12 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 > Up to the current version (0.7.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
 
 > [!NOTE]
-> Since version (0.7.0) the strategy of ignoring `*` and the unignore some paths (e.g. `!test`, `!src`, ...) is supported and behaves like in the gitignore specs. Quoting from [gitignore spces](https://git-scm.com/docs/gitignore): *"It is not possible to re-include a file if a parent directory of that file is excluded. Git doesn’t list excluded directories for performance reasons, so any patterns on contained files have no effect, no matter where they are defined. "*.
+> Since version (0.7.0) the strategy of ignoring everythin (`*`) and then un-ignoring (!) some paths (e.g. `!test`, `!src`, ...) is supported and behaves like in the gitignore specs. Quoting from [gitignore specs](https://git-scm.com/docs/gitignore): *"It is not possible to re-include a file if a parent directory of that file is excluded. Git doesn’t list excluded directories for performance reasons, so any patterns on contained files have no effect, no matter where they are defined. "*.
 >
 > For the same performance reasons and to match git behavior, node-zip-cli doesn’t list excluded directories
 
 > [!WARNING]
-> *Current limitaionts*  
+> *Current limitations*  
 > Up to the current version (0.7.0) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported
 >
 > Up to the current version (0.7.0) only 32-bit zip are supported, 64-bit zip support is not yet implemented.
