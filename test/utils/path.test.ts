@@ -1,9 +1,13 @@
 import assert from 'node:assert';
 import { platform } from 'node:os';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { clean_base_dir, normalize_entries } from '@/utils/path';
+import {
+  clean_base_dir,
+  ensure_trailing_separator,
+  normalize_entries,
+} from '@/utils/path';
 import chalk from 'chalk';
 
 const filename = relative(
@@ -60,5 +64,25 @@ describe(filename, async () => {
         );
       }
     );
+  });
+
+  describe('ensure_trailing_separator', async () => {
+    test('file', () => {
+      assert.strictEqual(
+        ensure_trailing_separator('index.ts', false),
+        'index.ts'
+      );
+    });
+
+    test('dir: no trailing separator', () => {
+      assert.strictEqual(ensure_trailing_separator('src', true), `src${sep}`);
+    });
+
+    test('dir: no trailing separator', () => {
+      assert.strictEqual(
+        ensure_trailing_separator(`src${sep}`, true),
+        `src${sep}`
+      );
+    });
   });
 });
