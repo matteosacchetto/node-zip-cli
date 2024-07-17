@@ -1,4 +1,4 @@
-import { lstat, opendir, readFile, readlink, realpath } from 'node:fs/promises';
+import { lstat, opendir, readlink, realpath } from 'node:fs/promises';
 import { dirname, join, normalize, relative, resolve } from 'node:path';
 import type {
   CleanedEntryWithMode,
@@ -8,7 +8,7 @@ import type {
   KeepParentOption,
   SymlinkOption,
 } from '@/types/fs';
-import { boolean_filter } from '@/utils/filter';
+import type { IgnoreFilter } from '@/types/ignore';
 import {
   clean_path,
   fix_mode,
@@ -19,18 +19,7 @@ import {
   unique_fs_entries,
 } from '@/utils/fs';
 import { clean_base_dir } from '@/utils/path';
-import ignore, { type Ignore } from 'ignore';
-
-const load_ignore_rules = async (path: string) => {
-  if (await read_access(path)) {
-    const gitignore_content = `${await readFile(path, {
-      encoding: 'utf-8',
-    })}\n`;
-    return gitignore_content.split('\n').filter(boolean_filter);
-  }
-
-  return [] as string[];
-};
+import { create_ignore_filter, is_ignored, load_ignore_rules } from './ignore';
 
 export const create_file = async (
   path: string,
@@ -102,23 +91,16 @@ export const walk = async (
   path_name: string,
   is_windows: boolean,
   symlink: SymlinkOption,
-  parent_rules: string[],
+  ignore_filters: IgnoreFilter[],
   disable_ignore: DisableIgnoreOption
 ) => {
-  const gitingore_rules = [...parent_rules];
-  const gitignore_filter: Ignore = ignore({
-    ignoreCase: false,
-  });
-
-  gitignore_filter.add(gitingore_rules);
-
   const stats = await lstat(path);
 
   const fs_entries: FsEntry[] = [];
   let n_children = 0;
 
   if (
-    (path_name !== '' && gitignore_filter.ignores(path_name)) ||
+    (path_name !== '' && is_ignored(path_name, ignore_filters)) ||
     !(await read_access(path))
   ) {
     return {
@@ -131,7 +113,7 @@ export const walk = async (
     n_children++;
     fs_entries.push(await create_file(path, path_name, is_windows));
   } else if (stats.isDirectory()) {
-    const children_rules = [...gitingore_rules];
+    const children_rules = [];
     for (const ingore_file of ['.gitignore', '.zipignore']) {
       if (
         disable_ignore !== 'all' &&
@@ -145,6 +127,11 @@ export const walk = async (
       }
     }
 
+    const children_ignore_filters =
+      children_rules.length > 0
+        ? [...ignore_filters, create_ignore_filter(path_name, children_rules)]
+        : ignore_filters;
+
     const children = await opendir(path);
 
     let sub_n_children = 0;
@@ -154,7 +141,7 @@ export const walk = async (
         join(path_name, child_entry.name),
         is_windows,
         symlink,
-        children_rules,
+        children_ignore_filters,
         disable_ignore
       );
       sub_n_children += res.n_children;
@@ -182,7 +169,7 @@ export const walk = async (
           path_name,
           is_windows,
           symlink,
-          parent_rules,
+          ignore_filters,
           disable_ignore
         );
         n_children += res.n_children;
@@ -221,6 +208,8 @@ export const list_entries = async (
     }
   }
 
+  const ignore_filters = [create_ignore_filter('.', default_rules)];
+
   const non_empty_list: FsEntry[] = [];
   for (const entry_path of unique_input_entries) {
     const entry_name = clean_path(entry_path);
@@ -229,7 +218,7 @@ export const list_entries = async (
       entry_name,
       is_windows,
       symlink,
-      default_rules,
+      ignore_filters,
       disable_ignore
     );
     let entries = res.entries;
