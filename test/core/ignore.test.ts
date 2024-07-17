@@ -158,5 +158,29 @@ describe(filename, async () => {
 
       assert.ok(is_ignored('src', true, ignore_filters));
     });
+
+    test('sub directory: no trailing slash in ignore rule (negated)', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['*', '!src'])];
+
+      assert.ok(!is_ignored('root/src', true, ignore_filters));
+    });
+
+    test('sub directory: trailing slash in ignore rule (negated)', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['*', '!src/'])];
+
+      assert.ok(!is_ignored('root/src', true, ignore_filters));
+    });
+
+    test('sub directory: no trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['src'])];
+
+      assert.ok(is_ignored('root/src', true, ignore_filters));
+    });
+
+    test('sub directory: trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['src/'])];
+
+      assert.ok(is_ignored('root/src', true, ignore_filters));
+    });
   });
 });
