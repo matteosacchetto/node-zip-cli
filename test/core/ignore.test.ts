@@ -135,16 +135,28 @@ describe(filename, async () => {
       assert.ok(!is_ignored('src/.gitignore', false, ignore_filters));
     });
 
-    test('directory: no trailing slash in ignore rule', async () => {
+    test('directory: no trailing slash in ignore rule (negated)', async () => {
       const ignore_filters = [create_ignore_filter('.', ['*', '!src'])];
 
       assert.ok(!is_ignored('src', true, ignore_filters));
     });
 
-    test('directory: trailing slash in ignore rule', async () => {
+    test('directory: trailing slash in ignore rule (negated)', async () => {
       const ignore_filters = [create_ignore_filter('.', ['*', '!src/'])];
 
       assert.ok(!is_ignored('src', true, ignore_filters));
+    });
+
+    test('directory: no trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('.', ['src'])];
+
+      assert.ok(is_ignored('src', true, ignore_filters));
+    });
+
+    test('directory: trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('.', ['src/'])];
+
+      assert.ok(is_ignored('src', true, ignore_filters));
     });
   });
 });
