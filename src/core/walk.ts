@@ -100,7 +100,8 @@ export const walk = async (
   let n_children = 0;
 
   if (
-    (path_name !== '' && is_ignored(path_name, ignore_filters)) ||
+    (path_name !== '' &&
+      is_ignored(path_name, stats.isDirectory(), ignore_filters)) ||
     !(await read_access(path))
   ) {
     return {

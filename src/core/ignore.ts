@@ -4,6 +4,7 @@ import type { IgnoreFilter } from '@/types/ignore';
 import { boolean_filter } from '@/utils/filter';
 import { read_access } from '@/utils/fs';
 import ignore from 'ignore';
+import { ensure_trailing_separator } from '@/utils/path';
 
 export const load_ignore_rules = async (path: string) => {
   if (await read_access(path)) {
@@ -33,13 +34,17 @@ export const create_ignore_filter = (
 
 export const is_ignored = (
   path: string,
+  is_dir: boolean,
   ignore_filters: IgnoreFilter[]
 ): boolean => {
   let ignored = false;
 
   for (let i = ignore_filters.length - 1; i >= 0; i--) {
-    const relative_path = relative(ignore_filters[i].path, path);
+    let relative_path = relative(ignore_filters[i].path, path);
     if (!relative_path) continue;
+
+    // Needed to make sure we properly handle directories
+    relative_path = ensure_trailing_separator(path, is_dir);
 
     const test = ignore_filters[i].filter.test(relative_path);
     ignored = (ignored || test.ignored) && !test.unignored;
