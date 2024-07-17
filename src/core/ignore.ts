@@ -44,7 +44,7 @@ export const is_ignored = (
     if (!relative_path) continue;
 
     // Needed to make sure we properly handle directories
-    relative_path = ensure_trailing_separator(path, is_dir);
+    relative_path = ensure_trailing_separator(relative_path, is_dir);
 
     const test = ignore_filters[i].filter.test(relative_path);
     ignored = (ignored || test.ignored) && !test.unignored;
