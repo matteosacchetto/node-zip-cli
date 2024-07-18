@@ -12,7 +12,10 @@ export const load_ignore_rules = async (path: string) => {
     const gitignore_content = `${await readFile(path, {
       encoding: 'utf-8',
     })}\n`;
-    return gitignore_content.split(EOL).filter(boolean_filter);
+    return gitignore_content
+      .split(EOL)
+      .map((el) => el.trim())
+      .filter(boolean_filter);
   }
 
   return [] as string[];
