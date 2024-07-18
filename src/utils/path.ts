@@ -13,6 +13,6 @@ export const normalize_entries = (paths: string[]) => {
   return paths.map((el) => normalize(el));
 };
 
-export const ensure_trailing_separator = (path: string, is_dir: boolean) => {
-  return is_dir && !path.endsWith(sep) ? `${path}${sep}` : path;
+export const ensure_trailing_separator = (path: string) => {
+  return path.endsWith(sep) ? path : `${path}${sep}`;
 };

@@ -67,22 +67,12 @@ describe(filename, async () => {
   });
 
   describe('ensure_trailing_separator', async () => {
-    test('file', () => {
-      assert.strictEqual(
-        ensure_trailing_separator('index.ts', false),
-        'index.ts'
-      );
+    test('dir: no trailing separator', () => {
+      assert.strictEqual(ensure_trailing_separator('src'), `src${sep}`);
     });
 
     test('dir: no trailing separator', () => {
-      assert.strictEqual(ensure_trailing_separator('src', true), `src${sep}`);
-    });
-
-    test('dir: no trailing separator', () => {
-      assert.strictEqual(
-        ensure_trailing_separator(`src${sep}`, true),
-        `src${sep}`
-      );
+      assert.strictEqual(ensure_trailing_separator(`src${sep}`), `src${sep}`);
     });
   });
 });
