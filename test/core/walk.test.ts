@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import { lstat, mkdir, rm, writeFile } from 'node:fs/promises';
-import { platform } from 'node:os';
+import { EOL, platform } from 'node:os';
 import { join, relative } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -1575,8 +1575,14 @@ describe(filename, async () => {
       await writeFile(join(list_entries_dir, 'dir-2', 'd.txt'), 'd');
       await writeFile(join(list_entries_dir, 'e.txt'), 'e');
 
-      await writeFile(join(list_entries_dir, '.gitignore'), 'a.txt\nc.txt\n');
-      await writeFile(join(list_entries_dir, '.zipignore'), 'b.txt\nd.txt\n');
+      await writeFile(
+        join(list_entries_dir, '.gitignore'),
+        `a.txt${EOL}c.txt${EOL}`
+      );
+      await writeFile(
+        join(list_entries_dir, '.zipignore'),
+        `b.txt${EOL}d.txt${EOL}`
+      );
     });
 
     after(async () => {
