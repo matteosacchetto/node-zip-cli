@@ -21,6 +21,7 @@ import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { get_full_mode } from '@/utils/tar';
 import chalk from 'chalk';
 import { extract, pack } from 'tar-stream';
+import { preset_compression_level } from './constants';
 
 export const create_tar = async (
   output_path: string,
@@ -109,7 +110,7 @@ export const create_tar = async (
         },
         gzip !== false
           ? createGzip({
-              level: gzip === true ? undefined : gzip,
+              level: gzip === true ? preset_compression_level : gzip,
             })
           : undefined,
         createWriteStream(output_path),
