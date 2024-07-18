@@ -21,6 +21,7 @@ import { is_symlink } from '@/utils/zip';
 import chalk from 'chalk';
 import JSZip from 'jszip';
 import isValidFilename from 'valid-filename';
+import { preset_compression_level } from './constants';
 
 export const create_zip = async (
   output_path: string,
@@ -103,7 +104,7 @@ export const create_zip = async (
             streamFiles: true,
             compression: deflate === false ? 'STORE' : 'DEFLATE',
             compressionOptions: {
-              level: deflate === true ? 6 : +deflate,
+              level: deflate === true ? preset_compression_level : +deflate,
             },
             platform: 'UNIX',
           },

@@ -52,7 +52,7 @@ const zipCommand = createCommand(name, description)
         }
         return parsedValue;
       })
-      .default(false)
+      .default<false>(false)
       .preset(preset_compression_level)
   )
   .option(

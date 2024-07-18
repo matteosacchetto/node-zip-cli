@@ -74,33 +74,35 @@ describe(filename, async () => {
       assert.strictEqual(ignore_filters.length, 1);
       assert.strictEqual(ignore_filters[0].path, '.');
 
-      assert.ok(is_ignored('out.zip', ignore_filters));
-      assert.ok(is_ignored('dist/index.js', ignore_filters));
-      assert.ok(is_ignored('app.log', ignore_filters));
-      assert.ok(is_ignored('coverage', ignore_filters));
-      assert.ok(is_ignored('coverage/test.html', ignore_filters));
-      assert.ok(!is_ignored('index.ts', ignore_filters));
-      assert.ok(!is_ignored('index.js', ignore_filters));
-      assert.ok(!is_ignored('src', ignore_filters));
-      assert.ok(!is_ignored('.gitignore', ignore_filters));
-      assert.ok(!is_ignored('src/app', ignore_filters));
-      assert.ok(!is_ignored('src/index.ts', ignore_filters));
-      assert.ok(!is_ignored('src/util', ignore_filters));
-      assert.ok(!is_ignored('src/base/index.ts', ignore_filters));
-      assert.ok(!is_ignored('src/.gitignore', ignore_filters));
+      assert.ok(is_ignored('out.zip', false, ignore_filters));
+      assert.ok(is_ignored('dist/index.js', false, ignore_filters));
+      assert.ok(is_ignored('app.log', false, ignore_filters));
+      assert.ok(is_ignored('coverage', true, ignore_filters));
+      assert.ok(is_ignored('coverage/test.html', false, ignore_filters));
+      assert.ok(!is_ignored('index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('index.js', false, ignore_filters));
+      assert.ok(!is_ignored('src', true, ignore_filters));
+      assert.ok(!is_ignored('.gitignore', false, ignore_filters));
+      assert.ok(!is_ignored('src/app', true, ignore_filters));
+      assert.ok(!is_ignored('src/index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('src/util', true, ignore_filters));
+      assert.ok(!is_ignored('src/base/index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('src/.gitignore', false, ignore_filters));
 
       ignore_filters.push(create_ignore_filter('test', ['_ignored_']));
 
       assert.strictEqual(ignore_filters.length, 2);
       assert.strictEqual(ignore_filters[1].path, 'test');
 
-      assert.ok(is_ignored('test/_ignored_', ignore_filters));
-      assert.ok(is_ignored('test/_ignored_/app', ignore_filters));
-      assert.ok(is_ignored('test/_ignored_/app/test.ts', ignore_filters));
-      assert.ok(is_ignored('test/out.zip', ignore_filters));
-      assert.ok(!is_ignored('test/util', ignore_filters));
-      assert.ok(!is_ignored('test/base/index.ts', ignore_filters));
-      assert.ok(!is_ignored('test/.gitignore', ignore_filters));
+      assert.ok(is_ignored('test/_ignored_', true, ignore_filters));
+      assert.ok(is_ignored('test/_ignored_/app', true, ignore_filters));
+      assert.ok(
+        is_ignored('test/_ignored_/app/test.ts', false, ignore_filters)
+      );
+      assert.ok(is_ignored('test/out.zip', false, ignore_filters));
+      assert.ok(!is_ignored('test/util', true, ignore_filters));
+      assert.ok(!is_ignored('test/base/index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('test/.gitignore', false, ignore_filters));
     });
 
     test('negated pattern', async () => {
@@ -111,13 +113,13 @@ describe(filename, async () => {
       assert.strictEqual(ignore_filters.length, 1);
       assert.strictEqual(ignore_filters[0].path, '.');
 
-      assert.ok(is_ignored('index.ts', ignore_filters));
-      assert.ok(is_ignored('index.js', ignore_filters));
-      assert.ok(is_ignored('out.zip', ignore_filters));
-      assert.ok(is_ignored('src/index.ts', ignore_filters));
-      assert.ok(!is_ignored('.', ignore_filters));
-      assert.ok(!is_ignored('src', ignore_filters));
-      assert.ok(!is_ignored('.gitignore', ignore_filters));
+      assert.ok(is_ignored('index.ts', false, ignore_filters));
+      assert.ok(is_ignored('index.js', false, ignore_filters));
+      assert.ok(is_ignored('out.zip', false, ignore_filters));
+      assert.ok(is_ignored('src/index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('.', true, ignore_filters));
+      assert.ok(!is_ignored('src', true, ignore_filters));
+      assert.ok(!is_ignored('.gitignore', false, ignore_filters));
 
       ignore_filters.push(
         create_ignore_filter('src', ['!**/*.ts', '!util', '!.gitignore'])
@@ -126,11 +128,59 @@ describe(filename, async () => {
       assert.strictEqual(ignore_filters.length, 2);
       assert.strictEqual(ignore_filters[1].path, 'src');
 
-      assert.ok(is_ignored('src/a', ignore_filters));
-      assert.ok(!is_ignored('src/index.ts', ignore_filters));
-      assert.ok(!is_ignored('src/util', ignore_filters));
-      assert.ok(!is_ignored('src/base/index.ts', ignore_filters));
-      assert.ok(!is_ignored('src/.gitignore', ignore_filters));
+      assert.ok(is_ignored('src/a', true, ignore_filters));
+      assert.ok(!is_ignored('src/index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('src/util', true, ignore_filters));
+      assert.ok(!is_ignored('src/base/index.ts', false, ignore_filters));
+      assert.ok(!is_ignored('src/.gitignore', false, ignore_filters));
+    });
+
+    test('directory: no trailing slash in ignore rule (negated)', async () => {
+      const ignore_filters = [create_ignore_filter('.', ['*', '!src'])];
+
+      assert.ok(!is_ignored('src', true, ignore_filters));
+    });
+
+    test('directory: trailing slash in ignore rule (negated)', async () => {
+      const ignore_filters = [create_ignore_filter('.', ['*', '!src/'])];
+
+      assert.ok(!is_ignored('src', true, ignore_filters));
+    });
+
+    test('directory: no trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('.', ['src'])];
+
+      assert.ok(is_ignored('src', true, ignore_filters));
+    });
+
+    test('directory: trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('.', ['src/'])];
+
+      assert.ok(is_ignored('src', true, ignore_filters));
+    });
+
+    test('sub directory: no trailing slash in ignore rule (negated)', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['*', '!src'])];
+
+      assert.ok(!is_ignored('root/src', true, ignore_filters));
+    });
+
+    test('sub directory: trailing slash in ignore rule (negated)', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['*', '!src/'])];
+
+      assert.ok(!is_ignored('root/src', true, ignore_filters));
+    });
+
+    test('sub directory: no trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['src'])];
+
+      assert.ok(is_ignored('root/src', true, ignore_filters));
+    });
+
+    test('sub directory: trailing slash in ignore rule', async () => {
+      const ignore_filters = [create_ignore_filter('root', ['src/'])];
+
+      assert.ok(is_ignored('root/src', true, ignore_filters));
     });
   });
 });
