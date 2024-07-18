@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { ConflictingFsEntry } from '@/types/fs';
 import { log_conflicts } from '@/utils/conflicts';
 import chalk from 'chalk';
-import figureSet from 'figures';
+import { mainSymbols } from 'figures';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -54,7 +54,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(figureSet.warning)} 1 conflicting entry\n`
+          `  ${chalk.yellow(mainSymbols.warning)} 1 conflicting entry\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -69,7 +69,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${figureSet.warning} 1 conflicting entry\n`
+          `${mainSymbols.warning} 1 conflicting entry\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -104,7 +104,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(figureSet.warning)} 2 conflicting entries\n`
+          `  ${chalk.yellow(mainSymbols.warning)} 2 conflicting entries\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -125,7 +125,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${figureSet.warning} 2 conflicting entries\n`
+          `${mainSymbols.warning} 2 conflicting entries\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
