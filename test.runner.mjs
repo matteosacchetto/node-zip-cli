@@ -35,5 +35,8 @@ const files =
         .map((el) => join(dir, el));
 
 run({ files, concurrency: parallel, only })
+  .on('test:fail', () => {
+    process.exitCode = 1;
+  })
   .compose(process.stdout.isTTY ? new spec() : tap)
   .pipe(process.stdout);
