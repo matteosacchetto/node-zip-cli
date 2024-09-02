@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 import type { ConflictingFsEntry } from '@/types/fs';
 import { log_conflicts } from '@/utils/conflicts';
 import chalk from 'chalk';
-import { mainSymbols } from 'figures';
+import { fallbackSymbols, mainSymbols } from 'figures';
+import isUnicodeSupported from 'is-unicode-supported';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -54,7 +55,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(mainSymbols.warning)} 1 conflicting entry\n`
+          `  ${chalk.yellow(isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning)} 1 conflicting entry\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -69,7 +70,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${mainSymbols.warning} 1 conflicting entry\n`
+          `${isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning} 1 conflicting entry\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -104,7 +105,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(mainSymbols.warning)} 2 conflicting entries\n`
+          `  ${chalk.yellow(isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning)} 2 conflicting entries\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -125,7 +126,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${mainSymbols.warning} 2 conflicting entries\n`
+          `${isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning} 2 conflicting entries\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
