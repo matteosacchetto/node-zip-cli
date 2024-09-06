@@ -13,5 +13,6 @@ program.addCommand(zipCommand);
 program.addCommand(unzipCommand);
 program.addCommand(tarCommand);
 program.addCommand(untarCommand);
+program.helpCommand(true);
 
 program.parse(process.argv);
