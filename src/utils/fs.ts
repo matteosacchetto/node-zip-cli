@@ -119,12 +119,14 @@ export const map_absolute_path_to_clean_entry_with_mode = (
     for (let i = 0; i < entry.cleaned_path.split(sep).length - 1; i++) {
       parent = dirname(parent);
       cleaned_parent = dirname(cleaned_parent);
-      if (!absolute_path_to_clean_entry_with_mode.has(parent)) {
-        absolute_path_to_clean_entry_with_mode.set(parent, {
-          cleaned_path: cleaned_parent,
-          mode: get_default_mode('directory'),
-        });
-      }
+
+      // No need to iterate over all the parents once a parent is found
+      if (absolute_path_to_clean_entry_with_mode.has(parent)) break;
+
+      absolute_path_to_clean_entry_with_mode.set(parent, {
+        cleaned_path: cleaned_parent,
+        mode: get_default_mode('directory'),
+      });
     }
   }
 
