@@ -246,6 +246,10 @@ describe(filename, async () => {
       assert.strictEqual(clean_path('src'), 'src');
     });
 
+    test('src/: ensure trailing slash is removed', async (context) => {
+      assert.strictEqual(clean_path('src/'), 'src');
+    });
+
     test('../src', async (context) => {
       assert.strictEqual(clean_path(join('..', 'src')), 'src');
     });
@@ -293,6 +297,19 @@ describe(filename, async () => {
     test('..', async (context) => {
       assert.strictEqual(clean_path('..'), '');
     });
+
+    test(
+      'src\\: ensure trailing separator is removed',
+      {
+        skip:
+          platform() !== 'win32'
+            ? 'This test checks if on windows it properly handles \\ separator'
+            : undefined,
+      },
+      async (context) => {
+        assert.strictEqual(clean_path('src\\'), 'src');
+      }
+    );
 
     test(
       '..\\src\\test',
