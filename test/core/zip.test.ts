@@ -376,7 +376,7 @@ describe(filename, async () => {
 
       assert.strictEqual(files.length, 3);
       assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 3);
 
       const output_path = join(create_zip_dir, 'out-6.zip');
       await create_zip(output_path, files, map, 2, false, is_windows);
@@ -471,7 +471,7 @@ describe(filename, async () => {
 
       assert.strictEqual(files.length, 3);
       assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 3);
 
       const output_path = join(create_zip_dir, 'out-7.zip');
       await create_zip(output_path, files, map, 2, 9, is_windows);
@@ -566,7 +566,7 @@ describe(filename, async () => {
 
       assert.strictEqual(files.length, 3);
       assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 3);
 
       const output_path = join(create_zip_dir, 'out-8.zip');
       await create_zip(output_path, files, map, 2, true, is_windows);

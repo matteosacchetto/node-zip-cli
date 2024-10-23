@@ -113,6 +113,19 @@ export const map_absolute_path_to_clean_entry_with_mode = (
       cleaned_path: entry.cleaned_path,
       mode: entry.stats.mode,
     });
+
+    let parent = resolve(entry.path);
+    let cleaned_parent = resolve(entry.cleaned_path);
+    for (let i = 0; i < entry.cleaned_path.split(sep).length - 1; i++) {
+      parent = dirname(parent);
+      cleaned_parent = dirname(cleaned_parent);
+      if (!absolute_path_to_clean_entry_with_mode.has(parent)) {
+        absolute_path_to_clean_entry_with_mode.set(parent, {
+          cleaned_path: cleaned_parent,
+          mode: get_default_mode('directory'),
+        });
+      }
+    }
   }
 
   return absolute_path_to_clean_entry_with_mode;
@@ -173,6 +186,14 @@ export const normalize_windows_path = (path: string, is_windows: boolean) => {
   return path;
 };
 
+export const remove_trailing_sep = (path: string, sep: string) => {
+  if (path.endsWith(sep)) {
+    return path.slice(0, -1);
+  }
+
+  return path;
+};
+
 /**
  * This function is a modified version of the implementation in node-tar
  *
@@ -180,6 +201,7 @@ export const normalize_windows_path = (path: string, is_windows: boolean) => {
  */
 export const clean_path = (path: string) => {
   let final_path = path.split(sep).join('/');
+  final_path = remove_trailing_sep(final_path, '/');
 
   if (isAbsolute(path)) {
     let parsed_path = parse(final_path);

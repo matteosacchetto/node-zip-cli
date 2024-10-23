@@ -424,7 +424,7 @@ describe(filename, async () => {
 
       assert.strictEqual(files.length, 3);
       assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 3);
 
       const output_path = join(create_tar_dir, 'out-6.tar');
       await create_tar(output_path, files, map, 2, false, is_windows);
@@ -492,7 +492,7 @@ describe(filename, async () => {
 
       assert.strictEqual(files.length, 3);
       assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 3);
 
       const output_path = join(create_tar_dir, 'out-7.tgz');
       await create_tar(output_path, files, map, 2, 9, is_windows);
@@ -560,7 +560,7 @@ describe(filename, async () => {
 
       assert.strictEqual(files.length, 3);
       assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 3);
 
       const output_path = join(create_tar_dir, 'out-8.tgz');
       await create_tar(output_path, files, map, 2, true, is_windows);

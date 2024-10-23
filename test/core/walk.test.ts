@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { lstat, mkdir, rm, writeFile } from 'node:fs/promises';
 import { EOL, platform } from 'node:os';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { is_windows } from '@/core/constants';
@@ -32,7 +32,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 3);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 2); // we also have test and test/_data_
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -160,7 +160,10 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 3);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(
+        map.size,
+        3 + 2 + (process.cwd().split(sep).length - 1)
+      );
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, clean_path(input[0]));
@@ -297,7 +300,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 6);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 6);
+      assert.strictEqual(map.size, 6 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -521,7 +524,10 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 6);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 6);
+      assert.strictEqual(
+        map.size,
+        6 + 2 + (process.cwd().split(sep).length - 1)
+      );
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, clean_path(input[0]));
@@ -601,7 +607,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 6);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 6);
+      assert.strictEqual(map.size, 6 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -813,7 +819,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 7);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 7);
+      assert.strictEqual(map.size, 7 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -1136,7 +1142,7 @@ describe(filename, async () => {
 
         assert.strictEqual(entries.length, 5);
         assert.strictEqual(conflicting_list.length, 0);
-        assert.strictEqual(map.size, 5);
+        assert.strictEqual(map.size, 5 + 2 + 2); // includes test, test/_data_, test/_data_/dir-1 and test/_data_/dir-2
 
         assert.strictEqual(entries[0].path, input[0]);
         assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -1227,7 +1233,7 @@ describe(filename, async () => {
 
         assert.strictEqual(entries.length, 3);
         assert.strictEqual(conflicting_list.length, 0);
-        assert.strictEqual(map.size, 3);
+        assert.strictEqual(map.size, 3 + 2);
 
         assert.strictEqual(entries[0].path, input[0]);
         assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -1283,7 +1289,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 2);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 2);
+      assert.strictEqual(map.size, 2 + 1);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -1316,7 +1322,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 2);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 2);
+      assert.strictEqual(map.size, 2 + 1);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -1348,7 +1354,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 1);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 1);
+      assert.strictEqual(map.size, 1 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, input[0]);
@@ -1375,7 +1381,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 1);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 1);
+      assert.strictEqual(map.size, 1 + 1);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].cleaned_path, join('_data_', 'empty'));
@@ -1603,7 +1609,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 4);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 4);
+      assert.strictEqual(map.size, 4 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
@@ -1632,7 +1638,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 3);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 3);
+      assert.strictEqual(map.size, 3 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
@@ -1658,7 +1664,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 8);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 8);
+      assert.strictEqual(map.size, 8 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
@@ -1699,7 +1705,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 8);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 8);
+      assert.strictEqual(map.size, 8 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
@@ -1740,7 +1746,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 10);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 10);
+      assert.strictEqual(map.size, 10 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
@@ -1787,7 +1793,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 4);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 4);
+      assert.strictEqual(map.size, 4 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
@@ -1816,7 +1822,7 @@ describe(filename, async () => {
 
       assert.strictEqual(entries.length, 10);
       assert.strictEqual(conflicting_list.length, 0);
-      assert.strictEqual(map.size, 10);
+      assert.strictEqual(map.size, 10 + 2);
 
       assert.strictEqual(entries[0].path, input[0]);
       assert.strictEqual(entries[0].type, 'directory');
