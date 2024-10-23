@@ -113,6 +113,19 @@ export const map_absolute_path_to_clean_entry_with_mode = (
       cleaned_path: entry.cleaned_path,
       mode: entry.stats.mode,
     });
+
+    let parent = resolve(entry.path);
+    let cleaned_parent = resolve(entry.cleaned_path);
+    for (let i = 0; i < entry.cleaned_path.split(sep).length - 1; i++) {
+      parent = dirname(parent);
+      cleaned_parent = dirname(cleaned_parent);
+      if (!absolute_path_to_clean_entry_with_mode.has(parent)) {
+        absolute_path_to_clean_entry_with_mode.set(parent, {
+          cleaned_path: cleaned_parent,
+          mode: get_default_mode('directory'),
+        });
+      }
+    }
   }
 
   return absolute_path_to_clean_entry_with_mode;
