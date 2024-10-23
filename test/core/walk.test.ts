@@ -1142,7 +1142,7 @@ describe(filename, async () => {
 
         assert.strictEqual(entries.length, 5);
         assert.strictEqual(conflicting_list.length, 0);
-        assert.strictEqual(map.size, 5 + 2 + 1); // includes test, test/_data_, test/_data_/dir-1 and test/_data_/dir-2
+        assert.strictEqual(map.size, 5 + 2 + 2); // includes test, test/_data_, test/_data_/dir-1 and test/_data_/dir-2
 
         assert.strictEqual(entries[0].path, input[0]);
         assert.strictEqual(entries[0].cleaned_path, input[0]);
