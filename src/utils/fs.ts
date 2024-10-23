@@ -173,6 +173,14 @@ export const normalize_windows_path = (path: string, is_windows: boolean) => {
   return path;
 };
 
+export const remove_trailing_sep = (path: string, sep: string) => {
+  if (path.endsWith(sep)) {
+    return path.slice(0, -1);
+  }
+
+  return path;
+};
+
 /**
  * This function is a modified version of the implementation in node-tar
  *
@@ -180,6 +188,7 @@ export const normalize_windows_path = (path: string, is_windows: boolean) => {
  */
 export const clean_path = (path: string) => {
   let final_path = path.split(sep).join('/');
+  final_path = remove_trailing_sep(final_path, '/');
 
   if (isAbsolute(path)) {
     let parsed_path = parse(final_path);
