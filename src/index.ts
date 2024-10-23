@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import findCommand from './commands/find';
 import tarCommand from './commands/tar';
 import untarCommand from './commands/untar';
 import unzipCommand from './commands/unzip';
@@ -13,6 +14,7 @@ program.addCommand(zipCommand);
 program.addCommand(unzipCommand);
 program.addCommand(tarCommand);
 program.addCommand(untarCommand);
+program.addCommand(findCommand);
 program.helpCommand(true);
 
 program.parse(process.argv);
