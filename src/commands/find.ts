@@ -17,7 +17,10 @@ const findCommand = createCommand(name, description)
     '.',
   ] as string[])
   .addOption(
-    createOption('-t, --type <types...>', 'filter printed entries (f: file, d: directory, l: symlink)')
+    createOption(
+      '-t, --type <type...>',
+      'filter printed entries (f: file, d: directory, l: symlink)'
+    )
       .choices(['f', 'd', 'l'] as const)
       .default(['f', 'd', 'l'] as const)
   )
