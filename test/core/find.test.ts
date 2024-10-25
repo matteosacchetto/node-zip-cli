@@ -2,10 +2,10 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import type { FsEntry } from '@/types/fs';
-import { printfile_list_as_find } from '@/core/find';
-import { remove_trailing_sep } from '@/utils/fs';
 import { colorize } from '@/core/dircolors';
+import { printfile_list_as_find } from '@/core/find';
+import type { FsEntry } from '@/types/fs';
+import { remove_trailing_sep } from '@/utils/fs';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -378,7 +378,11 @@ describe(filename, async () => {
       );
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        colorize(remove_trailing_sep(entries[1].path, '/'), entries[1].stats.mode, false)
+        colorize(
+          remove_trailing_sep(entries[1].path, '/'),
+          entries[1].stats.mode,
+          false
+        )
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
@@ -439,7 +443,11 @@ describe(filename, async () => {
       );
       assert.strictEqual(
         mocked_console.mock.calls[1].result,
-        colorize(remove_trailing_sep(entries[1].path, '\\'), entries[1].stats.mode, false)
+        colorize(
+          remove_trailing_sep(entries[1].path, '\\'),
+          entries[1].stats.mode,
+          false
+        )
       );
       assert.strictEqual(
         mocked_console.mock.calls[2].result,
