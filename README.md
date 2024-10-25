@@ -111,6 +111,7 @@ Commands:
   unzip [options]  unzip the content of a zip file
   tar [options]    tar files and directories ignoring files specified in .zipignore and .gitignore
   untar [options]  untar the content of a tar file
+  find [options]   find files and directories ignoring files specified in .zipignore and .gitignore
   help [command]   display help for command
 ```
 
@@ -199,7 +200,7 @@ Answers yes to every confirmation question
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
 > [!WARNING]
-> To avoid issues with wildcard extension, remember to puth pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
+> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
 > 
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
 
@@ -252,7 +253,7 @@ Prints the files that will be unzipped, without extracting them from the zip fil
 
 #### `tar`
 
-Allows you to create a tar file of the specified files and directories. For each directory it will also go through it and scan it recursively ignoring every file and directory listed in the .gitignore and .zipignore files, if present.
+Allows you to create a tarball file of the specified files and directories. For each directory it will also go through it and scan it recursively ignoring every file and directory listed in the .gitignore and .zipignore files, if present.
 
 ```
 Usage: node-zip-cli tar [options]
@@ -289,7 +290,7 @@ If this options is set without any specified compression level, it will fallback
 
 ###### `-o, --output <output-file>`
 
-Specify the file path of the output zip file. Defaults to out.zip
+Specify the file path of the output tar file. Defaults to out.tar (or out.tgz if compression is enabled)
 
 ##### `-k, --keep-parent <mode>`
 
@@ -333,7 +334,7 @@ Answers yes to every confirmation question
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
 > [!WARNING]
-> To avoid issues with wildcard extension, remember to puth pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
+> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
 > 
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
 
@@ -346,7 +347,7 @@ Starting from version `0.2.0`, the directory `.git` is ignored by default. Use t
 
 ###### `--dry-run`
 
-Prints the files that will be zipped, without creating the zip file. The structure that is printed out is the same structure of files and directories which will be created in the zip file.
+Prints the files that will be zipped, without creating the tarball file. The structure that is printed out is the same structure of files and directories which will be created in the tarball file.
 
 #### `untar`
 
@@ -370,11 +371,11 @@ Options:
 
 ###### `-i, --input <file>`
 
-The input zip file to unzip. This option is REQUIRED
+The input tarball file to untar. This option is REQUIRED
 
 ###### `-o, --output <output>`
 
-The directory where to store the content of the zip file. Defaults to the current directory
+The directory where to store the content of the tarball file. Defaults to the current directory
 
 ###### `-y, --yes`
 
@@ -382,7 +383,103 @@ Answers yes to every confirmation question
 
 ###### `--dry-run`
 
-Prints the files that will be unzipped, without extracting them from the zip file. The structure that is printed out is the same structure of files and directories which will be created when unzipping the zip file.
+Prints the files that will be untarred, without extracting them from the tarball file. The structure that is printed out is the same structure of files and directories which will be created when untarring the tarball file.
+
+#### `find`
+
+Allows you to list recursively the content of files and directories ignoring files specified in .zipignore and .gitignore
+
+The idea of this command is to be a simple alternative to find when you want to list the directories and pipe the output to native zip/tar commands.
+
+Example usage with `zip`
+```bash
+node-zip-cli find | zip <archive name> -@
+```
+
+Example usage with `tar`
+```bash
+node-zip-cli find | tar --no-recursion -czf <archive> -T -
+```
+
+```
+Usage: node-zip-cli find [options]
+
+find files and directories ignoring files specified in .zipignore and .gitignore
+
+Options:
+  -v, --version             output the version number
+  -i, --input <input...>    the files or directories to zip (default: ["."])
+  -t, --type <type...>     filter printed entries (f: file, d: directory, l: symlink) (choices: "f", "d", "l", default: ["f","d","l"])
+  -s, --symlink <mode>      handle symlinks (experimental) (choices: "none", "keep", default: "none")
+  --disable-ignore <mode>   disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files", "exclude-rules",
+                            "all", default: "none")
+  -e, --exclude <paths...>  ignore the following paths
+  --allow-git               allow .git to be included in the zip (default: false)
+  --no-colors               do not colorize the output
+  -h, --help                display help for command
+```
+
+##### Options
+
+###### `-i, --input <input...>`
+
+Specify the list of input files/directories. Defaults to the current directory (`.`). Files and directories can be relative or absolute paths.
+
+###### `-t, --type <type...>`
+
+Filter the type of entries this command will list
+- f: files
+- d: directories
+- l: symlinks
+
+By default, the three types are included, but you can decide to only list a subset.
+
+> [!NOTE]
+> Up to the current version (0.7.2) symlinks are not listed by default. To list them you need to specify the `-s keep` option.
+>
+> This may change in future versions
+
+###### `-s, --symlink <mode>` \[experimental\]
+
+Allows you to include symlinks in your entry list according to the following strategy:
+* `keep`: will keep the symlink and include it in the list
+
+There is also the option `none` which allows you to skip symlinks alltogether.
+
+This functionality is still experimental, and for such reason the current default value for this option is `none`.
+
+###### `--disable-ignore <mode>`
+
+Allows you to skip some ignore rules.
+The available modes are:
+* `none`: do not skip any rule, so all rules are active
+* `zipignore`: do not consider rules in the .zipignore file
+* `gitignore`: do not consider rules in the .gitignore file
+* `ignore-files`: do not consider rules in the .zipignore and .gitignore files
+* `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
+* `all`: disable all rules
+
+###### `-e, --exclude <paths...>`
+
+Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
+
+> [!WARNING]
+> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
+> 
+> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
+
+> [!NOTE]
+> Up to the current version (0.7.2) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+
+###### `--allow-git`
+
+Starting from version `0.2.0`, the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your list
+
+###### `--no-colors`
+
+By default this command will colorize each entry based on the terminal support and if the stdout is a TTY.
+
+This option allows you to disable colors alltoghether.
 
 ### Usage
 

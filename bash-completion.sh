@@ -144,12 +144,45 @@ __node-zip-cli_completion() {
         ;;
       esac
     ;;
+    find)
+      # Options with one argument
+      case $prev in
+        -t|--type)
+          COMPREPLY=($(compgen -W "f d l" -- "$cur"));
+          return 0;
+        ;;
+        -s|--symlink)
+          COMPREPLY=($(compgen -W "keep none" -- "$cur"));
+          return 0;
+        ;;
+        --disable-ignore)
+          COMPREPLY=($(compgen -W "none zipignore gitignore ignore-files exclude-rules all" -- "$cur"));
+          return 0;
+        ;;
+      esac
+
+      # Options with variadic arguments
+      case $last_opt in
+        -i|--input)
+          _filedir;
+          return 0;
+        ;;
+        -e|--exclude)
+          _filedir;
+          return 0;
+        ;;
+        *)
+          COMPREPLY=($(compgen -W "-v --version -i --input -t --type -s --symlink --disable-ignore -e --exclude --allow-git --no-colors -h --help" -- "$cur"));
+          return 0;
+        ;;
+      esac
+    ;;
     help)
       COMPREPLY=($(compgen -W "zip unzip tar untar" -- "$cur"));
       return 0;
     ;;
     *)
-      COMPREPLY=($(compgen -W "-h --help -v --version zip unzip tar untar help" -- "$cur"));
+      COMPREPLY=($(compgen -W "-h --help -v --version zip unzip tar untar find help" -- "$cur"));
       return 0;
     ;;
   esac
