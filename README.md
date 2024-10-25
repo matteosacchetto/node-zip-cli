@@ -1,5 +1,6 @@
 # node-zip-cli
-Simple nodejs cli which allows you to create and extract zip/tar files with support for .gitignore files
+
+Simple Node.js CLI which allows you to create and extract zip/tar files with support for .gitignore files
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/matteosacchetto/node-zip-cli?label=latest%20release&style=for-the-badge)
 
@@ -10,13 +11,13 @@ Simple nodejs cli which allows you to create and extract zip/tar files with supp
 Install it locally with
 
 ```bash
-npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.7.2/node-zip-cli-0.7.2.tgz
+npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.7.3/node-zip-cli-0.7.3.tgz
 ```
 
 Or install it globally with
 
 ```bash
-npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.7.2/node-zip-cli-0.7.2.tgz
+npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.7.3/node-zip-cli-0.7.3.tgz
 ```
 
 ### Other version
@@ -43,9 +44,9 @@ where you have to replace `{version}` with the version number you downloaded (ex
 
 Since version 0.2.0, the package also includes a bash completion script. If you install the package globally, you are on Linux and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
 
-To install it, i recommend to perform the following steps.
+To install it, I recommend to perform the following steps.
 
-Find where did npm isntall this package. To do so you can run the following command
+Find where npm installed this package. To do so you can run the following command
 
 ```bash
 npm list -g -p | grep node-zip-cli
@@ -162,9 +163,9 @@ Specify the file path of the output zip file. Defaults to out.zip
 
 This options specifies how to provided input directories. The possible values are `none`, `last` and `full`. These options will do the following:
 
-- `full`: preserve the full path of the provided file/direcotry. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
-- `last`: preserve only the last directory of the provided file/direcotry. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
-- `none`: do not preserver the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
+- `full`: preserve the full path of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
+- `last`: preserve only the last directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
+- `none`: do not preserve the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
 
 The default values is `full`.
 
@@ -174,7 +175,7 @@ Allows you to include symlinks in your archive using two different strategies:
 * `resolve`: will resolve the symlink to a file or directory and include it in the archive
 * `keep`: will keep the symlink and include it in the archive
 
-There is also the option `none` which allows you to skip symlinks alltogether.
+There is also the option `none` which allows you to skip symlinks altogether.
 
 This functionality is still experimental, and for such reason the current default value for this option is `none`.
 
@@ -200,12 +201,12 @@ Answers yes to every confirmation question
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
 > [!WARNING]
-> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
+> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavior will differ from what you expect.
 > 
-> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
+> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the CLI, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the CLI the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.7.2) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.7.3) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
@@ -296,9 +297,9 @@ Specify the file path of the output tar file. Defaults to out.tar (or out.tgz if
 
 This options specifies how to provided input directories. The possible values are `none`, `last` and `full`. These options will do the following:
 
-- `full`: preserve the full path of the provided file/direcotry. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
-- `last`: preserve only the last directory of the provided file/direcotry. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
-- `none`: do not preserver the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
+- `full`: preserve the full path of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
+- `last`: preserve only the last directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
+- `none`: do not preserve the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
 
 The default values is `full`.
 
@@ -308,7 +309,7 @@ Allows you to include symlinks in your archive using two different strategies:
 * `resolve`: will resolve the symlink to a file or directory and include it in the archive
 * `keep`: will keep the symlink and include it in the archive
 
-There is also the option `none` which allows you to skip symlinks alltogether.
+There is also the option `none` which allows you to skip symlinks altogether.
 
 This functionality is still experimental, and for such reason the current default value for this option is `none`.
 
@@ -334,12 +335,12 @@ Answers yes to every confirmation question
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
 > [!WARNING]
-> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
+> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavior will differ from what you expect.
 > 
-> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
+> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the CLI, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the CLI the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.7.2) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.7.3) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
@@ -435,7 +436,7 @@ Filter the type of entries this command will list
 By default, the three types are included, but you can decide to only list a subset.
 
 > [!NOTE]
-> Up to the current version (0.7.2) symlinks are not listed by default. To list them you need to specify the `-s keep` option.
+> Up to the current version (0.7.3) symlinks are not listed by default. To list them you need to specify the `-s keep` option.
 >
 > This may change in future versions
 
@@ -444,7 +445,7 @@ By default, the three types are included, but you can decide to only list a subs
 Allows you to include symlinks in your entry list according to the following strategy:
 * `keep`: will keep the symlink and include it in the list
 
-There is also the option `none` which allows you to skip symlinks alltogether.
+There is also the option `none` which allows you to skip symlinks altogether.
 
 This functionality is still experimental, and for such reason the current default value for this option is `none`.
 
@@ -464,12 +465,12 @@ The available modes are:
 Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
 
 > [!WARNING]
-> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavioud will differ from what you expect.
+> To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavior will differ from what you expect.
 > 
-> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the cli, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the cli the pattern `"*.mjs"`
+> For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the CLI, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the CLI the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.7.2) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.7.3) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
@@ -490,7 +491,7 @@ Simply run this CLI providing to each command all the necessary options.
 This file is meant to be placed in a folder which you plan to zip/tar. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
 
 > [!NOTE]
-> Up to the current version (0.7.2) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
+> Up to the current version (0.7.3) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
 
 > [!NOTE]
 > Since version (0.7.0) the strategy of ignoring everythin (`*`) and then un-ignoring (!) some paths (e.g. `!test`, `!src`, ...) is supported and behaves like in the gitignore specs. Quoting from [gitignore specs](https://git-scm.com/docs/gitignore): *"It is not possible to re-include a file if a parent directory of that file is excluded. Git doesn’t list excluded directories for performance reasons, so any patterns on contained files have no effect, no matter where they are defined. "*.
@@ -499,6 +500,6 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 
 > [!WARNING]
 > *Current limitations*  
-> Up to the current version (0.7.2) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported
+> Up to the current version (0.7.3) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported
 >
-> Up to the current version (0.7.2) only 32-bit zip are supported, 64-bit zip support is not yet implemented.
+> Up to the current version (0.7.3) only 32-bit zip are supported, 64-bit zip support is not yet implemented.
