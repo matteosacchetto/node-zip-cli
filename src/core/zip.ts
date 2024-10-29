@@ -288,7 +288,7 @@ export const extract_zip = async (
             switch (type) {
               case 'directory': {
                 const dir_path = join(output_dir, cleaned_path);
-                await mkdir(dirname(dir_path), { recursive: true });
+                await mkdir(dir_path, { recursive: true });
 
                 await set_permissions(dir_path, {
                   mode: actual_mode,
