@@ -166,7 +166,6 @@ describe(filename, async () => {
         assert.strictEqual(entries[0].cleaned_path, 'symlink-e');
         assert.strictEqual(entries[0].type, 'symlink');
         assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
-        console.log(entries[0].stats.mtime, files[0].stats.mtime);
 
         assert.ok(
           compare_date(

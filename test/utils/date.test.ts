@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { date_as_utc, date_from_utc } from '@/utils/date';
+import { date_to_utc, date_from_utc } from '@/utils/date';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -10,12 +10,12 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  test('date_as_utc', async (context) => {
+  test('date_to_utc', async (context) => {
     const date = new Date();
-    const utc_date = date_as_utc(date);
+    const utc_date = date_to_utc(date);
 
     assert.strictEqual(
-      date.getTime() - date.getTimezoneOffset() * 60 * 1000,
+      date.getTime() + date.getTimezoneOffset() * 60 * 1000,
       utc_date.getTime()
     );
   });
@@ -25,14 +25,14 @@ describe(filename, async () => {
     const utc_date = date_from_utc(date);
 
     assert.strictEqual(
-      date.getTime() + date.getTimezoneOffset() * 60 * 1000,
+      date.getTime() - date.getTimezoneOffset() * 60 * 1000,
       utc_date.getTime()
     );
   });
 
   test('both', async (context) => {
     const date = new Date();
-    const utc_date = date_as_utc(date);
+    const utc_date = date_to_utc(date);
     const local_date = date_from_utc(utc_date);
 
     assert.strictEqual(local_date.getTime(), date.getTime());

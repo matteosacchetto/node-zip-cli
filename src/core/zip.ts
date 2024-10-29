@@ -6,7 +6,7 @@ import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
 import { log_broken_symlink } from '@/utils/broken-symlink';
-import { date_as_utc, date_from_utc } from '@/utils/date';
+import { date_to_utc, date_from_utc } from '@/utils/date';
 import {
   broken_symlinks,
   clean_path,
@@ -70,7 +70,7 @@ export const create_zip = async (
             rs,
             normalize_windows_path(file.cleaned_path, is_windows),
             {
-              mtime: date_as_utc(file.stats.mtime),
+              mtime: date_to_utc(file.stats.mtime),
               mode: file.stats.mode,
               compress: deflate,
               size: file.stats.size,
@@ -80,7 +80,7 @@ export const create_zip = async (
           zip.addEmptyDirectory(
             normalize_windows_path(file.cleaned_path, is_windows),
             {
-              mtime: date_as_utc(file.stats.mtime),
+              mtime: date_to_utc(file.stats.mtime),
               mode: file.stats.mode,
             }
           );
@@ -104,7 +104,7 @@ export const create_zip = async (
             rs,
             normalize_windows_path(file.cleaned_path, is_windows),
             {
-              mtime: date_as_utc(file.stats.mtime),
+              mtime: date_to_utc(file.stats.mtime),
               mode: file.stats.mode,
               compress: deflate,
             }
