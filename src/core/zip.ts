@@ -163,52 +163,58 @@ export const read_zip = async (
   const entries: ArchiveEntry[] = [];
 
   zip.on('entry', async (entry: yauzl.Entry) => {
-    const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
-    const is_dir = entry.fileName.endsWith('/');
+    try {
+      const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
+      const is_dir = entry.fileName.endsWith('/');
 
-    const type = is_dir ? 'directory' : is_symlink(mode) ? 'symlink' : 'file';
+      const type = is_dir ? 'directory' : is_symlink(mode) ? 'symlink' : 'file';
 
-    if (type === 'file' || type === 'directory' || type === 'symlink') {
-      /* c8 ignore next 14 */
-      const path = remove_trailing_sep(entry.fileName, '/');
-      const archive_entry = <ArchiveEntry>{
-        path: normalize(path),
-        cleaned_path: clean_path(normalize(path)),
-        type,
-        stats: {
-          mtime: date_from_utc(entry.getLastModDate()),
-          uid: 1000,
-          gid: 1000,
-          mode: mode || get_default_mode(type),
-        },
-      };
+      if (type === 'file' || type === 'directory' || type === 'symlink') {
+        /* c8 ignore next 14 */
+        const path = remove_trailing_sep(entry.fileName, '/');
+        const archive_entry = <ArchiveEntry>{
+          path: normalize(path),
+          cleaned_path: clean_path(normalize(path)),
+          type,
+          stats: {
+            mtime: date_from_utc(entry.getLastModDate()),
+            uid: 1000,
+            gid: 1000,
+            mode: mode || get_default_mode(type),
+          },
+        };
 
-      /* c8 ignore next 5 */
-      if (archive_entry.type === 'symlink') {
-        const { promise, resolve } = defer<void>();
-        let link_path = '';
-        zip.openReadStream(entry, (err, readStream) => {
-          if (err) throw err;
+        /* c8 ignore next 5 */
+        if (archive_entry.type === 'symlink') {
+          const { promise, resolve } = defer<void>();
+          let link_path = '';
+          zip.openReadStream(entry, (err, readStream) => {
+            /* c8 ignore next 1 */
+            if (err) throw err;
 
-          readStream.on('data', (chunk) => {
-            link_path += chunk.toString(); // Collect file content as string
+            readStream.on('data', (chunk) => {
+              link_path += chunk.toString(); // Collect file content as string
+            });
+
+            readStream.on('end', () => {
+              resolve(); // Output the file content
+            });
           });
+          await promise;
 
-          readStream.on('end', () => {
-            resolve(); // Output the file content
-          });
-        });
-        await promise;
+          /* c8 ignore next 2 */
+          archive_entry.link_path = link_path ? normalize(link_path) : '';
+          archive_entry.link_name = link_path ? normalize(link_path) : '';
+        }
 
-        /* c8 ignore next 2 */
-        archive_entry.link_path = link_path ? normalize(link_path) : '';
-        archive_entry.link_name = link_path ? normalize(link_path) : '';
+        entries.push(archive_entry);
       }
 
-      entries.push(archive_entry);
+      zip.readEntry();
+      /* c8 ignore next 3 */
+    } catch (e) {
+      reject(e);
     }
-
-    zip.readEntry();
   });
   zip.on('error', (e) => {
     /* c8 ignore next 1 */
@@ -261,130 +267,135 @@ export const extract_zip = async (
       const { promise, resolve, reject } = defer<void>();
 
       zip.on('entry', async (entry: yauzl.Entry) => {
-        const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
-        const is_dir = entry.fileName.endsWith('/');
+        try {
+          const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
+          const is_dir = entry.fileName.endsWith('/');
 
-        const type = is_dir
-          ? 'directory'
-          : is_symlink(mode)
-            ? 'symlink'
-            : 'file';
+          const type = is_dir
+            ? 'directory'
+            : is_symlink(mode)
+              ? 'symlink'
+              : 'file';
 
-        if (type === 'file' || type === 'directory' || type === 'symlink') {
-          const mtime = date_from_utc(entry.getLastModDate());
+          if (type === 'file' || type === 'directory' || type === 'symlink') {
+            const mtime = date_from_utc(entry.getLastModDate());
 
-          /* c8 ignore next 14 */
-          const path = remove_trailing_sep(entry.fileName, '/');
-          const cleaned_path = clean_path(normalize(path));
-          const actual_mode = mode || get_default_mode(type);
+            /* c8 ignore next 14 */
+            const path = remove_trailing_sep(entry.fileName, '/');
+            const cleaned_path = clean_path(normalize(path));
+            const actual_mode = mode || get_default_mode(type);
 
-          switch (type) {
-            case 'directory': {
-              const dir_path = join(output_dir, cleaned_path);
-              await mkdir(dirname(dir_path), { recursive: true });
+            switch (type) {
+              case 'directory': {
+                const dir_path = join(output_dir, cleaned_path);
+                await mkdir(dirname(dir_path), { recursive: true });
 
-              await set_permissions(dir_path, {
-                mode: actual_mode,
-                mtime,
-              });
-              break;
-            }
-
-            case 'file': {
-              const file_path = join(output_dir, cleaned_path);
-
-              spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
-                num_files
-              } files) ${chalk.dim(`[${file_path}]`)}`;
-
-              await mkdir(dirname(file_path), { recursive: true });
-
-              const file_stream = await new Promise<Readable>((res, rej) =>
-                zip.openReadStream(entry, (err, readStream) => {
-                  /* c8 ignore next 2 */
-                  if (err) rej(err);
-                  else res(readStream);
-                })
-              );
-
-              await pipeline(file_stream, createWriteStream(file_path));
-
-              await set_permissions(file_path, {
-                mode: actual_mode,
-                mtime: mtime,
-              });
-
-              break;
-            }
-
-            case 'symlink': {
-              const { promise, resolve } = defer<void>();
-              let link_path = '';
-              zip.openReadStream(entry, (err, readStream) => {
-                /* c8 ignore next 1 */
-                if (err) throw err;
-
-                readStream.on('data', (chunk) => {
-                  link_path += chunk.toString(); // Collect file content as string
+                await set_permissions(dir_path, {
+                  mode: actual_mode,
+                  mtime,
                 });
-
-                readStream.on('end', () => {
-                  resolve(); // Output the file content
-                });
-              });
-              await promise;
-
-              /* c8 ignore next 1 */
-              link_path = link_path ? normalize(link_path) : '';
-
-              if (link_path) {
-                /* c8 ignore next 1 */
-                if (is_windows) {
-                  /* c8 ignore start */
-                  // Treat symlink as a regular file
-                  const file_path = join(output_dir, cleaned_path);
-
-                  spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
-                    num_files
-                  } files) ${chalk.dim(`[${file_path}]`)}`;
-
-                  await mkdir(dirname(file_path), { recursive: true });
-
-                  const file_stream = new Readable();
-                  file_stream.push(link_path);
-                  file_stream.push(null);
-
-                  await pipeline(file_stream, createWriteStream(file_path));
-
-                  await set_permissions(file_path, {
-                    mode: actual_mode,
-                    mtime: mtime,
-                  });
-                  /* c8 ignore end */
-                } else {
-                  const file_path = join(output_dir, cleaned_path);
-
-                  spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
-                    num_files
-                  } files) ${chalk.dim(`[${file_path}]`)}`;
-
-                  await mkdir(dirname(file_path), { recursive: true });
-
-                  await overwrite_symlink_if_exists(link_path, file_path);
-
-                  await set_permissions(file_path, {
-                    mode: actual_mode,
-                    mtime: mtime,
-                  });
-                }
+                break;
               }
 
-              break;
+              case 'file': {
+                const file_path = join(output_dir, cleaned_path);
+
+                spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
+                  num_files
+                } files) ${chalk.dim(`[${file_path}]`)}`;
+
+                await mkdir(dirname(file_path), { recursive: true });
+
+                const file_stream = await new Promise<Readable>((res, rej) =>
+                  zip.openReadStream(entry, (err, readStream) => {
+                    /* c8 ignore next 2 */
+                    if (err) rej(err);
+                    else res(readStream);
+                  })
+                );
+
+                await pipeline(file_stream, createWriteStream(file_path));
+
+                await set_permissions(file_path, {
+                  mode: actual_mode,
+                  mtime: mtime,
+                });
+
+                break;
+              }
+
+              case 'symlink': {
+                const { promise, resolve } = defer<void>();
+                let link_path = '';
+                zip.openReadStream(entry, (err, readStream) => {
+                  /* c8 ignore next 1 */
+                  if (err) throw err;
+
+                  readStream.on('data', (chunk) => {
+                    link_path += chunk.toString(); // Collect file content as string
+                  });
+
+                  readStream.on('end', () => {
+                    resolve(); // Output the file content
+                  });
+                });
+                await promise;
+
+                /* c8 ignore next 1 */
+                link_path = link_path ? normalize(link_path) : '';
+
+                if (link_path) {
+                  /* c8 ignore next 1 */
+                  if (is_windows) {
+                    /* c8 ignore start */
+                    // Treat symlink as a regular file
+                    const file_path = join(output_dir, cleaned_path);
+
+                    spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
+                      num_files
+                    } files) ${chalk.dim(`[${file_path}]`)}`;
+
+                    await mkdir(dirname(file_path), { recursive: true });
+
+                    const file_stream = new Readable();
+                    file_stream.push(link_path);
+                    file_stream.push(null);
+
+                    await pipeline(file_stream, createWriteStream(file_path));
+
+                    await set_permissions(file_path, {
+                      mode: actual_mode,
+                      mtime: mtime,
+                    });
+                    /* c8 ignore end */
+                  } else {
+                    const file_path = join(output_dir, cleaned_path);
+
+                    spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
+                      num_files
+                    } files) ${chalk.dim(`[${file_path}]`)}`;
+
+                    await mkdir(dirname(file_path), { recursive: true });
+
+                    await overwrite_symlink_if_exists(link_path, file_path);
+
+                    await set_permissions(file_path, {
+                      mode: actual_mode,
+                      mtime: mtime,
+                    });
+                  }
+                }
+
+                break;
+              }
             }
           }
-        }
 
-        zip.readEntry();
+          zip.readEntry();
+        } catch (e) {
+          /* c8 ignore next 1 */
+          reject(e);
+        }
       });
       zip.on('error', (e) => {
         /* c8 ignore next 1 */
