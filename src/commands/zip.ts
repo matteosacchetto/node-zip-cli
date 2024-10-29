@@ -1,4 +1,4 @@
-import { is_windows, preset_compression_level } from '@/core/constants';
+import { is_windows } from '@/core/constants';
 import { printfile_list_as_file_tree } from '@/core/tree';
 import { list_entries } from '@/core/walk';
 import { create_zip } from '@/core/zip';
@@ -22,7 +22,6 @@ import {
 import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
 import { createOption } from '@commander-js/extra-typings';
-import { InvalidArgumentError } from 'commander';
 
 const name = 'zip';
 const description =
@@ -32,29 +31,7 @@ const zipCommand = createCommand(name, description)
   .option('-i, --input <input...>', 'the files or directories to zip', [
     '.',
   ] as string[])
-  .addOption(
-    createOption('-d, --deflate [compression-level]', 'deflate the files')
-      .argParser((compressionLevel) => {
-        if (compressionLevel === '') {
-          return preset_compression_level;
-        }
-
-        const parsedValue = +compressionLevel;
-        if (
-          Number.isNaN(parsedValue) ||
-          !Number.isInteger(parsedValue) ||
-          parsedValue < 0 ||
-          parsedValue > 9
-        ) {
-          throw new InvalidArgumentError(
-            'compression level must be a integer number between 0 (no compression) and 9 (maximum compression)'
-          );
-        }
-        return parsedValue;
-      })
-      .default<false>(false)
-      .preset(preset_compression_level)
-  )
+  .option('-d, --deflate', 'deflate the files', false)
   .option(
     '-o, --output <output-file>',
     'the filename of the zip file to create',

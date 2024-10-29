@@ -16,7 +16,6 @@ import { is_windows } from '@/core/constants';
 import { list_entries } from '@/core/walk';
 import { create_zip, extract_zip, read_zip } from '@/core/zip';
 import type { ArchiveEntry, CleanedEntryWithMode } from '@/types/fs';
-import { get_default_mode } from '@/utils/fs';
 
 const data_dir = join(process.cwd(), 'test', '_data_');
 const write_dir = join(process.cwd(), 'test', '_write_');
@@ -167,6 +166,8 @@ describe(filename, async () => {
         assert.strictEqual(entries[0].cleaned_path, 'symlink-e');
         assert.strictEqual(entries[0].type, 'symlink');
         assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
+        console.log(entries[0].stats.mtime, files[0].stats.mtime);
+
         assert.ok(
           compare_date(
             entries[0].stats.mtime,
@@ -383,173 +384,48 @@ describe(filename, async () => {
 
       const [entries] = await read_zip(output_path);
 
-      assert.strictEqual(entries.length, 6);
+      assert.strictEqual(entries.length, 3);
 
-      assert.strictEqual(entries[0].path, 'test');
-      assert.strictEqual(entries[0].cleaned_path, 'test');
+      assert.strictEqual(
+        entries[0].path,
+        join('test', '_write_', 'create_zip', 'dir-1')
+      );
+      assert.strictEqual(
+        entries[0].cleaned_path,
+        join('test', '_write_', 'create_zip', 'dir-1')
+      );
       assert.strictEqual(entries[0].type, 'directory');
-      assert.strictEqual(entries[0].stats.mode, get_default_mode('directory'));
+      assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
       assert.ok(
         compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
-      assert.strictEqual(entries[1].path, join('test', '_write_'));
-      assert.strictEqual(entries[1].cleaned_path, join('test', '_write_'));
-      assert.strictEqual(entries[1].type, 'directory');
-      assert.strictEqual(entries[1].stats.mode, get_default_mode('directory'));
+      assert.strictEqual(
+        entries[1].path,
+        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
+      );
+      assert.strictEqual(
+        entries[1].cleaned_path,
+        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
+      );
+      assert.strictEqual(entries[1].type, 'file');
+      assert.strictEqual(entries[1].stats.mode, files[1].stats.mode);
       assert.ok(
-        compare_date(entries[1].stats.mtime, format_date(files[0].stats.mtime))
+        compare_date(entries[1].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(
         entries[2].path,
-        join('test', '_write_', 'create_zip')
+        join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
       );
       assert.strictEqual(
         entries[2].cleaned_path,
-        join('test', '_write_', 'create_zip')
-      );
-      assert.strictEqual(entries[2].type, 'directory');
-      assert.strictEqual(entries[2].stats.mode, get_default_mode('directory'));
-      assert.ok(
-        compare_date(entries[2].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[3].path,
-        join('test', '_write_', 'create_zip', 'dir-1')
-      );
-      assert.strictEqual(
-        entries[3].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1')
-      );
-      assert.strictEqual(entries[3].type, 'directory');
-      assert.strictEqual(entries[3].stats.mode, files[0].stats.mode);
-      assert.ok(
-        compare_date(entries[3].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[4].path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
-      );
-      assert.strictEqual(
-        entries[4].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
-      );
-      assert.strictEqual(entries[4].type, 'file');
-      assert.strictEqual(entries[4].stats.mode, files[1].stats.mode);
-      assert.ok(
-        compare_date(entries[4].stats.mtime, format_date(files[1].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[5].path,
         join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
       );
-      assert.strictEqual(
-        entries[5].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
-      );
-      assert.strictEqual(entries[5].type, 'file');
-      assert.strictEqual(entries[5].stats.mode, files[2].stats.mode);
+      assert.strictEqual(entries[2].type, 'file');
+      assert.strictEqual(entries[2].stats.mode, files[2].stats.mode);
       assert.ok(
-        compare_date(entries[5].stats.mtime, format_date(files[2].stats.mtime))
-      );
-    });
-
-    test('1 directory (with 2 parents), 2 files : deflate 9', async () => {
-      const [files, conflicting_files, map] = await list_entries(
-        [relative('.', join(create_zip_dir, 'dir-1'))],
-        is_windows,
-        'full',
-        'none',
-        false,
-        [],
-        'none'
-      );
-
-      assert.strictEqual(files.length, 3);
-      assert.strictEqual(conflicting_files.length, 0);
-      assert.strictEqual(map.size, 3 + 3);
-
-      const output_path = join(create_zip_dir, 'out-7.zip');
-      await create_zip(output_path, files, map, 2, 9, is_windows);
-
-      const [entries] = await read_zip(output_path);
-
-      assert.strictEqual(entries.length, 6);
-
-      assert.strictEqual(entries[0].path, 'test');
-      assert.strictEqual(entries[0].cleaned_path, 'test');
-      assert.strictEqual(entries[0].type, 'directory');
-      assert.strictEqual(entries[0].stats.mode, get_default_mode('directory'));
-      assert.ok(
-        compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(entries[1].path, join('test', '_write_'));
-      assert.strictEqual(entries[1].cleaned_path, join('test', '_write_'));
-      assert.strictEqual(entries[1].type, 'directory');
-      assert.strictEqual(entries[1].stats.mode, get_default_mode('directory'));
-      assert.ok(
-        compare_date(entries[1].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[2].path,
-        join('test', '_write_', 'create_zip')
-      );
-      assert.strictEqual(
-        entries[2].cleaned_path,
-        join('test', '_write_', 'create_zip')
-      );
-      assert.strictEqual(entries[2].type, 'directory');
-      assert.strictEqual(entries[2].stats.mode, get_default_mode('directory'));
-      assert.ok(
-        compare_date(entries[2].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[3].path,
-        join('test', '_write_', 'create_zip', 'dir-1')
-      );
-      assert.strictEqual(
-        entries[3].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1')
-      );
-      assert.strictEqual(entries[3].type, 'directory');
-      assert.strictEqual(entries[3].stats.mode, files[0].stats.mode);
-      assert.ok(
-        compare_date(entries[3].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[4].path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
-      );
-      assert.strictEqual(
-        entries[4].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
-      );
-      assert.strictEqual(entries[4].type, 'file');
-      assert.strictEqual(entries[4].stats.mode, files[1].stats.mode);
-      assert.ok(
-        compare_date(entries[4].stats.mtime, format_date(files[1].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[5].path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
-      );
-      assert.strictEqual(
-        entries[5].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
-      );
-      assert.strictEqual(entries[5].type, 'file');
-      assert.strictEqual(entries[5].stats.mode, files[2].stats.mode);
-      assert.ok(
-        compare_date(entries[5].stats.mtime, format_date(files[2].stats.mtime))
+        compare_date(entries[2].stats.mtime, format_date(files[2].stats.mtime))
       );
     });
 
@@ -573,78 +449,48 @@ describe(filename, async () => {
 
       const [entries] = await read_zip(output_path);
 
-      assert.strictEqual(entries.length, 6);
+      assert.strictEqual(entries.length, 3);
 
-      assert.strictEqual(entries[0].path, 'test');
-      assert.strictEqual(entries[0].cleaned_path, 'test');
+      assert.strictEqual(
+        entries[0].path,
+        join('test', '_write_', 'create_zip', 'dir-1')
+      );
+      assert.strictEqual(
+        entries[0].cleaned_path,
+        join('test', '_write_', 'create_zip', 'dir-1')
+      );
       assert.strictEqual(entries[0].type, 'directory');
-      assert.strictEqual(entries[0].stats.mode, get_default_mode('directory'));
+      assert.strictEqual(entries[0].stats.mode, files[0].stats.mode);
       assert.ok(
         compare_date(entries[0].stats.mtime, format_date(files[0].stats.mtime))
       );
 
-      assert.strictEqual(entries[1].path, join('test', '_write_'));
-      assert.strictEqual(entries[1].cleaned_path, join('test', '_write_'));
-      assert.strictEqual(entries[1].type, 'directory');
-      assert.strictEqual(entries[1].stats.mode, get_default_mode('directory'));
+      assert.strictEqual(
+        entries[1].path,
+        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
+      );
+      assert.strictEqual(
+        entries[1].cleaned_path,
+        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
+      );
+      assert.strictEqual(entries[1].type, 'file');
+      assert.strictEqual(entries[1].stats.mode, files[1].stats.mode);
       assert.ok(
-        compare_date(entries[1].stats.mtime, format_date(files[0].stats.mtime))
+        compare_date(entries[1].stats.mtime, format_date(files[1].stats.mtime))
       );
 
       assert.strictEqual(
         entries[2].path,
-        join('test', '_write_', 'create_zip')
+        join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
       );
       assert.strictEqual(
         entries[2].cleaned_path,
-        join('test', '_write_', 'create_zip')
-      );
-      assert.strictEqual(entries[2].type, 'directory');
-      assert.strictEqual(entries[2].stats.mode, get_default_mode('directory'));
-      assert.ok(
-        compare_date(entries[2].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[3].path,
-        join('test', '_write_', 'create_zip', 'dir-1')
-      );
-      assert.strictEqual(
-        entries[3].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1')
-      );
-      assert.strictEqual(entries[3].type, 'directory');
-      assert.strictEqual(entries[3].stats.mode, files[0].stats.mode);
-      assert.ok(
-        compare_date(entries[3].stats.mtime, format_date(files[0].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[4].path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
-      );
-      assert.strictEqual(
-        entries[4].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'a.txt')
-      );
-      assert.strictEqual(entries[4].type, 'file');
-      assert.strictEqual(entries[4].stats.mode, files[1].stats.mode);
-      assert.ok(
-        compare_date(entries[4].stats.mtime, format_date(files[1].stats.mtime))
-      );
-
-      assert.strictEqual(
-        entries[5].path,
         join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
       );
-      assert.strictEqual(
-        entries[5].cleaned_path,
-        join('test', '_write_', 'create_zip', 'dir-1', 'b.txt')
-      );
-      assert.strictEqual(entries[5].type, 'file');
-      assert.strictEqual(entries[5].stats.mode, files[2].stats.mode);
+      assert.strictEqual(entries[2].type, 'file');
+      assert.strictEqual(entries[2].stats.mode, files[2].stats.mode);
       assert.ok(
-        compare_date(entries[5].stats.mtime, format_date(files[2].stats.mtime))
+        compare_date(entries[2].stats.mtime, format_date(files[2].stats.mtime))
       );
     });
   });
