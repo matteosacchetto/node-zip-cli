@@ -39,7 +39,7 @@ export const open_read_stream = (zip: yauzl.ZipFile, entry: yauzl.Entry) => {
   });
 };
 
-export function read_entry(zip: yauzl.ZipFile) {
+export function read_entries(zip: yauzl.ZipFile) {
   let rejectNext: ((e: Error) => void) | undefined,
     resolveNext:
       | ((data: IteratorResult<yauzl.Entry, undefined>) => void)
@@ -54,7 +54,6 @@ export function read_entry(zip: yauzl.ZipFile) {
   });
 
   zip.on('end', () => {
-    /* c8 ignore next 1 */
     resolveNext?.({ value: undefined, done: true });
   });
 

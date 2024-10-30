@@ -25,7 +25,7 @@ import {
   is_symlink,
   open_read_stream,
   open_zip_file,
-  read_entry,
+  read_entries,
 } from '@/utils/zip';
 import chalk from 'chalk';
 import yazl from 'yazl';
@@ -155,7 +155,7 @@ export const read_zip = async (
 
   const entries: ArchiveEntry[] = [];
 
-  for await (const entry of read_entry(zip)) {
+  for await (const entry of read_entries(zip)) {
     const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
     const is_dir = entry.fileName.endsWith('/');
 
@@ -217,7 +217,7 @@ export const extract_zip = async (
       const num_files = files.filter((el) => el.type !== 'directory').length;
       let extracted_files_counter = 1;
 
-      for await (const entry of read_entry(zip)) {
+      for await (const entry of read_entries(zip)) {
         const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
         const is_dir = entry.fileName.endsWith('/');
 
