@@ -18,7 +18,6 @@ import {
   set_permissions,
 } from '@/utils/fs';
 import { log_indent } from '@/utils/log';
-import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { text } from '@/utils/streams';
 import {
@@ -26,6 +25,7 @@ import {
   open_read_stream,
   open_zip_file,
   read_entries,
+  write_zip_file,
 } from '@/utils/zip';
 import chalk from 'chalk';
 import yazl from 'yazl';
@@ -120,21 +120,8 @@ export const create_zip = async (
       spinner.text = `Creating ${output_path} file`;
 
       await mkdir(dirname(output_path), { recursive: true });
-
-      const { promise, reject, resolve } = defer<void>();
-      zip.outputStream
-        .pipe(createWriteStream(output_path))
-        .on('error', (err) => {
-          /* c8 ignore next 1 */
-          reject(err);
-        })
-        .on('close', () => {
-          spinner.text = `Created ${output_path} file (${num_files}/${num_files} files)`;
-          resolve();
-        });
-
-      zip.end();
-      return promise;
+      await write_zip_file(zip, output_path);
+      spinner.text = `Created ${output_path} file (${num_files}/${num_files} files)`;
     },
   });
 

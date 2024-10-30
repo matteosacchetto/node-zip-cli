@@ -1,9 +1,27 @@
+import { createWriteStream } from 'node:fs';
 import type { Readable } from 'node:stream';
 import yauzl from 'yauzl';
+import type yazl from 'yazl';
 import { defer } from './promise';
 
 export const is_symlink = (mode: number) => {
   return (mode & 0o770000) >> 12 === 10;
+};
+
+export const write_zip_file = (zip: yazl.ZipFile, output_path: string) => {
+  return new Promise<void>((res, rej) => {
+    zip.outputStream
+      .pipe(createWriteStream(output_path))
+      .on('error', (err) => {
+        /* c8 ignore next 1 */
+        rej(err);
+      })
+      .on('close', () => {
+        res();
+      });
+
+    zip.end();
+  });
 };
 
 export const open_zip_file = (
