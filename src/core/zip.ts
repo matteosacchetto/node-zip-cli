@@ -6,7 +6,7 @@ import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
 import { log_broken_symlink } from '@/utils/broken-symlink';
-import { date_to_utc, date_from_utc } from '@/utils/date';
+import { date_from_utc, date_to_utc } from '@/utils/date';
 import {
   broken_symlinks,
   clean_path,
@@ -20,9 +20,14 @@ import {
 import { log_indent } from '@/utils/log';
 import { defer } from '@/utils/promise';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
-import { is_symlink } from '@/utils/zip';
+import { text } from '@/utils/streams';
+import {
+  is_symlink,
+  open_read_stream,
+  open_zip_file,
+  read_entry,
+} from '@/utils/zip';
 import chalk from 'chalk';
-import yauzl from 'yauzl';
 import yazl from 'yazl';
 
 export const create_zip = async (
@@ -146,86 +151,44 @@ export const create_zip = async (
 export const read_zip = async (
   input_path: string
 ): Promise<[ArchiveEntry[], Map<string, CleanedEntryWithMode>]> => {
-  const zip = await new Promise<yauzl.ZipFile>((res, rej) =>
-    yauzl.open(
-      input_path,
-      { lazyEntries: true, autoClose: true, validateEntrySizes: true },
-      (err, file) => {
-        /* c8 ignore next 2 */
-        if (err) rej(err);
-        else res(file);
-      }
-    )
-  );
-
-  const { promise, resolve, reject } = defer<void>();
+  const zip = await open_zip_file(input_path);
 
   const entries: ArchiveEntry[] = [];
 
-  zip.on('entry', async (entry: yauzl.Entry) => {
-    try {
-      const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
-      const is_dir = entry.fileName.endsWith('/');
+  for await (const entry of read_entry(zip)) {
+    const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
+    const is_dir = entry.fileName.endsWith('/');
 
-      const type = is_dir ? 'directory' : is_symlink(mode) ? 'symlink' : 'file';
+    const type = is_dir ? 'directory' : is_symlink(mode) ? 'symlink' : 'file';
 
-      if (type === 'file' || type === 'directory' || type === 'symlink') {
-        /* c8 ignore next 14 */
-        const path = remove_trailing_sep(entry.fileName, '/');
-        const archive_entry = <ArchiveEntry>{
-          path: normalize(path),
-          cleaned_path: clean_path(normalize(path)),
-          type,
-          stats: {
-            mtime: date_from_utc(entry.getLastModDate()),
-            uid: 1000,
-            gid: 1000,
-            mode: mode || get_default_mode(type),
-          },
-        };
+    if (type === 'file' || type === 'directory' || type === 'symlink') {
+      /* c8 ignore next 14 */
+      const path = remove_trailing_sep(entry.fileName, '/');
+      const archive_entry = <ArchiveEntry>{
+        path: normalize(path),
+        cleaned_path: clean_path(normalize(path)),
+        type,
+        stats: {
+          mtime: date_from_utc(entry.getLastModDate()),
+          uid: 1000,
+          gid: 1000,
+          mode: mode || get_default_mode(type),
+        },
+      };
 
-        /* c8 ignore next 5 */
-        if (archive_entry.type === 'symlink') {
-          const { promise, resolve } = defer<void>();
-          let link_path = '';
-          zip.openReadStream(entry, (err, readStream) => {
-            /* c8 ignore next 1 */
-            if (err) throw err;
+      /* c8 ignore next 5 */
+      if (archive_entry.type === 'symlink') {
+        const read_stream = await open_read_stream(zip, entry);
+        const link_path = await text(read_stream);
 
-            readStream.on('data', (chunk) => {
-              link_path += chunk.toString(); // Collect file content as string
-            });
-
-            readStream.on('end', () => {
-              resolve(); // Output the file content
-            });
-          });
-          await promise;
-
-          /* c8 ignore next 2 */
-          archive_entry.link_path = link_path ? normalize(link_path) : '';
-          archive_entry.link_name = link_path ? normalize(link_path) : '';
-        }
-
-        entries.push(archive_entry);
+        /* c8 ignore next 2 */
+        archive_entry.link_path = link_path ? normalize(link_path) : '';
+        archive_entry.link_name = link_path ? normalize(link_path) : '';
       }
 
-      zip.readEntry();
-      /* c8 ignore next 3 */
-    } catch (e) {
-      reject(e);
+      entries.push(archive_entry);
     }
-  });
-  zip.on('error', (e) => {
-    /* c8 ignore next 1 */
-    reject(e);
-  });
-  zip.once('end', () => {
-    zip.close();
-    resolve();
-  });
-  zip.readEntry();
-  await promise;
+  }
 
   const absolute_path_to_clean_entry_with_mode =
     map_absolute_path_to_clean_entry_with_mode(entries);
@@ -241,17 +204,7 @@ export const extract_zip = async (
   const broken_symlinks_list = await spinner_wrapper({
     spinner_text: `Extracting ${input_path} file to ${output_dir}`,
     async fn(spinner) {
-      const zip = await new Promise<yauzl.ZipFile>((res, rej) =>
-        yauzl.open(
-          input_path,
-          { lazyEntries: true, autoClose: true, validateEntrySizes: true },
-          (err, file) => {
-            /* c8 ignore next 2 */
-            if (err) rej(err);
-            else res(file);
-          }
-        )
-      );
+      const zip = await open_zip_file(input_path);
 
       const [files, absolute_path_to_clean_entry_with_mode] =
         await read_zip(input_path);
@@ -264,149 +217,110 @@ export const extract_zip = async (
       const num_files = files.filter((el) => el.type !== 'directory').length;
       let extracted_files_counter = 1;
 
-      const { promise, resolve, reject } = defer<void>();
+      for await (const entry of read_entry(zip)) {
+        const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
+        const is_dir = entry.fileName.endsWith('/');
 
-      zip.on('entry', async (entry: yauzl.Entry) => {
-        try {
-          const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
-          const is_dir = entry.fileName.endsWith('/');
+        const type = is_dir
+          ? 'directory'
+          : is_symlink(mode)
+            ? 'symlink'
+            : 'file';
 
-          const type = is_dir
-            ? 'directory'
-            : is_symlink(mode)
-              ? 'symlink'
-              : 'file';
+        if (type === 'file' || type === 'directory' || type === 'symlink') {
+          const mtime = date_from_utc(entry.getLastModDate());
 
-          if (type === 'file' || type === 'directory' || type === 'symlink') {
-            const mtime = date_from_utc(entry.getLastModDate());
+          /* c8 ignore next 14 */
+          const path = remove_trailing_sep(entry.fileName, '/');
+          const cleaned_path = clean_path(normalize(path));
+          const actual_mode = mode || get_default_mode(type);
 
-            /* c8 ignore next 14 */
-            const path = remove_trailing_sep(entry.fileName, '/');
-            const cleaned_path = clean_path(normalize(path));
-            const actual_mode = mode || get_default_mode(type);
+          switch (type) {
+            case 'directory': {
+              const dir_path = join(output_dir, cleaned_path);
+              await mkdir(dir_path, { recursive: true });
 
-            switch (type) {
-              case 'directory': {
-                const dir_path = join(output_dir, cleaned_path);
-                await mkdir(dir_path, { recursive: true });
+              await set_permissions(dir_path, {
+                mode: actual_mode,
+                mtime,
+              });
+              break;
+            }
 
-                await set_permissions(dir_path, {
-                  mode: actual_mode,
-                  mtime,
-                });
-                break;
-              }
+            case 'file': {
+              const file_path = join(output_dir, cleaned_path);
 
-              case 'file': {
-                const file_path = join(output_dir, cleaned_path);
+              spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
+                num_files
+              } files) ${chalk.dim(`[${file_path}]`)}`;
 
-                spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
-                  num_files
-                } files) ${chalk.dim(`[${file_path}]`)}`;
+              await mkdir(dirname(file_path), { recursive: true });
 
-                await mkdir(dirname(file_path), { recursive: true });
+              const file_stream = await open_read_stream(zip, entry);
+              await pipeline(file_stream, createWriteStream(file_path));
 
-                const file_stream = await new Promise<Readable>((res, rej) =>
-                  zip.openReadStream(entry, (err, readStream) => {
-                    /* c8 ignore next 2 */
-                    if (err) rej(err);
-                    else res(readStream);
-                  })
-                );
+              await set_permissions(file_path, {
+                mode: actual_mode,
+                mtime: mtime,
+              });
 
-                await pipeline(file_stream, createWriteStream(file_path));
+              break;
+            }
 
-                await set_permissions(file_path, {
-                  mode: actual_mode,
-                  mtime: mtime,
-                });
+            case 'symlink': {
+              const read_stream = await open_read_stream(zip, entry);
+              let link_path = await text(read_stream);
 
-                break;
-              }
+              /* c8 ignore next 1 */
+              link_path = link_path ? normalize(link_path) : '';
 
-              case 'symlink': {
-                const { promise, resolve } = defer<void>();
-                let link_path = '';
-                zip.openReadStream(entry, (err, readStream) => {
-                  /* c8 ignore next 1 */
-                  if (err) throw err;
-
-                  readStream.on('data', (chunk) => {
-                    link_path += chunk.toString(); // Collect file content as string
-                  });
-
-                  readStream.on('end', () => {
-                    resolve(); // Output the file content
-                  });
-                });
-                await promise;
-
+              if (link_path) {
                 /* c8 ignore next 1 */
-                link_path = link_path ? normalize(link_path) : '';
+                if (is_windows) {
+                  /* c8 ignore start */
+                  // Treat symlink as a regular file
+                  const file_path = join(output_dir, cleaned_path);
 
-                if (link_path) {
-                  /* c8 ignore next 1 */
-                  if (is_windows) {
-                    /* c8 ignore start */
-                    // Treat symlink as a regular file
-                    const file_path = join(output_dir, cleaned_path);
+                  spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
+                    num_files
+                  } files) ${chalk.dim(`[${file_path}]`)}`;
 
-                    spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
-                      num_files
-                    } files) ${chalk.dim(`[${file_path}]`)}`;
+                  await mkdir(dirname(file_path), { recursive: true });
 
-                    await mkdir(dirname(file_path), { recursive: true });
+                  const file_stream = new Readable();
+                  file_stream.push(link_path);
+                  file_stream.push(null);
 
-                    const file_stream = new Readable();
-                    file_stream.push(link_path);
-                    file_stream.push(null);
+                  await pipeline(file_stream, createWriteStream(file_path));
 
-                    await pipeline(file_stream, createWriteStream(file_path));
+                  await set_permissions(file_path, {
+                    mode: actual_mode,
+                    mtime: mtime,
+                  });
+                  /* c8 ignore end */
+                } else {
+                  const file_path = join(output_dir, cleaned_path);
 
-                    await set_permissions(file_path, {
-                      mode: actual_mode,
-                      mtime: mtime,
-                    });
-                    /* c8 ignore end */
-                  } else {
-                    const file_path = join(output_dir, cleaned_path);
+                  spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
+                    num_files
+                  } files) ${chalk.dim(`[${file_path}]`)}`;
 
-                    spinner.text = `Extracting ${input_path} file to ${output_dir} (${extracted_files_counter++}/${
-                      num_files
-                    } files) ${chalk.dim(`[${file_path}]`)}`;
+                  await mkdir(dirname(file_path), { recursive: true });
 
-                    await mkdir(dirname(file_path), { recursive: true });
+                  await overwrite_symlink_if_exists(link_path, file_path);
 
-                    await overwrite_symlink_if_exists(link_path, file_path);
-
-                    await set_permissions(file_path, {
-                      mode: actual_mode,
-                      mtime: mtime,
-                    });
-                  }
+                  await set_permissions(file_path, {
+                    mode: actual_mode,
+                    mtime: mtime,
+                  });
                 }
-
-                break;
               }
+
+              break;
             }
           }
-
-          zip.readEntry();
-        } catch (e) {
-          /* c8 ignore next 1 */
-          reject(e);
         }
-      });
-      zip.on('error', (e) => {
-        /* c8 ignore next 1 */
-        reject(e);
-      });
-      zip.once('end', () => {
-        zip.close();
-        resolve();
-      });
-      zip.readEntry();
-      await promise;
+      }
 
       spinner.text = `Extracted ${input_path} file to ${output_dir} (${num_files}/${num_files} files)`;
 
