@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { date_to_utc, date_from_utc } from '@/utils/date';
+import { date_from_utc, date_to_utc } from '@/utils/date';
 
 const filename = relative(
   join(process.cwd(), 'test'),
