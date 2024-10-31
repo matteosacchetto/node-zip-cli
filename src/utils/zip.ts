@@ -79,11 +79,12 @@ export function read_entries(zip: yauzl.ZipFile) {
     [Symbol.asyncIterator]() {
       return {
         next: () => {
-          zip.readEntry(); // Read the next entry
           const { promise, resolve, reject } =
             defer<IteratorResult<yauzl.Entry, undefined>>();
           resolveNext = resolve;
           rejectNext = reject;
+
+          zip.readEntry(); // Read the next entry
           return promise;
         },
         return() {
