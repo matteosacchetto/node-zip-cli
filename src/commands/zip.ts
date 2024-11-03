@@ -21,10 +21,8 @@ import {
 } from '@/utils/process';
 import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
-import {
-  createOption,
-  InvalidArgumentError,
-} from '@commander-js/extra-typings';
+import { createOption } from '@commander-js/extra-typings';
+import { InvalidArgumentError } from 'commander';
 
 const name = 'zip';
 const description =
