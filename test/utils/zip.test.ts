@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { preset_compression_level } from '@/core/constants';
 import { text } from '@/utils/streams';
 import {
   get_compression_level,
@@ -10,7 +11,6 @@ import {
   open_zip_file,
   read_entries,
 } from '@/utils/zip';
-import { preset_compression_level } from '@/core/constants';
 
 const data_dir = join(process.cwd(), 'test', '_data_');
 const archives_dir = join(process.cwd(), 'test', '_archives_');

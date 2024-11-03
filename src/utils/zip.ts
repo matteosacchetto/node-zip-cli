@@ -1,9 +1,9 @@
 import { createWriteStream } from 'node:fs';
 import type { Readable } from 'node:stream';
+import { preset_compression_level } from '@/core/constants';
 import yauzl from 'yauzl';
 import type yazl from 'yazl';
 import { defer } from './promise';
-import { preset_compression_level } from '@/core/constants';
 
 export const is_symlink = (mode: number) => {
   return (mode & 0o770000) >> 12 === 10;
