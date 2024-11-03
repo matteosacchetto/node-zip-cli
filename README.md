@@ -130,7 +130,7 @@ zip files and directories ignoring files specified in .zipignore and .gitignore
 Options:
   -v, --version                      output the version number
   -i, --input <input...>             the files or directories to zip (default: ["."])
-  -d, --deflate                      deflate the files (default: false)
+  -d, --deflate [compression-level]  deflate the files (default: false, preset: 6)
   -o, --output <output-file>         the filename of the zip file to create (default: "out.zip")
   -k, --keep-parent <mode>           keep the parent directories (choices: "none", "last", "full", default: "full")
   -s, --symlink <mode>               handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
@@ -149,9 +149,11 @@ Options:
 
 Specify the list of input files/directories. Defaults to the current directory (`.`). Files and directories can be relative or absolute paths.
 
-###### `-d, --deflate`
+###### `-d, --deflate [compression-level]`
 
-Specify whether file are deflated or stored. When this option is true, the default compression level will be used, which is 6.
+Specify the compression level of the deflate operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default no compression is applied.
+
+If this options is set without any specified compression level, it will fallback to its preset level, which is 6.
 
 ###### `-o, --output <output-file>`
 

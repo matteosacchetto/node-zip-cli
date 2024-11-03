@@ -3,6 +3,7 @@ import type { Readable } from 'node:stream';
 import yauzl from 'yauzl';
 import type yazl from 'yazl';
 import { defer } from './promise';
+import { preset_compression_level } from '@/core/constants';
 
 export const is_symlink = (mode: number) => {
   return (mode & 0o770000) >> 12 === 10;
@@ -100,3 +101,7 @@ export function read_entries(zip: yauzl.ZipFile) {
     },
   };
 }
+
+export const get_compression_level = (deflate: boolean | number) => {
+  return deflate === true ? preset_compression_level : +deflate;
+};

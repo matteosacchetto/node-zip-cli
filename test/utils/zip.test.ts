@@ -4,11 +4,13 @@ import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { text } from '@/utils/streams';
 import {
+  get_compression_level,
   is_symlink,
   open_read_stream,
   open_zip_file,
   read_entries,
 } from '@/utils/zip';
+import { preset_compression_level } from '@/core/constants';
 
 const data_dir = join(process.cwd(), 'test', '_data_');
 const archives_dir = join(process.cwd(), 'test', '_archives_');
@@ -83,6 +85,32 @@ describe(filename, async () => {
 
       const entries1 = read_entries(zip);
       assert.rejects(entries1[Symbol.asyncIterator]().next());
+    });
+  });
+
+  describe('get_compression_level', async () => {
+    test('deflate: true', () => {
+      assert.strictEqual(get_compression_level(true), preset_compression_level);
+    });
+
+    test('deflate: false', () => {
+      assert.strictEqual(get_compression_level(false), 0);
+    });
+
+    test('deflate: 0', () => {
+      assert.strictEqual(get_compression_level(0), 0);
+    });
+
+    test('deflate: 1', () => {
+      assert.strictEqual(get_compression_level(1), 1);
+    });
+
+    test('deflate: 5', () => {
+      assert.strictEqual(get_compression_level(5), 5);
+    });
+
+    test('deflate: 9', () => {
+      assert.strictEqual(get_compression_level(9), 9);
     });
   });
 });

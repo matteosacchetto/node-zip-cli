@@ -21,6 +21,7 @@ import { log_indent } from '@/utils/log';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { text } from '@/utils/streams';
 import {
+  get_compression_level,
   is_symlink,
   open_read_stream,
   open_zip_file,
@@ -35,7 +36,7 @@ export const create_zip = async (
   unique_fs_entries: FsEntry[],
   absolute_path_to_clean_entry_with_mode: Map<string, CleanedEntryWithMode>,
   num_files: number,
-  deflate: boolean,
+  deflate: boolean | number,
   is_windows: boolean
 ) => {
   if (num_files === 0) {
@@ -77,7 +78,9 @@ export const create_zip = async (
             {
               mtime: date_to_utc(file.stats.mtime),
               mode: file.stats.mode,
-              compress: deflate,
+              compress: !!deflate,
+              // @ts-ignore
+              compressionLevel: get_compression_level(deflate),
               size: file.stats.size,
             }
           );
@@ -111,7 +114,9 @@ export const create_zip = async (
             {
               mtime: date_to_utc(file.stats.mtime),
               mode: file.stats.mode,
-              compress: deflate,
+              compress: !!deflate,
+              // @ts-ignore
+              compressionLevel: get_compression_level(deflate),
             }
           );
         }
