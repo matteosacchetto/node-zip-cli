@@ -2,8 +2,18 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { is_symlink } from '@/utils/zip';
-import JSZip from 'jszip';
+import { preset_compression_level } from '@/core/constants';
+import { text } from '@/utils/streams';
+import {
+  get_compression_level,
+  is_symlink,
+  open_read_stream,
+  open_zip_file,
+  read_entries,
+} from '@/utils/zip';
+
+const data_dir = join(process.cwd(), 'test', '_data_');
+const archives_dir = join(process.cwd(), 'test', '_archives_');
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -13,42 +23,94 @@ const filename = relative(
 describe(filename, async () => {
   describe('is_symlink', async () => {
     test('symlink', async (context) => {
-      const archive = new JSZip();
-
-      archive.file('test', 'test.link', {
-        dir: false,
-        unixPermissions: 0o120777,
-      });
-
-      const entries = Object.entries(archive.files);
-
-      assert.ok(is_symlink(entries[0][1]));
+      const mode = 0o120777;
+      assert.ok(is_symlink(mode));
     });
 
     test('file', async (context) => {
-      const archive = new JSZip();
-
-      archive.file('test', '', {
-        dir: false,
-        unixPermissions: 0o100664,
-      });
-
-      const entries = Object.entries(archive.files);
-
-      assert.ok(!is_symlink(entries[0][1]));
+      const mode = 0o100664;
+      assert.ok(!is_symlink(mode));
     });
 
     test('dir', async (context) => {
-      const archive = new JSZip();
+      const mode = 0o40775;
+      assert.ok(!is_symlink(mode));
+    });
+  });
 
-      archive.file('test', null, {
-        unixPermissions: 0o40775,
-        dir: true,
-      });
+  describe('open_zip_file', async () => {
+    test('files-dir.zip', async (context) => {
+      assert.ok(open_zip_file(join(archives_dir, 'files-dir.zip')));
+    });
 
-      const entries = Object.entries(archive.files);
+    test('files-dir.tar', async (context) => {
+      assert.rejects(open_zip_file(join(archives_dir, 'files-dir.tar')));
+    });
+  });
 
-      assert.ok(!is_symlink(entries[0][1]));
+  describe('open_read_stream', async () => {
+    test('base.zip', async (context) => {
+      const zip = await open_zip_file(join(data_dir, 'base.zip'));
+      for await (const entry of read_entries(zip)) {
+        if (entry.fileName.endsWith('/')) {
+          continue;
+        }
+
+        const read_stream = await open_read_stream(zip, entry);
+        const data = await text(read_stream);
+
+        assert.strictEqual(data.length, 6);
+      }
+    });
+  });
+
+  describe('read_entries', async () => {
+    test('base.zip', async (context) => {
+      const zip = await open_zip_file(join(data_dir, 'base.zip'));
+      let counter = 0;
+      for await (const _ of read_entries(zip)) {
+        counter++;
+      }
+
+      assert.strictEqual(counter, 2);
+    });
+
+    test('partial base.zip', async (context) => {
+      const zip = await open_zip_file(join(data_dir, 'base.zip'));
+      const entries = read_entries(zip);
+
+      const entry = await entries[Symbol.asyncIterator]().next();
+      assert.strictEqual(entry.value!.fileName, 'a.txt');
+      await entries[Symbol.asyncIterator]().return(); // zip is now closed
+
+      const entries1 = read_entries(zip);
+      assert.rejects(entries1[Symbol.asyncIterator]().next());
+    });
+  });
+
+  describe('get_compression_level', async () => {
+    test('deflate: true', () => {
+      assert.strictEqual(get_compression_level(true), preset_compression_level);
+    });
+
+    test('deflate: false', () => {
+      assert.strictEqual(get_compression_level(false), 0);
+    });
+
+    test('deflate: 0', () => {
+      assert.strictEqual(get_compression_level(0), 0);
+    });
+
+    test('deflate: 1', () => {
+      assert.strictEqual(get_compression_level(1), 1);
+    });
+
+    test('deflate: 5', () => {
+      assert.strictEqual(get_compression_level(5), 5);
+    });
+
+    test('deflate: 9', () => {
+      assert.strictEqual(get_compression_level(9), 9);
     });
   });
 });
