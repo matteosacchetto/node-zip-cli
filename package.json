@@ -71,7 +71,7 @@
     "figures": "^6.1.0",
     "ignore": "^6.0.2",
     "log-symbols": "^7.0.0",
-    "ora": "^8.1.0",
+    "ora": "^8.1.1",
     "strip-ansi": "^7.1.0",
     "tar-stream": "^3.1.7",
     "valid-filename": "^4.0.0",
