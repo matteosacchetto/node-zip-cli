@@ -23,11 +23,11 @@ const archives_dir = join(process.cwd(), 'test', '_archives_');
 
 const format_date = (date: Date) => {
   // In the zip archive the mtime has milliseconds set to 0
-  // and seconds as a multiple of 2
+  // and seconds as a multiple of 1 (Info-ZIP format)
   //
   // So to be able to compare dates we need to ensure
   // that they are in the same format
-  return new Date(Math.floor(date.getTime() / 2000) * 2000);
+  return new Date(Math.floor(date.getTime() / 1000) * 1000);
 };
 
 const compare_date = (value: Date, compare_to: Date) => {
