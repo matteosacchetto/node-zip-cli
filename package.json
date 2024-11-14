@@ -1,6 +1,6 @@
 {
   "name": "node-zip-cli",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Simple nodejs cli which allows you to create and extract zip/tar files with support for .gitignore files",
   "main": "dist/index.mjs",
   "bin": "dist/index.mjs",
