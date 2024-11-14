@@ -6,7 +6,6 @@ import { pipeline } from 'node:stream/promises';
 import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
 import { log_broken_symlink } from '@/utils/broken-symlink';
-import { date_from_utc, date_to_utc } from '@/utils/date';
 import {
   broken_symlinks,
   clean_path,
@@ -76,7 +75,7 @@ export const create_zip = async (
             rs,
             normalize_windows_path(file.cleaned_path, is_windows),
             {
-              mtime: date_to_utc(file.stats.mtime),
+              mtime: file.stats.mtime,
               mode: file.stats.mode,
               compress: !!deflate,
               // @ts-ignore
@@ -88,7 +87,7 @@ export const create_zip = async (
           zip.addEmptyDirectory(
             normalize_windows_path(file.cleaned_path, is_windows),
             {
-              mtime: date_to_utc(file.stats.mtime),
+              mtime: file.stats.mtime,
               mode: file.stats.mode,
             }
           );
@@ -112,7 +111,7 @@ export const create_zip = async (
             rs,
             normalize_windows_path(file.cleaned_path, is_windows),
             {
-              mtime: date_to_utc(file.stats.mtime),
+              mtime: file.stats.mtime,
               mode: file.stats.mode,
               compress: !!deflate,
               // @ts-ignore
@@ -161,7 +160,7 @@ export const read_zip = async (
         cleaned_path: clean_path(normalize(path)),
         type,
         stats: {
-          mtime: date_from_utc(entry.getLastModDate()),
+          mtime: entry.getLastModDate(),
           uid: 1000,
           gid: 1000,
           mode: mode || get_default_mode(type),
@@ -220,7 +219,7 @@ export const extract_zip = async (
             : 'file';
 
         if (type === 'file' || type === 'directory' || type === 'symlink') {
-          const mtime = date_from_utc(entry.getLastModDate());
+          const mtime = entry.getLastModDate();
 
           /* c8 ignore next 14 */
           const path = remove_trailing_sep(entry.fileName, '/');
