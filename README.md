@@ -506,7 +506,7 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 > [!NOTE]
 > Since version (0.8.0) 32-bit and 64-bit zip archives are supported.
 >
-> Since version (0.9.0) the `mtime` of zip entries is stored with the additional Info-ZIP format, which ensures gretarer precision (rounded to 1 second), and the timezone is specified as always UTC. Refer to the `yazl` documentation for additional details regarding such format.
+> Since version (0.9.0) the `mtime` of zip entries is stored with the additional Info-ZIP format, which ensures gretarer precision (rounded to 1 second), and the timezone is specified as always UTC. Refer to the [`yazl` documentation](https://github.com/thejoshwolfe/yazl) for additional details regarding such format.
 
 > [!WARNING]
 > *Current limitations*  
