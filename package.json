@@ -64,10 +64,10 @@
     "npm": ">=9.6.5"
   },
   "dependencies": {
-    "@commander-js/extra-typings": "^12.1.0",
+    "@commander-js/extra-typings": "^13.0.0",
     "@inquirer/confirm": "^5.1.1",
     "chalk": "^5.4.1",
-    "commander": "^12.1.0",
+    "commander": "^13.0.0",
     "figures": "^6.1.0",
     "ignore": "^6.0.2",
     "log-symbols": "^7.0.0",
