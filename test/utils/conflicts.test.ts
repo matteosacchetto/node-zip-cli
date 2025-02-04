@@ -2,11 +2,11 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { stripVTControlCharacters } from 'node:util';
 import type { ConflictingFsEntry } from '@/types/fs';
 import { log_conflicts } from '@/utils/conflicts';
 import chalk from 'chalk';
-import { fallbackSymbols, mainSymbols } from 'figures';
-import isUnicodeSupported from 'is-unicode-supported';
+import logSymbols from 'log-symbols';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -55,7 +55,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning)} 1 conflicting entry\n`
+          `  ${chalk.yellow(logSymbols.warning)} 1 conflicting entry\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -70,7 +70,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning} 1 conflicting entry\n`
+          `${stripVTControlCharacters(logSymbols.warning)} 1 conflicting entry\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -105,7 +105,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning)} 2 conflicting entries\n`
+          `  ${chalk.yellow(logSymbols.warning)} 2 conflicting entries\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -126,7 +126,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning} 2 conflicting entries\n`
+          `${stripVTControlCharacters(logSymbols.warning)} 2 conflicting entries\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,

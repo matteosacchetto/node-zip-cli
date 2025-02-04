@@ -1,9 +1,7 @@
 import { Console } from 'node:console';
-import { inspect } from 'node:util';
+import { inspect, stripVTControlCharacters } from 'node:util';
 import chalk from 'chalk';
-import figureSet from 'figures';
 import logSymbols from 'log-symbols';
-import stripAnsi from 'strip-ansi';
 
 /* c8 ignore start */
 enum STD_FD {
@@ -40,7 +38,7 @@ class Logger {
 
     if (msg[0] && typeof msg[0] === 'string') {
       logger(
-        `${this.#spaces}${stream.isTTY ? msg[0] : stripAnsi(msg[0] as string)}`,
+        `${this.#spaces}${stream.isTTY ? msg[0] : stripVTControlCharacters(msg[0] as string)}`,
         ...msg.slice(1).map((el) =>
           (typeof el !== 'string'
             ? inspect(el, {
@@ -56,10 +54,12 @@ class Logger {
                   index === 0
                     ? ''
                     : this.#spaces +
-                      ' '.repeat(stripAnsi(msg[0] as string).length + 1)
+                      ' '.repeat(
+                        stripVTControlCharacters(msg[0] as string).length + 1
+                      )
                 }${el}`
             )
-            .map((el) => (stream.isTTY ? el : stripAnsi(el)))
+            .map((el) => (stream.isTTY ? el : stripVTControlCharacters(el)))
             .join('\n')
         )
       );
@@ -75,7 +75,7 @@ class Logger {
               (el: string, index: number) =>
                 `${index === 0 ? '' : this.#spaces}${el}`
             )
-            .map((el) => (stream.isTTY ? el : stripAnsi(el)))
+            .map((el) => (stream.isTTY ? el : stripVTControlCharacters(el)))
             .join('\n')
         )
       );
@@ -103,7 +103,7 @@ class Logger {
     this.#log(
       STD_FD.ERR,
       false,
-      chalk.yellow(figureSet.arrowDown),
+      chalk.yellow('↓'),
       ...msg,
       chalk.dim('[SKIPPED]')
     );
