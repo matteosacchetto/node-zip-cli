@@ -36,6 +36,11 @@ class Logger {
         break;
     }
 
+    if (raw) {
+      logger(...msg);
+      return;
+    }
+
     if (msg[0] && typeof msg[0] === 'string') {
       logger(
         `${this.#spaces}${stream.isTTY ? msg[0] : stripVTControlCharacters(msg[0] as string)}`,
@@ -82,7 +87,10 @@ class Logger {
     }
   }
   write(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, true, ' ', ...msg);
+    this.#log(STD_FD.OUT, true, ...msg);
+  }
+  write_error(...msg: unknown[]) {
+    this.#log(STD_FD.ERR, true, ...msg);
   }
   log(...msg: unknown[]) {
     this.#log(STD_FD.ERR, true, ' ', ...msg);
