@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { colorize } from '@/core/dircolors';
 import { printfile_list_as_find } from '@/core/find';
+import { logger } from '@/logger';
 import type { FsEntry } from '@/types/fs';
 import { remove_trailing_sep } from '@/utils/fs';
 
@@ -15,7 +16,7 @@ const filename = relative(
 describe(filename, async () => {
   describe('printfile_list_as_find', async () => {
     beforeEach(() => {
-      mock.method(console, 'log', (...msg: unknown[]) => {
+      mock.method(logger, 'write', (...msg: unknown[]) => {
         return msg.map((el) => `${el}`).join('\n');
       });
     });
@@ -42,12 +43,15 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, false);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 1);
-      assert.strictEqual(mocked_console.mock.calls[0].result, entries[0].path);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 1);
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[0].result,
+        entries[0].path
+      );
     });
 
     test('2 files', async (t) => {
@@ -80,13 +84,19 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, false);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 2);
-      assert.strictEqual(mocked_console.mock.calls[0].result, entries[0].path);
-      assert.strictEqual(mocked_console.mock.calls[1].result, entries[1].path);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 2);
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[0].result,
+        entries[0].path
+      );
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[1].result,
+        entries[1].path
+      );
     });
 
     test('1 file, 1 directory (no trailing sep)', async (t) => {
@@ -119,13 +129,19 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, false);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 2);
-      assert.strictEqual(mocked_console.mock.calls[0].result, entries[0].path);
-      assert.strictEqual(mocked_console.mock.calls[1].result, entries[1].path);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 2);
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[0].result,
+        entries[0].path
+      );
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[1].result,
+        entries[1].path
+      );
     });
 
     test('1 file, 1 directory (with trailing sep)', async (t) => {
@@ -158,14 +174,17 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, false);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 2);
-      assert.strictEqual(mocked_console.mock.calls[0].result, entries[0].path);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 2);
       assert.strictEqual(
-        mocked_console.mock.calls[1].result,
+        mocked_logger_write.mock.calls[0].result,
+        entries[0].path
+      );
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[1].result,
         remove_trailing_sep(entries[1].path, '/')
       );
     });
@@ -200,14 +219,17 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, true, false);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 2);
-      assert.strictEqual(mocked_console.mock.calls[0].result, entries[0].path);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 2);
       assert.strictEqual(
-        mocked_console.mock.calls[1].result,
+        mocked_logger_write.mock.calls[0].result,
+        entries[0].path
+      );
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[1].result,
         remove_trailing_sep(entries[1].path, '\\')
       );
     });
@@ -254,14 +276,23 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, false);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 3);
-      assert.strictEqual(mocked_console.mock.calls[0].result, entries[0].path);
-      assert.strictEqual(mocked_console.mock.calls[1].result, entries[1].path);
-      assert.strictEqual(mocked_console.mock.calls[2].result, entries[2].path);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 3);
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[0].result,
+        entries[0].path
+      );
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[1].result,
+        entries[1].path
+      );
+      assert.strictEqual(
+        mocked_logger_write.mock.calls[2].result,
+        entries[2].path
+      );
     });
 
     test('1 file, 1 directory (no trailing sep), 1 symlink (color)', async (t) => {
@@ -306,21 +337,21 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, true);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 3);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 3);
       assert.strictEqual(
-        mocked_console.mock.calls[0].result,
+        mocked_logger_write.mock.calls[0].result,
         colorize(entries[0].path, entries[0].stats.mode, false)
       );
       assert.strictEqual(
-        mocked_console.mock.calls[1].result,
+        mocked_logger_write.mock.calls[1].result,
         colorize(entries[1].path, entries[1].stats.mode, false)
       );
       assert.strictEqual(
-        mocked_console.mock.calls[2].result,
+        mocked_logger_write.mock.calls[2].result,
         colorize(entries[2].path, entries[2].stats.mode, false)
       );
     });
@@ -367,17 +398,17 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, false, true);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 3);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 3);
       assert.strictEqual(
-        mocked_console.mock.calls[0].result,
+        mocked_logger_write.mock.calls[0].result,
         colorize(entries[0].path, entries[0].stats.mode, false)
       );
       assert.strictEqual(
-        mocked_console.mock.calls[1].result,
+        mocked_logger_write.mock.calls[1].result,
         colorize(
           remove_trailing_sep(entries[1].path, '/'),
           entries[1].stats.mode,
@@ -385,7 +416,7 @@ describe(filename, async () => {
         )
       );
       assert.strictEqual(
-        mocked_console.mock.calls[2].result,
+        mocked_logger_write.mock.calls[2].result,
         colorize(entries[2].path, entries[2].stats.mode, false)
       );
     });
@@ -432,17 +463,17 @@ describe(filename, async () => {
 
       printfile_list_as_find(entries, true, true);
 
-      const mocked_console = console.log as ReturnType<
-        typeof mock.method<Console, 'log'>
+      const mocked_logger_write = logger.write as ReturnType<
+        typeof mock.method<typeof logger, 'write'>
       >;
 
-      assert.strictEqual(mocked_console.mock.calls.length, 3);
+      assert.strictEqual(mocked_logger_write.mock.calls.length, 3);
       assert.strictEqual(
-        mocked_console.mock.calls[0].result,
+        mocked_logger_write.mock.calls[0].result,
         colorize(entries[0].path, entries[0].stats.mode, false)
       );
       assert.strictEqual(
-        mocked_console.mock.calls[1].result,
+        mocked_logger_write.mock.calls[1].result,
         colorize(
           remove_trailing_sep(entries[1].path, '\\'),
           entries[1].stats.mode,
@@ -450,7 +481,7 @@ describe(filename, async () => {
         )
       );
       assert.strictEqual(
-        mocked_console.mock.calls[2].result,
+        mocked_logger_write.mock.calls[2].result,
         colorize(entries[2].path, entries[2].stats.mode, false)
       );
     });

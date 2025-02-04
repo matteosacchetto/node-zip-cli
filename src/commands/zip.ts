@@ -145,7 +145,7 @@ zipCommand.action(async (options) => {
             is_windows
           );
         } else {
-          console.error('Nothing to zip');
+          logger.write_error('Nothing to zip');
         }
       });
     }

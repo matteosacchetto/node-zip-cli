@@ -145,7 +145,7 @@ tarCommand.action(async (options) => {
             is_windows
           );
         } else {
-          console.error('Nothing to tar');
+          logger.write_error('Nothing to tar');
         }
       });
     }

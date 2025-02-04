@@ -1,5 +1,6 @@
 import { resolve, sep } from 'node:path';
 import { colorize } from '@/core/dircolors';
+import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, TreePath } from '@/types/fs';
 import { boolean_filter } from '@/utils/filter';
 import {
@@ -35,7 +36,7 @@ const print_obj_as_file_tree = (
     switch (entry.type) {
       case 'directory': {
         stats.dirs += 1;
-        console.log(
+        logger.write(
           `${prefix}${colorize(el + sep, entry.stats.mode, is_windows)}`
         );
         const child_stats = print_obj_as_file_tree(
@@ -51,13 +52,13 @@ const print_obj_as_file_tree = (
 
       case 'file': {
         stats.files += 1;
-        console.log(`${prefix}${colorize(el, entry.stats.mode, is_windows)}`);
+        logger.write(`${prefix}${colorize(el, entry.stats.mode, is_windows)}`);
         break;
       }
 
       case 'symlink': {
         stats.files += 1;
-        console.log(
+        logger.write(
           `${prefix}${colorize(
             el,
             entry.stats.mode,
@@ -158,7 +159,7 @@ export const printfile_list_as_file_tree = (
     is_windows
   );
 
-  console.log(
+  logger.write(
     `\n${
       stats.dirs > 0
         ? `${stats.dirs} ${stats.dirs > 1 ? 'directories' : 'directory'}`

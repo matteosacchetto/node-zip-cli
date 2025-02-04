@@ -2,6 +2,7 @@ import { mkdir, readdir } from 'node:fs/promises';
 import { is_windows } from '@/core/constants';
 import { printfile_list_as_file_tree } from '@/core/tree';
 import { extract_zip, read_zip } from '@/core/zip';
+import { logger } from '@/logger';
 import { confirm_not_empty_dir_prompt } from '@/prompts/confirm-not-empty-dir';
 import { createCommand } from '@/utils/command';
 import { exists, is_directory } from '@/utils/fs';
@@ -51,7 +52,7 @@ unzipCommand.action(async (options) => {
             is_windows
           );
         } else {
-          console.error('Nothing to unzip');
+          logger.write_error('Nothing to unzip');
         }
       });
     }
