@@ -74,8 +74,6 @@ findCommand.action(async (options) => {
     await exit_on_finish(() => {
       if (num_files > 0) {
         printfile_list_as_find(filtered_list, is_windows, options.colors);
-      } else {
-        console.error('Nothing to zip');
       }
     });
   });
