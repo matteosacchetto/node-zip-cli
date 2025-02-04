@@ -1,7 +1,7 @@
 import { Console } from 'node:console';
 import { inspect, stripVTControlCharacters } from 'node:util';
 import chalk from 'chalk';
-import logSymbols from 'log-symbols';
+import logSymbols from './utils/log-symbols';
 
 /* c8 ignore start */
 enum STD_FD {
