@@ -37,7 +37,13 @@ class Logger {
     }
 
     if (raw) {
-      logger(...msg);
+      logger(
+        ...(stream.isTTY
+          ? msg
+          : msg.map((el) =>
+              typeof el === 'string' ? stripVTControlCharacters(el) : el
+            ))
+      );
       return;
     }
 
