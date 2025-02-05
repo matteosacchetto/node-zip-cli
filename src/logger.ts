@@ -7,8 +7,6 @@ enum STD_FD {
   ERR = 1,
 }
 
-type LoggerLogFn = (...data: unknown[]) => void;
-
 class Logger {
   #spaces = '';
 
@@ -35,26 +33,22 @@ class Logger {
   }
 
   #log(std: STD_FD, raw: boolean, ...msg: unknown[]) {
-    const isTTY =
-      (std === STD_FD.OUT ? process.stdout : process.stderr).isTTY ?? false;
+    const stream = std === STD_FD.OUT ? process.stdout : process.stderr;
+    const isTTY = stream.isTTY ?? false;
 
-    const log_fn: LoggerLogFn =
-      std === STD_FD.OUT ? console.log : console.error;
+    const output = raw
+      ? msg.map((el) => this.#format_message(isTTY, el)).join(' ')
+      : msg
+          .map((el, i) =>
+            i === 0
+              ? `${this.#spaces}${this.#format_message(isTTY, el)}`
+              : this.#indent_message('  ', this.#format_message(isTTY, el))
+          )
+          .join(' ');
 
-    if (raw) {
-      log_fn(...msg.map((msg) => this.#strip_ansi(isTTY, msg)));
-      return;
-    }
-
-    log_fn(
-      `${this.#spaces}${this.#strip_ansi(isTTY, msg[0])}`,
-      ...msg
-        .slice(1)
-        .map((msg) =>
-          this.#indent_message('  ', this.#format_message(isTTY, msg))
-        )
-    );
+    stream.write(`${output}\n`);
   }
+
   write(...msg: unknown[]) {
     this.#log(STD_FD.OUT, true, ...msg);
   }

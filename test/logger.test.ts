@@ -1,13 +1,12 @@
 import assert from 'node:assert';
-import { Console } from 'node:console';
 import { join, relative } from 'node:path';
 import { Writable } from 'node:stream';
 import { afterEach, before, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { inspect } from 'node:util';
 import { logger } from '@/logger';
 import logSymbols from '@/utils/log-symbols';
 import chalk from 'chalk';
-import { inspect } from 'node:util';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -35,9 +34,6 @@ describe(filename, async () => {
       mock.method(stderr, 'write', (msg: string) => msg);
       mock.getter(process, 'stdout', () => stdout);
       mock.getter(process, 'stderr', () => stderr);
-
-      // biome-ignore lint/suspicious/noGlobalAssign: used only for testing
-      console = new Console({ stdout: process.stdout, stderr: process.stderr });
     });
 
     afterEach(() => {
@@ -632,9 +628,6 @@ describe(filename, async () => {
       mock.method(stderr, 'write', (msg: string) => msg);
       mock.getter(process, 'stdout', () => stdout);
       mock.getter(process, 'stderr', () => stderr);
-
-      // biome-ignore lint/suspicious/noGlobalAssign: used only for testing
-      console = new Console({ stdout: process.stdout, stderr: process.stderr });
     });
 
     afterEach(() => {
