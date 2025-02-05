@@ -465,7 +465,7 @@ describe(filename, async () => {
       assert.strictEqual(mocked_process_stderr_write.mock.callCount(), 1);
       assert.strictEqual(
         mocked_process_stderr_write.mock.calls[0].result,
-        `${chalk.yellow('↓')} test ${chalk.dim('[SKIPPED]')}\n`
+        `${chalk.yellow('↓')} test ${chalk.gray.dim('[SKIPPED]')}\n`
       );
     });
 
@@ -483,7 +483,7 @@ describe(filename, async () => {
       assert.strictEqual(mocked_process_stderr_write.mock.callCount(), 1);
       assert.strictEqual(
         mocked_process_stderr_write.mock.calls[0].result,
-        `${chalk.yellow('↓')} test\n  test ${chalk.dim('[SKIPPED]')}\n`
+        `${chalk.yellow('↓')} test\n  test ${chalk.gray.dim('[SKIPPED]')}\n`
       );
     });
 
@@ -503,7 +503,7 @@ describe(filename, async () => {
       assert.strictEqual(mocked_process_stderr_write.mock.callCount(), 1);
       assert.strictEqual(
         mocked_process_stderr_write.mock.calls[0].result,
-        `  ${chalk.yellow('↓')} test\n    test ${chalk.dim('[SKIPPED]')}\n`
+        `  ${chalk.yellow('↓')} test\n    test ${chalk.gray.dim('[SKIPPED]')}\n`
       );
     });
 

@@ -76,7 +76,7 @@ class Logger {
       false,
       chalk.yellow('↓'),
       ...msg,
-      chalk.dim('[SKIPPED]')
+      chalk.gray.dim('[SKIPPED]')
     );
   }
   dimmed_log(...msg: unknown[]) {
