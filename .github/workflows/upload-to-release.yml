@@ -16,16 +16,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup NodeJS 18.20.3
+      - name: Setup NodeJS version (from .nvmrc)
         uses: actions/setup-node@v4
         with:
-          node-version: 18.20.3
+          node-version-file: .nvmrc
 
-      - run: npm ci
-      - run: echo "archive=$(npm pack 2>/dev/null | tail -1)" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate archive
+        run: echo "archive=$(npm pack 2>/dev/null | tail -1)" >> $GITHUB_ENV
+
       - name: Upload ${{ env.archive }} to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
-          file: ${{ env.archive }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.ref_name }} ${{ env.archive }}
