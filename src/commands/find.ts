@@ -25,7 +25,7 @@ const findCommand = createCommand(name, description)
       .default(['f', 'd', 'l'] as const)
   )
   .addOption(
-    createOption('-s, --symlink [mode]', 'handle symlinks (experimental)')
+    createOption('-s, --symlink [mode]', 'handle symlinks')
       .choices<Exclude<SymlinkOption, 'resolve'>[]>(['none', 'keep'])
       .default<Exclude<SymlinkOption, 'resolve'>>('none')
       .preset<Exclude<SymlinkOption, 'resolve'>>('keep')

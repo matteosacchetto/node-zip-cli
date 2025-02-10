@@ -66,7 +66,7 @@ const zipCommand = createCommand(name, description)
       .default<KeepParentOption>('full')
   )
   .addOption(
-    createOption('-s, --symlink [mode]', 'handle symlinks (experimental)')
+    createOption('-s, --symlink [mode]', 'handle symlinks')
       .choices<SymlinkOption[]>(['none', 'resolve', 'keep'])
       .default<SymlinkOption>('none')
       .preset<SymlinkOption>('resolve')
