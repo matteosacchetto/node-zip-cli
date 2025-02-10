@@ -133,9 +133,9 @@ Options:
   -d, --deflate [compression-level]  deflate the files (default: false, preset: 6)
   -o, --output <output-file>         the filename of the zip file to create (default: "out.zip")
   -k, --keep-parent <mode>           keep the parent directories (choices: "none", "last", "full", default: "full")
-  -s, --symlink <mode>               handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
-  --disable-ignore <mode>            disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
-                                     "exclude-rules", "all", default: "none")
+  -s, --symlink [mode]               handle symlinks (choices: "none", "resolve", "keep", default: "none", preset: "resolve")
+  --disable-ignore [mode]            disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
+                                     "exclude-rules", "all", default: "none", preset: "ignore-files")
   -y, --yes                          answers yes to every question (default: false)
   -e, --exclude <paths...>           ignore the following paths
   --allow-git                        allow .git to be included in the zip (default: false)
@@ -169,7 +169,7 @@ This options specifies how to provided input directories. The possible values ar
 
 The default values is `full`.
 
-###### `-s, --symlink <mode>` \[experimental\]
+###### `-s, --symlink [mode]`
 
 Allows you to include symlinks in your archive using two different strategies:
 * `resolve`: will resolve the symlink to a file or directory and include it in the archive
@@ -177,11 +177,12 @@ Allows you to include symlinks in your archive using two different strategies:
 
 There is also the option `none` which allows you to skip symlinks altogether.
 
-This functionality is still experimental, and for such reason the current default value for this option is `none`.
+> [!NOTE]
+> Since version (0.10.0) symlink support is marked as stable
+>
+> The default behavior is to **NOT** include symlinks in the archive, but force the user to decide whether to include them and with which modality. This option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `resolve`.
 
-Once it will become stable, the default option will be switched to `resolve`.
-
-###### `--disable-ignore <mode>`
+###### `--disable-ignore [mode]`
 
 Allows you to skip some ignore rules.
 The available modes are:
@@ -191,6 +192,9 @@ The available modes are:
 * `ignore-files`: do not consider rules in the .zipignore and .gitignore files
 * `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
 * `all`: disable all rules
+
+> [!NOTE]
+> Since version (0.10.0) this option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `ignore-files`.
 
 ###### `-y, --yes`
 
@@ -206,11 +210,11 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the CLI, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the CLI the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.9.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.10.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
-Starting from version `0.2.0`, the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your zip file
+Starting from version (0.2.0), the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your zip file
 
 ###### `--dry-run`
 
@@ -267,9 +271,9 @@ Options:
   -g, --gzip [compression-level]  gzip the archive (default: false, preset: 6)
   -o, --output <output-file>      the filename of the tar file to create
   -k, --keep-parent <mode>        keep the parent directories (choices: "none", "last", "full", default: "full")
-  -s, --symlink <mode>            handle symlinks (experimental) (choices: "none", "resolve", "keep", default: "none")
-  --disable-ignore <mode>         disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
-                                  "exclude-rules", "all", default: "none")
+  -s, --symlink [mode]            handle symlinks (choices: "none", "resolve", "keep", default: "none", preset: "resolve")
+  --disable-ignore [mode]         disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
+                                  "exclude-rules", "all", default: "none", preset: "ignore-files")
   -y, --yes                       answers yes to every question (default: false)
   -e, --exclude <paths...>        ignore the following paths
   --allow-git                     allow .git to be included in the tar (default: false)
@@ -303,7 +307,7 @@ This options specifies how to provided input directories. The possible values ar
 
 The default values is `full`.
 
-###### `-s, --symlink <mode>` \[experimental\]
+###### `-s, --symlink [mode]`
 
 Allows you to include symlinks in your archive using two different strategies:
 * `resolve`: will resolve the symlink to a file or directory and include it in the archive
@@ -311,11 +315,12 @@ Allows you to include symlinks in your archive using two different strategies:
 
 There is also the option `none` which allows you to skip symlinks altogether.
 
-This functionality is still experimental, and for such reason the current default value for this option is `none`.
+> [!NOTE]
+> Since version (0.10.0) symlink support is marked as stable
+>
+> The default behavior is to **NOT** include symlinks in the archive, but force the user to decide whether to include them and with which modality. This option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `resolve`.
 
-Once it will become stable, the default option will be switched to `resolve`.
-
-###### `--disable-ignore <mode>`
+###### `--disable-ignore [mode]`
 
 Allows you to skip some ignore rules.
 The available modes are:
@@ -325,6 +330,9 @@ The available modes are:
 * `ignore-files`: do not consider rules in the .zipignore and .gitignore files
 * `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
 * `all`: disable all rules
+
+> [!NOTE]
+> Since version (0.10.0) this option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `ignore-files`.
 
 ###### `-y, --yes`
 
@@ -340,11 +348,11 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the CLI, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the CLI the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.9.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.10.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
-Starting from version `0.2.0`, the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your zip file
+Starting from version (0.2.0), the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your zip file
 
 ###### `--dry-run`
 
@@ -415,10 +423,10 @@ find files and directories ignoring files specified in .zipignore and .gitignore
 Options:
   -v, --version             output the version number
   -i, --input <input...>    the files or directories to zip (default: ["."])
-  -t, --type <type...>     filter printed entries (f: file, d: directory, l: symlink) (choices: "f", "d", "l", default: ["f","d","l"])
-  -s, --symlink <mode>      handle symlinks (experimental) (choices: "none", "keep", default: "none")
-  --disable-ignore <mode>   disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files", "exclude-rules",
-                            "all", default: "none")
+  -t, --type <type...>      filter printed entries (f: file, d: directory, l: symlink) (choices: "f", "d", "l", default: ["f","d","l"])
+  -s, --symlink [mode]      handle symlinks (choices: "none", "keep", default: "none", preset: "keep")
+  --disable-ignore [mode]   disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
+                            "exclude-rules", "all", default: "none", preset: "ignore-files")
   -e, --exclude <paths...>  ignore the following paths
   --allow-git               allow .git to be included in the zip (default: false)
   --no-colors               do not colorize the output
@@ -441,20 +449,23 @@ Filter the type of entries this command will list
 By default, the three types are included, but you can decide to only list a subset.
 
 > [!NOTE]
-> Up to the current version (0.9.0) symlinks are not listed by default. To list them you need to specify the `-s keep` option.
+> Up to the current version (0.10.0) symlinks are not listed by default. To list them you need to specify the `-s keep` option.
 >
-> This may change in future versions
+> Since version (0.10.0) to list them you can just specify the `-s` option
 
-###### `-s, --symlink <mode>` \[experimental\]
+###### `-s, --symlink [mode]`
 
 Allows you to include symlinks in your entry list according to the following strategy:
 * `keep`: will keep the symlink and include it in the list
 
 There is also the option `none` which allows you to skip symlinks altogether.
 
-This functionality is still experimental, and for such reason the current default value for this option is `none`.
+> [!NOTE]
+> Since version (0.10.0) symlink support is marked as stable
+>
+> The default behavior is to **NOT** list symlinks, but force the user to explicitly enable this option to list them. This option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `keep`.
 
-###### `--disable-ignore <mode>`
+###### `--disable-ignore [mode]`
 
 Allows you to skip some ignore rules.
 The available modes are:
@@ -464,6 +475,9 @@ The available modes are:
 * `ignore-files`: do not consider rules in the .zipignore and .gitignore files
 * `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
 * `all`: disable all rules
+
+> [!NOTE]
+> Since version (0.10.0) this option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `ignore-files`.
 
 ###### `-e, --exclude <paths...>`
 
@@ -475,11 +489,11 @@ Allows you to specify paths that you want to exclude. This option follows the sa
 > For example, providing `*.mjs` will result in the shell replacing it will all the file matching the wildcard, so as the input to the CLI, instead of `"*.mjs"` will be provided the whole list (e.g. "rollup.config.mjs", "test.runner.mjs", ...). Instead, providing `"*.mjs"` will behave as expected, providing as input to the CLI the pattern `"*.mjs"`
 
 > [!NOTE]
-> Up to the current version (0.9.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
+> Up to the current version (0.10.0) the list of paths to ignore which are specified with this options are applied after default ignore paths (like `.git`) BUT before any .gitignore or .zipignore file. This means that paths you specify here could be overridden by the aforementioned files.
 
 ###### `--allow-git`
 
-Starting from version `0.2.0`, the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your list
+Starting from version (0.2.0), the directory `.git` is ignored by default. Use this flag if you want instead to include the `.git` directory in your list
 
 ###### `--no-colors`
 
@@ -496,7 +510,7 @@ Simply run this CLI providing to each command all the necessary options.
 This file is meant to be placed in a folder which you plan to zip/tar. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
 
 > [!NOTE]
-> Up to the current version (0.9.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
+> Up to the current version (0.10.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
 
 > [!NOTE]
 > Since version (0.7.0) the strategy of ignoring everythin (`*`) and then un-ignoring (!) some paths (e.g. `!test`, `!src`, ...) is supported and behaves like in the gitignore specs. Quoting from [gitignore specs](https://git-scm.com/docs/gitignore): *"It is not possible to re-include a file if a parent directory of that file is excluded. Git doesn’t list excluded directories for performance reasons, so any patterns on contained files have no effect, no matter where they are defined. "*.
@@ -510,4 +524,6 @@ This file is meant to be placed in a folder which you plan to zip/tar. It is mea
 
 > [!WARNING]
 > *Current limitations*  
-> Up to the current version (0.9.0) zip/tar and unzip/untar should handle files, directories and symlinks. Though, symlink support is still experimental, so it may not behave as expected. Currently on Windows symlinks are not supported
+> Up to the current version (0.10.0) zip/tar and unzip/untar handle files, directories and symlinks.
+>
+> Since version (0.10.0) symlink support is marked as stable, but requires the user to explicitly enable it for `zip`,`tar` and `find` through the `-s, --symlink` option.
