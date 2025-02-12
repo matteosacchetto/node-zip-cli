@@ -77,3 +77,8 @@ export type DisableIgnoreOption =
   | 'ignore-files'
   | 'exclude-rules'
   | 'all';
+
+export type WalkResult = {
+  entries: FsEntry[];
+  n_children: number;
+};

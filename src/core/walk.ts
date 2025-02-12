@@ -8,6 +8,7 @@ import type {
   FsEntry,
   KeepParentOption,
   SymlinkOption,
+  WalkResult,
 } from '@/types/fs';
 import type { IgnoreFilter } from '@/types/ignore';
 import {
@@ -98,7 +99,7 @@ export const walk = async (
   symlink: SymlinkOption,
   ignore_filters: IgnoreFilter[],
   disable_ignore: DisableIgnoreOption
-) => {
+): Promise<WalkResult> => {
   const stats = await lstat(path);
 
   const fs_entries: FsEntry[] = [];
@@ -140,16 +141,23 @@ export const walk = async (
 
     const children = await opendir(path);
 
-    let sub_n_children = 0;
+    const children_promises: Promise<WalkResult>[] = [];
     for await (const child_entry of children) {
-      const res = await walk(
-        join(path, child_entry.name),
-        join(path_name, child_entry.name),
-        is_windows,
-        symlink,
-        children_ignore_filters,
-        disable_ignore
+      children_promises.push(
+        walk(
+          join(path, child_entry.name),
+          join(path_name, child_entry.name),
+          is_windows,
+          symlink,
+          children_ignore_filters,
+          disable_ignore
+        )
       );
+    }
+    const children_results = await Promise.all(children_promises);
+
+    let sub_n_children = 0;
+    for (const res of children_results) {
       sub_n_children += res.n_children;
       fs_entries.push(...res.entries);
     }
