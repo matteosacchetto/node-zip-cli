@@ -11,13 +11,13 @@ Simple Node.js CLI which allows you to create and extract zip/tar files with sup
 Install it locally with
 
 ```bash
-npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.9.0/node-zip-cli-0.9.0.tgz
+npm i https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.10.0/node-zip-cli-0.10.0.tgz
 ```
 
 Or install it globally with
 
 ```bash
-npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.9.0/node-zip-cli-0.9.0.tgz
+npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.10.0/node-zip-cli-0.10.0.tgz
 ```
 
 ### Other versions
