@@ -20,11 +20,11 @@ Or install it globally with
 npm i --location=global https://github.com/matteosacchetto/node-zip-cli/releases/download/v0.9.0/node-zip-cli-0.9.0.tgz
 ```
 
-### Other version
+### Other versions
 
 Go to the [release](https://github.com/matteosacchetto/node-zip-cli/releases) section of the GitHub repository
 
-Copy the link the node-zip-cli-{version}.tgz
+Copy the link to node-zip-cli-{version}.tgz
 
 Install it locally with
 
@@ -42,17 +42,17 @@ where you have to replace `{version}` with the version number you downloaded (ex
 
 ### Bash completion
 
-Since version 0.2.0, the package also includes a bash completion script. If you install the package globally, you are on Linux and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
+Since version 0.2.0, the package also includes a bash completion script. If you install the package globally, you are on Linux, and you use bash as your main shell, I highly suggest installing bash completion, as it improves the UX of this module.
 
-To install it, I recommend to perform the following steps.
+To install it, I recommend performing the following steps.
 
-Find where npm installed this package. To do so you can run the following command
+Find where npm installed this package. To do so, you can run the following command
 
 ```bash
 npm list -g -p | grep node-zip-cli
 ```
 
-Then we can link `bash-completion.sh` script contained within the folder shown by the previous command to /usr/share/bash-completion/completions/node-zip-cli
+Then we can link the `bash-completion.sh` script contained within the folder shown by the previous command to /usr/share/bash-completion/completions/node-zip-cli
 
 ```bash
 ln -s <path-found-previously>/bash-completion.sh /usr/share/bash-completion/completions/node-zip-cli
@@ -85,18 +85,18 @@ rm ~/.local/share/bash-completion/completions/node-zip-cli
 
 ## Run
 
-If you installed it locally you can run it with
+If you installed it locally, you can run it with
 
 ```bash
 npx node-zip-cli
 ```
 
-If instead you installed it globally you can run it with
+If instead you installed it globally, you can run it with
 ```bash
 node-zip-cli
 ```
 
-## CLI interface
+## CLI
 
 ```
 Usage: node-zip-cli [options] [command]
@@ -120,7 +120,7 @@ Commands:
 
 #### `zip`
 
-Allows you to create a zip file of the specified files and directories. For each directory it will also go through it and scan it recursively ignoring every file and directory listed in the .gitignore and .zipignore files, if present.
+Allows you to create a zip file of the specified files and directories. For each directory, it will also go through it and scan it recursively, ignoring every file and directory listed in the .gitignore and .zipignore files, if present.
 
 ```
 Usage: node-zip-cli zip [options]
@@ -151,9 +151,9 @@ Specify the list of input files/directories. Defaults to the current directory (
 
 ###### `-d, --deflate [compression-level]`
 
-Specify the compression level of the deflate operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default no compression is applied.
+Specify the compression level of the deflate operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default, **no compression** is applied.
 
-If this options is set without any specified compression level, it will fallback to its preset level, which is 6.
+If this option is set without any specified compression level, it will fall back to its preset level, which is 6.
 
 ###### `-o, --output <output-file>`
 
@@ -161,13 +161,13 @@ Specify the file path of the output zip file. Defaults to out.zip
 
 ###### `-k, --keep-parent <mode>`
 
-This options specifies how to provided input directories. The possible values are `none`, `last` and `full`. These options will do the following:
+This option specifies how to store the provided input files/directories. The possible values are `none`, `last` and `full`. These options will do the following:
 
-- `full`: preserve the full path of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
-- `last`: preserve only the last directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
+- `full`: preserve the full path of the provided files/directories. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
+- `last`: preserve only the last directory of the provided files/directories. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
 - `none`: do not preserve the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
 
-The default values is `full`.
+The default value is `full`.
 
 ###### `-s, --symlink [mode]`
 
@@ -190,11 +190,11 @@ The available modes are:
 * `zipignore`: do not consider rules in the .zipignore file
 * `gitignore`: do not consider rules in the .gitignore file
 * `ignore-files`: do not consider rules in the .zipignore and .gitignore files
-* `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
+* `exclude-rules`: do not consider rules specified on the command line, with the option `-e`
 * `all`: disable all rules
 
 > [!NOTE]
-> Since version (0.10.0) this option supports being enabled without explicitly specifying a mode, in this case the behavior will be that of `ignore-files`.
+> Since version (0.10.0) this option supports being enabled without specifying a mode. In this case the behavior will be that of `ignore-files`.
 
 ###### `-y, --yes`
 
@@ -202,7 +202,7 @@ Answers yes to every confirmation question
 
 ###### `-e, --exclude <paths...>`
 
-Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
+Allows you to specify paths that you want to exclude. This option follows the same syntax and rules as the traditional .gitignore file.
 
 > [!WARNING]
 > To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavior will differ from what you expect.
@@ -218,11 +218,11 @@ Starting from version (0.2.0), the directory `.git` is ignored by default. Use t
 
 ###### `--dry-run`
 
-Prints the files that will be zipped, without creating the zip file. The structure that is printed out is the same structure of files and directories which will be created in the zip file.
+Prints the files that will be zipped, without creating the zip file. The structure that is printed out is the same structure of files and directories tath will be stored in the zip file.
 
 #### `unzip`
 
-Allows you to unzip the content of a zip file to a directory which will be created if non existing
+Allows you to unzip the content of a zip file to a directory, which will be created if non-existing
 
 ```
 Usage: node-zip-cli unzip [options]
@@ -254,11 +254,11 @@ Answers yes to every confirmation question
 
 ###### `--dry-run`
 
-Prints the files that will be unzipped, without extracting them from the zip file. The structure that is printed out is the same structure of files and directories which will be created when unzipping the zip file.
+Prints the files that will be unzipped, without extracting them from the zip file. The structure that is printed out is the same structure of files and directories that will be created when unzipping the zip file.
 
 #### `tar`
 
-Allows you to create a tarball file of the specified files and directories. For each directory it will also go through it and scan it recursively ignoring every file and directory listed in the .gitignore and .zipignore files, if present.
+Allows you to create a tarball file of the specified files and directories. For each directory, it will also go through it and scan it recursively, ignoring every file and directory listed in the .gitignore and .zipignore files, if present.
 
 ```
 Usage: node-zip-cli tar [options]
@@ -289,9 +289,9 @@ Specify the list of input files/directories. Defaults to the current directory (
 
 ###### `-g, --gzip [compression-level]`
 
-Enable gzip compression and optionally specify the compression level of the gzip operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default no compression is applied.
+Enable gzip compression and optionally specify the compression level of the gzip operation. The compression level can be a value between 0 (no compression) and 9 (maximum compression). By default, **no compression** is applied.
 
-If this options is set without any specified compression level, it will fallback to its preset level, which is 6.
+If this option is set without any specified compression level, it will fall back to its preset level, which is 6.
 
 ###### `-o, --output <output-file>`
 
@@ -299,13 +299,13 @@ Specify the file path of the output tar file. Defaults to out.tar (or out.tgz if
 
 ##### `-k, --keep-parent <mode>`
 
-This options specifies how to provided input directories. The possible values are `none`, `last` and `full`. These options will do the following:
+This option specifies how to store the provided input files/directories. The possible values are `none`, `last` and `full`. These options will do the following:
 
-- `full`: preserve the full path of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
-- `last`: preserve only the last directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
+- `full`: preserve the full path of the provided files/directories. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `a/b/c/`.
+- `last`: preserve only the last directory of the provided files/directories. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `c/`.
 - `none`: do not preserve the base directory of the provided file/directory. If you provide the path `/a/b/c/`, files will be stored in the archive with the base directory `.`.
 
-The default values is `full`.
+The default value is `full`.
 
 ###### `-s, --symlink [mode]`
 
@@ -328,7 +328,7 @@ The available modes are:
 * `zipignore`: do not consider rules in the .zipignore file
 * `gitignore`: do not consider rules in the .gitignore file
 * `ignore-files`: do not consider rules in the .zipignore and .gitignore files
-* `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
+* `exclude-rules`: do not consider rules specified on the command line, with the option `-e`
 * `all`: disable all rules
 
 > [!NOTE]
@@ -340,7 +340,7 @@ Answers yes to every confirmation question
 
 ###### `-e, --exclude <paths...>`
 
-Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
+Allows you to specify paths that you want to exclude. This option follows the same syntax and rules as the traditional .gitignore file.
 
 > [!WARNING]
 > To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavior will differ from what you expect.
@@ -356,11 +356,11 @@ Starting from version (0.2.0), the directory `.git` is ignored by default. Use t
 
 ###### `--dry-run`
 
-Prints the files that will be zipped, without creating the tarball file. The structure that is printed out is the same structure of files and directories which will be created in the tarball file.
+Prints the files that will be zipped, without creating the tarball file. The structure that is printed out is the same structure of files and directories that will be stored in the tarball file.
 
 #### `untar`
 
-Allows you to untar the content of a tar file to a directory which will be created if non existing
+Allows you to untar the content of a tar file to a directory, which will be created if non-existing
 
 ```
 Usage: node-zip-cli untar [options]
@@ -392,11 +392,11 @@ Answers yes to every confirmation question
 
 ###### `--dry-run`
 
-Prints the files that will be untarred, without extracting them from the tarball file. The structure that is printed out is the same structure of files and directories which will be created when untarring the tarball file.
+Prints the files that will be untarred, without extracting them from the tarball file. The structure that is printed out is the same structure of files and directories that will be created when untarring the tarball file.
 
 #### `find`
 
-Allows you to list recursively the content of files and directories ignoring files specified in .zipignore and .gitignore
+Allows you to list recursively the content of files and directories, ignoring files specified in .zipignore and .gitignore
 
 The idea of this command is to be a simple alternative to find when you want to list the directories and pipe the output to native commands (e.g., `zip`, `tar`, `tree`, ...).
 
@@ -441,7 +441,7 @@ Specify the list of input files/directories. Defaults to the current directory (
 
 ###### `-t, --type <type...>`
 
-Filter the type of entries this command will list
+Filter the types of entries this command will list
 - f: files
 - d: directories
 - l: symlinks
@@ -473,7 +473,7 @@ The available modes are:
 * `zipignore`: do not consider rules in the .zipignore file
 * `gitignore`: do not consider rules in the .gitignore file
 * `ignore-files`: do not consider rules in the .zipignore and .gitignore files
-* `exclude-rules`: do not consider rules which have been specified on the command line, with the `-e` option
+* `exclude-rules`: do not consider rules specified on the command line, with the option `-e`
 * `all`: disable all rules
 
 > [!NOTE]
@@ -481,7 +481,7 @@ The available modes are:
 
 ###### `-e, --exclude <paths...>`
 
-Allows you to specify paths that you want to exclude. This option follows the same syntax and rules of the traditional .gitignore file.
+Allows you to specify paths that you want to exclude. This option follows the same syntax and rules as the traditional .gitignore file.
 
 > [!WARNING]
 > To avoid issues with wildcard extension, remember to put pattern including a wildcard between single or double quotes, to prevent the shell expanding that wildcard. If you do not escape the wildcard the behavior will differ from what you expect.
@@ -497,9 +497,9 @@ Starting from version (0.2.0), the directory `.git` is ignored by default. Use t
 
 ###### `--no-colors`
 
-By default this command will colorize each entry based on the terminal support and if the stdout is a TTY.
+By default, this command will colorize each entry based on the terminal support and if the stdout is a TTY.
 
-This option allows you to disable colors alltoghether.
+This option allows you to disable colors altogether.
 
 ### Usage
 
@@ -507,7 +507,7 @@ Simply run this CLI providing to each command all the necessary options.
 
 ### .zipignore
 
-This file is meant to be placed in a folder which you plan to zip/tar. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follow the same syntax and rules of the traditional .gitignore
+This file is meant to be placed in a folder that you plan to zip/tar. It is meant to be used instead of the .gitignore, if the content of the folder is not related to git, or as an extension of the .gitignore, where you can specify additional rules related only to the zip file creation. The .zipignore file follows the same syntax and rules as the traditional .gitignore
 
 > [!NOTE]
 > Up to the current version (0.10.0) the .zipignore builds on top of already existing .gitignore rules, so if you only want to ignore some additional files you **do not need** to copy paste the content of the .gitignore.
