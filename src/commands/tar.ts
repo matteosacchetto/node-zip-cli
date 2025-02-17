@@ -57,7 +57,7 @@ const tarCommand = createCommand(name, description)
   )
   .option(
     '-o, --output <output-file>',
-    'the filename of the tar file to create'
+    'the filename of the tar file to create (default: "out.tar" or "out.tgz" if -g, --gzip is set)'
   )
   .addOption(
     createOption('-k, --keep-parent <mode>', 'keep the parent directories')

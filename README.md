@@ -269,7 +269,7 @@ Options:
   -v, --version                   output the version number
   -i, --input <input...>          the files or directories to tar (default: ["."])
   -g, --gzip [compression-level]  gzip the archive (default: false, preset: 6)
-  -o, --output <output-file>      the filename of the tar file to create
+  -o, --output <output-file>      the filename of the tar file to create (default: "out.tar" or "out.tgz" if -g, --gzip is set)
   -k, --keep-parent <mode>        keep the parent directories (choices: "none", "last", "full", default: "full")
   -s, --symlink [mode]            handle symlinks (choices: "none", "resolve", "keep", default: "none", preset: "resolve")
   --disable-ignore [mode]         disable some or all ignore rules (choices: "none", "zipignore", "gitignore", "ignore-files",
