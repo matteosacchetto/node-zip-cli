@@ -1,4 +1,5 @@
 import { colorize } from '@/core/dircolors';
+import { logger } from '@/logger';
 import type { FsEntry } from '@/types/fs';
 import { remove_trailing_sep } from '@/utils/fs';
 
@@ -8,7 +9,7 @@ export const printfile_list_as_find = (
   color: boolean
 ) => {
   for (const entry of entries) {
-    console.log(
+    logger.write(
       color
         ? colorize(
             remove_trailing_sep(entry.path, is_windows ? '\\' : '/'),

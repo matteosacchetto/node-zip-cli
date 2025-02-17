@@ -66,12 +66,13 @@ const zipCommand = createCommand(name, description)
       .default<KeepParentOption>('full')
   )
   .addOption(
-    createOption('-s, --symlink <mode>', 'handle symlinks (experimental)')
+    createOption('-s, --symlink [mode]', 'handle symlinks')
       .choices<SymlinkOption[]>(['none', 'resolve', 'keep'])
       .default<SymlinkOption>('none')
+      .preset<SymlinkOption>('resolve')
   )
   .addOption(
-    createOption('--disable-ignore <mode>', 'disable some or all ignore rules')
+    createOption('--disable-ignore [mode]', 'disable some or all ignore rules')
       .choices<DisableIgnoreOption[]>([
         'none',
         'zipignore',
@@ -81,6 +82,7 @@ const zipCommand = createCommand(name, description)
         'all',
       ])
       .default<DisableIgnoreOption>('none')
+      .preset<DisableIgnoreOption>('ignore-files')
   )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
@@ -145,7 +147,7 @@ zipCommand.action(async (options) => {
             is_windows
           );
         } else {
-          console.error('Nothing to zip');
+          logger.write_error('Nothing to zip');
         }
       });
     }

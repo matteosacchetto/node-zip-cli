@@ -57,7 +57,7 @@ const tarCommand = createCommand(name, description)
   )
   .option(
     '-o, --output <output-file>',
-    'the filename of the tar file to create'
+    'the filename of the tar file to create (default: "out.tar" or "out.tgz" if -g, --gzip is set)'
   )
   .addOption(
     createOption('-k, --keep-parent <mode>', 'keep the parent directories')
@@ -65,12 +65,13 @@ const tarCommand = createCommand(name, description)
       .default<KeepParentOption>('full')
   )
   .addOption(
-    createOption('-s, --symlink <mode>', 'handle symlinks (experimental)')
+    createOption('-s, --symlink [mode]', 'handle symlinks')
       .choices<SymlinkOption[]>(['none', 'resolve', 'keep'])
       .default<SymlinkOption>('none')
+      .preset<SymlinkOption>('resolve')
   )
   .addOption(
-    createOption('--disable-ignore <mode>', 'disable some or all ignore rules')
+    createOption('--disable-ignore [mode]', 'disable some or all ignore rules')
       .choices<DisableIgnoreOption[]>([
         'none',
         'zipignore',
@@ -80,6 +81,7 @@ const tarCommand = createCommand(name, description)
         'all',
       ])
       .default<DisableIgnoreOption>('none')
+      .preset<DisableIgnoreOption>('ignore-files')
   )
   .option('-y, --yes', 'answers yes to every question', false)
   .option('-e, --exclude <paths...>', 'ignore the following paths')
@@ -145,7 +147,7 @@ tarCommand.action(async (options) => {
             is_windows
           );
         } else {
-          console.error('Nothing to tar');
+          logger.write_error('Nothing to tar');
         }
       });
     }

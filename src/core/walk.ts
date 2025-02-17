@@ -1,3 +1,4 @@
+import type { Stats } from 'node:fs';
 import { lstat, opendir, readlink, realpath } from 'node:fs/promises';
 import { dirname, join, normalize, relative, resolve } from 'node:path';
 import type {
@@ -7,6 +8,7 @@ import type {
   FsEntry,
   KeepParentOption,
   SymlinkOption,
+  WalkResult,
 } from '@/types/fs';
 import type { IgnoreFilter } from '@/types/ignore';
 import {
@@ -21,12 +23,13 @@ import {
 import { clean_base_dir } from '@/utils/path';
 import { create_ignore_filter, is_ignored, load_ignore_rules } from './ignore';
 
-export const create_file = async (
+export const create_file = (
   path: string,
   name: string,
+  stats: Stats,
   is_windows: boolean
-): Promise<Extract<FsEntry, { type: 'file' }>> => {
-  const { uid, gid, mode, mtime, size } = await lstat(path);
+): Extract<FsEntry, { type: 'file' }> => {
+  const { uid, gid, mode, mtime, size } = stats;
   return {
     path,
     cleaned_path: clean_path(name),
@@ -41,13 +44,14 @@ export const create_file = async (
   };
 };
 
-export const create_dir = async (
+export const create_dir = (
   path: string,
   name: string,
+  stats: Stats,
   n_children: number,
   is_windows: boolean
-): Promise<Extract<FsEntry, { type: 'directory' }>> => {
-  const { uid, gid, mode, mtime, size } = await lstat(path);
+): Extract<FsEntry, { type: 'directory' }> => {
+  const { uid, gid, mode, mtime, size } = stats;
   return {
     path,
     cleaned_path: clean_path(name),
@@ -63,13 +67,15 @@ export const create_dir = async (
   };
 };
 
-export const create_symlink = async (
+export const create_symlink = (
   path: string,
   name: string,
+  link: string,
+  stats: Stats,
   is_windows: boolean
-): Promise<Extract<FsEntry, { type: 'symlink' }>> => {
-  const { uid, gid, mode, mtime, size } = await lstat(path);
-  const link_path = normalize(await readlink(path));
+): Extract<FsEntry, { type: 'symlink' }> => {
+  const { uid, gid, mode, mtime, size } = stats;
+  const link_path = normalize(link);
   return {
     path,
     cleaned_path: clean_path(name),
@@ -93,7 +99,7 @@ export const walk = async (
   symlink: SymlinkOption,
   ignore_filters: IgnoreFilter[],
   disable_ignore: DisableIgnoreOption
-) => {
+): Promise<WalkResult> => {
   const stats = await lstat(path);
 
   const fs_entries: FsEntry[] = [];
@@ -112,7 +118,7 @@ export const walk = async (
 
   if (stats.isFile()) {
     n_children++;
-    fs_entries.push(await create_file(path, path_name, is_windows));
+    fs_entries.push(create_file(path, path_name, stats, is_windows));
   } else if (stats.isDirectory()) {
     const children_rules = [];
     for (const ingore_file of ['.gitignore', '.zipignore']) {
@@ -135,16 +141,23 @@ export const walk = async (
 
     const children = await opendir(path);
 
-    let sub_n_children = 0;
+    const children_promises: Promise<WalkResult>[] = [];
     for await (const child_entry of children) {
-      const res = await walk(
-        join(path, child_entry.name),
-        join(path_name, child_entry.name),
-        is_windows,
-        symlink,
-        children_ignore_filters,
-        disable_ignore
+      children_promises.push(
+        walk(
+          join(path, child_entry.name),
+          join(path_name, child_entry.name),
+          is_windows,
+          symlink,
+          children_ignore_filters,
+          disable_ignore
+        )
       );
+    }
+    const children_results = await Promise.all(children_promises);
+
+    let sub_n_children = 0;
+    for (const res of children_results) {
       sub_n_children += res.n_children;
       fs_entries.push(...res.entries);
     }
@@ -152,14 +165,17 @@ export const walk = async (
 
     if (sub_n_children > 0) {
       fs_entries.push(
-        await create_dir(path, path_name, sub_n_children, is_windows)
+        create_dir(path, path_name, stats, sub_n_children, is_windows)
       );
     }
   } else if (stats.isSymbolicLink()) {
     switch (symlink) {
       case 'keep': {
+        const link = await readlink(path);
+        fs_entries.push(
+          create_symlink(path, path_name, link, stats, is_windows)
+        );
         n_children++;
-        fs_entries.push(await create_symlink(path, path_name, is_windows));
         break;
       }
 

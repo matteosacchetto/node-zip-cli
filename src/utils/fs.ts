@@ -109,14 +109,16 @@ export const map_absolute_path_to_clean_entry_with_mode = (
   >();
 
   for (const entry of list) {
-    absolute_path_to_clean_entry_with_mode.set(resolve(entry.path), {
+    const absolute_path = resolve(entry.path);
+    absolute_path_to_clean_entry_with_mode.set(absolute_path, {
       cleaned_path: entry.cleaned_path,
       mode: entry.stats.mode,
     });
 
-    let parent = resolve(entry.path);
+    let parent = absolute_path;
     let cleaned_parent = resolve(entry.cleaned_path);
-    for (let i = 0; i < entry.cleaned_path.split(sep).length - 1; i++) {
+    const num_iterations = entry.cleaned_path.split(sep).length - 1;
+    for (let i = 0; i < num_iterations; i++) {
       parent = dirname(parent);
       cleaned_parent = dirname(cleaned_parent);
       if (!absolute_path_to_clean_entry_with_mode.has(parent)) {

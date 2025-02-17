@@ -25,12 +25,13 @@ const findCommand = createCommand(name, description)
       .default(['f', 'd', 'l'] as const)
   )
   .addOption(
-    createOption('-s, --symlink <mode>', 'handle symlinks (experimental)')
+    createOption('-s, --symlink [mode]', 'handle symlinks')
       .choices<Exclude<SymlinkOption, 'resolve'>[]>(['none', 'keep'])
       .default<Exclude<SymlinkOption, 'resolve'>>('none')
+      .preset<Exclude<SymlinkOption, 'resolve'>>('keep')
   )
   .addOption(
-    createOption('--disable-ignore <mode>', 'disable some or all ignore rules')
+    createOption('--disable-ignore [mode]', 'disable some or all ignore rules')
       .choices<DisableIgnoreOption[]>([
         'none',
         'zipignore',
@@ -40,6 +41,7 @@ const findCommand = createCommand(name, description)
         'all',
       ])
       .default<DisableIgnoreOption>('none')
+      .preset<DisableIgnoreOption>('ignore-files')
   )
   .option('-e, --exclude <paths...>', 'ignore the following paths')
   .option('--allow-git', 'allow .git to be included in the zip', false)
@@ -74,8 +76,6 @@ findCommand.action(async (options) => {
     await exit_on_finish(() => {
       if (num_files > 0) {
         printfile_list_as_find(filtered_list, is_windows, options.colors);
-      } else {
-        console.error('Nothing to zip');
       }
     });
   });

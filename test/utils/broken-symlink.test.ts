@@ -4,9 +4,8 @@ import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { BrokenSymlink } from '@/types/fs';
 import { log_broken_symlink } from '@/utils/broken-symlink';
+import logSymbols from '@/utils/log-symbols';
 import chalk from 'chalk';
-import { fallbackSymbols, mainSymbols } from 'figures';
-import isUnicodeSupported from 'is-unicode-supported';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -55,7 +54,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning)} 1 broken symlink\n`
+          `  ${chalk.yellow(logSymbols.warning)} 1 broken symlink\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -70,7 +69,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning} 1 broken symlink\n`
+          `${logSymbols.warning} 1 broken symlink\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -105,7 +104,7 @@ describe(filename, async () => {
       if (process.stderr.isTTY) {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `  ${chalk.yellow(isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning)} 2 broken symlinks\n`
+          `  ${chalk.yellow(logSymbols.warning)} 2 broken symlinks\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,
@@ -126,7 +125,7 @@ describe(filename, async () => {
       } else {
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[0].result,
-          `${isUnicodeSupported() ? mainSymbols.warning : fallbackSymbols.warning} 2 broken symlinks\n`
+          `${logSymbols.warning} 2 broken symlinks\n`
         );
         assert.strictEqual(
           mocked_process_stderr_write.mock.calls[1].result,

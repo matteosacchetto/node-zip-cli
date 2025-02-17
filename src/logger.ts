@@ -1,91 +1,62 @@
-import { Console } from 'node:console';
-import { inspect } from 'node:util';
+import { inspect, stripVTControlCharacters } from 'node:util';
 import chalk from 'chalk';
-import figureSet from 'figures';
-import logSymbols from 'log-symbols';
-import stripAnsi from 'strip-ansi';
+import logSymbols from './utils/log-symbols';
 
-/* c8 ignore start */
 enum STD_FD {
   OUT = 0,
   ERR = 1,
 }
 
 class Logger {
-  #spaces: string;
-  #stdout: NodeJS.WritableStream;
-  #stderr: NodeJS.WritableStream;
-  #console: Console;
+  #spaces = '';
 
-  constructor() {
-    this.#spaces = '';
-    this.#stdout = process.stdout;
-    this.#stderr = process.stderr;
-    this.#console = new Console({ stdout: this.#stdout, stderr: this.#stderr });
+  #strip_ansi<T>(isTTY: boolean, value: T): T {
+    return (
+      typeof value === 'string' && !isTTY
+        ? stripVTControlCharacters(value)
+        : value
+    ) as T;
+  }
+
+  #format_message(isTTY: boolean, msg: unknown): string {
+    if (typeof msg !== 'string') {
+      return inspect(msg, { colors: isTTY, breakLength: 60 });
+    }
+    return this.#strip_ansi(isTTY, msg);
+  }
+
+  #indent_message(indent: string, msg: string): string {
+    return msg
+      .split('\n')
+      .map((line, index) => (index === 0 ? line : this.#spaces + indent + line))
+      .join('\n');
   }
 
   #log(std: STD_FD, raw: boolean, ...msg: unknown[]) {
-    let logger: (...data: unknown[]) => void;
-    let stream: NodeJS.WritableStream & { isTTY?: boolean };
-    switch (std) {
-      case STD_FD.OUT:
-        logger = this.#console.log;
-        stream = this.#stdout;
-        break;
-      case STD_FD.ERR:
-        logger = this.#console.error;
-        stream = this.#stderr;
-        break;
-    }
+    const stream = std === STD_FD.OUT ? process.stdout : process.stderr;
+    const isTTY = stream.isTTY ?? false;
 
-    if (msg[0] && typeof msg[0] === 'string') {
-      logger(
-        `${this.#spaces}${stream.isTTY ? msg[0] : stripAnsi(msg[0] as string)}`,
-        ...msg.slice(1).map((el) =>
-          (typeof el !== 'string'
-            ? inspect(el, {
-                colors: stream.isTTY,
-                breakLength: 60,
-              })
-            : el.toString()
+    const output = raw
+      ? msg.map((el) => this.#format_message(isTTY, el)).join(' ')
+      : msg
+          .map((el, i) =>
+            i === 0
+              ? `${this.#spaces}${this.#format_message(isTTY, el)}`
+              : this.#indent_message('  ', this.#format_message(isTTY, el))
           )
-            .split('\n')
-            .map(
-              (el: string, index: number) =>
-                `${
-                  index === 0
-                    ? ''
-                    : this.#spaces +
-                      ' '.repeat(stripAnsi(msg[0] as string).length + 1)
-                }${el}`
-            )
-            .map((el) => (stream.isTTY ? el : stripAnsi(el)))
-            .join('\n')
-        )
-      );
-    } else {
-      logger(
-        ...msg.map((el) =>
-          (typeof el !== 'string'
-            ? inspect(el, { colors: stream.isTTY, breakLength: 60 })
-            : el.toString()
-          )
-            .split('\n')
-            .map(
-              (el: string, index: number) =>
-                `${index === 0 ? '' : this.#spaces}${el}`
-            )
-            .map((el) => (stream.isTTY ? el : stripAnsi(el)))
-            .join('\n')
-        )
-      );
-    }
+          .join(' ');
+
+    stream.write(`${output}\n`);
   }
+
   write(...msg: unknown[]) {
-    this.#log(STD_FD.OUT, true, ' ', ...msg);
+    this.#log(STD_FD.OUT, true, ...msg);
+  }
+  write_error(...msg: unknown[]) {
+    this.#log(STD_FD.ERR, true, ...msg);
   }
   log(...msg: unknown[]) {
-    this.#log(STD_FD.ERR, true, ' ', ...msg);
+    this.#log(STD_FD.ERR, false, ' ', ...msg);
   }
   info(...msg: unknown[]) {
     this.#log(STD_FD.ERR, false, chalk.cyan(logSymbols.info), ...msg);
@@ -103,9 +74,9 @@ class Logger {
     this.#log(
       STD_FD.ERR,
       false,
-      chalk.yellow(figureSet.arrowDown),
+      chalk.yellow('↓'),
       ...msg,
-      chalk.dim('[SKIPPED]')
+      chalk.gray.dim('[SKIPPED]')
     );
   }
   dimmed_log(...msg: unknown[]) {
@@ -115,11 +86,7 @@ class Logger {
     this.#log(STD_FD.ERR, false, chalk.gray.dim('>'), chalk.gray.dim(...msg));
   }
   empty(fd: 'stdout' | 'stderr' = 'stdout') {
-    if (fd === 'stdout') {
-      this.#log(STD_FD.OUT, true);
-    } else {
-      this.#log(STD_FD.ERR, true);
-    }
+    this.#log(fd === 'stdout' ? STD_FD.OUT : STD_FD.ERR, true);
   }
   indent(indentation = 0) {
     this.#spaces = ' '.repeat(indentation);
@@ -133,4 +100,3 @@ class Logger {
 }
 
 export const logger = new Logger();
-/* c8 ignore end */
