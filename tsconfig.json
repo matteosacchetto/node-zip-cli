@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
-    "baseUrl": "./src",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     },
     "resolveJsonModule": true,
     "esModuleInterop": true,
