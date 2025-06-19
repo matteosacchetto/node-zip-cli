@@ -3,6 +3,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, normalize } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { createGunzip, createGzip } from 'node:zlib';
+import chalk from 'chalk';
+import { extract, pack } from 'tar-stream';
 import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
 import { log_broken_symlink } from '@/utils/broken-symlink';
@@ -19,8 +21,6 @@ import {
 import { log_indent } from '@/utils/log';
 import { spinner_wrapper } from '@/utils/spinner-wrapper';
 import { get_full_mode } from '@/utils/tar';
-import chalk from 'chalk';
-import { extract, pack } from 'tar-stream';
 import { preset_compression_level } from './constants';
 
 export const create_tar = async (

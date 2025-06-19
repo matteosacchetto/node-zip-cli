@@ -1,6 +1,6 @@
+import chalk from 'chalk';
 import { logger } from '@/logger';
 import type { ConflictingFsEntry } from '@/types/fs';
-import chalk from 'chalk';
 
 export const log_conflicts = (conflicting_list: ConflictingFsEntry[]) => {
   if (conflicting_list.length > 0) {

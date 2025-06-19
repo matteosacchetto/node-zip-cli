@@ -1,6 +1,5 @@
 import assert from 'node:assert';
-import { lstat, mkdir, rm, writeFile } from 'node:fs/promises';
-import { symlink } from 'node:fs/promises';
+import { lstat, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import {

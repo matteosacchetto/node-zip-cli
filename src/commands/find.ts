@@ -1,3 +1,4 @@
+import { createOption } from '@commander-js/extra-typings';
 import { is_windows } from '@/core/constants';
 import { printfile_list_as_find } from '@/core/find';
 import { list_entries } from '@/core/walk';
@@ -6,7 +7,6 @@ import { createCommand } from '@/utils/command';
 import { unique_entries } from '@/utils/fs';
 import { normalize_entries } from '@/utils/path';
 import { exit_fail_on_error, exit_on_finish } from '@/utils/process';
-import { createOption } from '@commander-js/extra-typings';
 
 const name = 'find';
 const description =

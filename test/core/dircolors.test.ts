@@ -2,8 +2,8 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { colorize } from '@/core/dircolors';
 import chalk from 'chalk';
+import { colorize } from '@/core/dircolors';
 
 const filename = relative(
   join(process.cwd(), 'test'),

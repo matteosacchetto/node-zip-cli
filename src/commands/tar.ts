@@ -1,3 +1,5 @@
+import { createOption } from '@commander-js/extra-typings';
+import { InvalidArgumentError } from 'commander';
 import { is_windows, preset_compression_level } from '@/core/constants';
 import { create_tar } from '@/core/tar';
 import { printfile_list_as_file_tree } from '@/core/tree';
@@ -21,8 +23,6 @@ import {
 } from '@/utils/process';
 import { valid_output_tar_file_path } from '@/validation/tar';
 import { validation_spinner } from '@/validation/validation-spinner';
-import { createOption } from '@commander-js/extra-typings';
-import { InvalidArgumentError } from 'commander';
 
 const name = 'tar';
 const description =

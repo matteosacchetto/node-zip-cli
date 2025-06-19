@@ -3,6 +3,8 @@ import { mkdir } from 'node:fs/promises';
 import { dirname, join, normalize } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import chalk from 'chalk';
+import yazl from 'yazl';
 import { logger } from '@/logger';
 import type { ArchiveEntry, CleanedEntryWithMode, FsEntry } from '@/types/fs';
 import { log_broken_symlink } from '@/utils/broken-symlink';
@@ -27,8 +29,6 @@ import {
   read_entries,
   write_zip_file,
 } from '@/utils/zip';
-import chalk from 'chalk';
-import yazl from 'yazl';
 
 export const create_zip = async (
   output_path: string,

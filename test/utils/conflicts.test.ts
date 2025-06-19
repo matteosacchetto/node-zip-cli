@@ -2,10 +2,10 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import chalk from 'chalk';
 import type { ConflictingFsEntry } from '@/types/fs';
 import { log_conflicts } from '@/utils/conflicts';
 import logSymbols from '@/utils/log-symbols';
-import chalk from 'chalk';
 
 const filename = relative(
   join(process.cwd(), 'test'),

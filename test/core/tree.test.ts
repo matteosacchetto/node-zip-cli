@@ -2,11 +2,11 @@ import assert from 'node:assert';
 import { join, relative, sep } from 'node:path';
 import { afterEach, before, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import chalk from 'chalk';
 import { printfile_list_as_file_tree } from '@/core/tree';
 import { logger } from '@/logger';
 import type { ArchiveEntry } from '@/types/fs';
 import { map_absolute_path_to_clean_entry_with_mode } from '@/utils/fs';
-import chalk from 'chalk';
 
 const filename = relative(
   join(process.cwd(), 'test'),

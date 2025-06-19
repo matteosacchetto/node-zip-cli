@@ -3,12 +3,12 @@ import { platform } from 'node:os';
 import { join, relative, sep } from 'node:path';
 import { before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import chalk from 'chalk';
 import {
   clean_base_dir,
   ensure_trailing_separator,
   normalize_entries,
 } from '@/utils/path';
-import chalk from 'chalk';
 
 const filename = relative(
   join(process.cwd(), 'test'),

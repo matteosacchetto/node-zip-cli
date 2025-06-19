@@ -1,5 +1,5 @@
-import { exit_success_on_error_ignore } from '@/utils/process';
 import confirm from '@inquirer/confirm';
+import { exit_success_on_error_ignore } from '@/utils/process';
 
 export const confirm_not_empty_dir_prompt = async (
   path: string,

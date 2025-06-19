@@ -1,6 +1,6 @@
+import chalk from 'chalk';
 import { logger } from '@/logger';
 import type { BrokenSymlink } from '@/types/fs';
-import chalk from 'chalk';
 
 export const log_broken_symlink = (broken_symlinks_list: BrokenSymlink[]) => {
   if (broken_symlinks_list.length > 0) {

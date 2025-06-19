@@ -1,3 +1,5 @@
+import { createOption } from '@commander-js/extra-typings';
+import { InvalidArgumentError } from 'commander';
 import { is_windows, preset_compression_level } from '@/core/constants';
 import { printfile_list_as_file_tree } from '@/core/tree';
 import { list_entries } from '@/core/walk';
@@ -21,8 +23,6 @@ import {
 } from '@/utils/process';
 import { validation_spinner } from '@/validation/validation-spinner';
 import { valid_zip_file_path } from '@/validation/zip';
-import { createOption } from '@commander-js/extra-typings';
-import { InvalidArgumentError } from 'commander';
 
 const name = 'zip';
 const description =

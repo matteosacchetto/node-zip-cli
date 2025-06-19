@@ -1,6 +1,6 @@
+import { Command } from '@commander-js/extra-typings';
 import { version } from '@/config';
 import { uncapitalize } from '@/utils/string';
-import { Command } from '@commander-js/extra-typings';
 
 export const createCommand = (name: string, description: string): Command => {
   // Initialize CLI (name , description)

@@ -4,9 +4,9 @@ import { Writable } from 'node:stream';
 import { afterEach, before, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
+import chalk from 'chalk';
 import { logger } from '@/logger';
 import logSymbols from '@/utils/log-symbols';
-import chalk from 'chalk';
 
 const filename = relative(
   join(process.cwd(), 'test'),

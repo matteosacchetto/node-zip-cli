@@ -2,12 +2,12 @@ import assert from 'node:assert';
 import { join, relative } from 'node:path';
 import { afterEach, beforeEach, describe, mock, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import chalk from 'chalk';
+import type { Ora } from 'ora';
 import {
   scoped_spinner_wrapper,
   spinner_wrapper,
 } from '@/utils/spinner-wrapper';
-import chalk from 'chalk';
-import type { Ora } from 'ora';
 
 const filename = relative(
   join(process.cwd(), 'test'),
@@ -27,7 +27,7 @@ describe(filename, async () => {
     });
 
     test('success', async () => {
-      let _spinner: Ora | undefined ;
+      let _spinner: Ora | undefined;
       await spinner_wrapper({
         spinner_text: 'init',
         success_text: 'done',
@@ -68,7 +68,7 @@ describe(filename, async () => {
     });
 
     test('fail', async () => {
-      let _spinner: Ora | undefined ;
+      let _spinner: Ora | undefined;
       await assert.rejects(() =>
         spinner_wrapper({
           spinner_text: 'init',
@@ -122,7 +122,7 @@ describe(filename, async () => {
     });
 
     test('success', async () => {
-      let _spinner: Ora | undefined ;
+      let _spinner: Ora | undefined;
       await scoped_spinner_wrapper({
         scope: 'test',
         message: 'success',
@@ -173,7 +173,7 @@ describe(filename, async () => {
     });
 
     test('fail', async () => {
-      let _spinner: Ora | undefined ;
+      let _spinner: Ora | undefined;
       await assert.rejects(() =>
         scoped_spinner_wrapper({
           scope: 'test',
