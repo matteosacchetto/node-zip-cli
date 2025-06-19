@@ -20,7 +20,7 @@ describe(filename, async () => {
             ? 'This test is only for POSIX/Unix platforms'
             : undefined,
       },
-      async (context) => {
+      async () => {
         assert.strictEqual(is_windows, false);
       }
     );
@@ -31,7 +31,7 @@ describe(filename, async () => {
         skip:
           platform() !== 'win32' ? 'This test is only for Windows' : undefined,
       },
-      async (context) => {
+      async () => {
         assert.strictEqual(is_windows, true);
       }
     );

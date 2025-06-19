@@ -10,7 +10,7 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  test('date_to_utc', async (context) => {
+  test('date_to_utc', async () => {
     const date = new Date();
     const utc_date = date_to_utc(date);
 
@@ -20,7 +20,7 @@ describe(filename, async () => {
     );
   });
 
-  test('date_from_utc', async (context) => {
+  test('date_from_utc', async () => {
     const date = new Date();
     const utc_date = date_from_utc(date);
 
@@ -30,7 +30,7 @@ describe(filename, async () => {
     );
   });
 
-  test('both', async (context) => {
+  test('both', async () => {
     const date = new Date();
     const utc_date = date_to_utc(date);
     const local_date = date_from_utc(utc_date);

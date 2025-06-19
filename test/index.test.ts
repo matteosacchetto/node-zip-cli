@@ -9,7 +9,7 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  test('test', async (context) => {
+  test('test', async () => {
     assert.strictEqual(1, 1);
   });
 });

@@ -1080,7 +1080,7 @@ describe(filename, async () => {
       });
     });
 
-    test('.', async (ctx) => {
+    test('.', async () => {
       process.chdir(join(cwd, 'test', '_data_'));
 
       const [entries, conflicting_list, map] = await list_entries(
@@ -1130,7 +1130,7 @@ describe(filename, async () => {
             ? 'Windows does not handle symlinks'
             : undefined,
       },
-      async (ctx) => {
+      async () => {
         const input = [join('test', '_data_', 'dir-5')];
         const [entries, conflicting_list, map] = await list_entries(
           input,
@@ -1221,7 +1221,7 @@ describe(filename, async () => {
             ? 'Windows does not handle symlinks'
             : undefined,
       },
-      async (ctx) => {
+      async () => {
         const input = [join('test', '_data_', 'dir-5')];
         const [entries, conflicting_list, map] = await list_entries(
           input,
@@ -1276,7 +1276,7 @@ describe(filename, async () => {
       }
     );
 
-    test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore '.zipignore'", async (ctx) => {
+    test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore '.zipignore'", async () => {
       const input = [join('test', '_data_')];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1309,7 +1309,7 @@ describe(filename, async () => {
       });
     });
 
-    test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore 'test/_data_/.zipignore'", async (ctx) => {
+    test("test/_data_: relative {keep_parent: 'full', symlink: 'none'} ignore 'test/_data_/.zipignore'", async () => {
       const input = [join('test', '_data_')];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1342,7 +1342,7 @@ describe(filename, async () => {
       });
     });
 
-    test("test/_data_/empty: relative {keep_parent: 'full', symlink: 'none'} file", async (ctx) => {
+    test("test/_data_/empty: relative {keep_parent: 'full', symlink: 'none'} file", async () => {
       const input = [join('test', '_data_', 'empty')];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1369,7 +1369,7 @@ describe(filename, async () => {
       });
     });
 
-    test("test/_data_/empty: relative {keep_parent: 'last', symlink: 'none'} file", async (ctx) => {
+    test("test/_data_/empty: relative {keep_parent: 'last', symlink: 'none'} file", async () => {
       const input = [join('test', '_data_', 'empty')];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1396,7 +1396,7 @@ describe(filename, async () => {
       });
     });
 
-    test("test/_data_/empty: relative {keep_parent: 'none', symlink: 'none'} file", async (ctx) => {
+    test("test/_data_/empty: relative {keep_parent: 'none', symlink: 'none'} file", async () => {
       const input = [join('test', '_data_', 'empty')];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1423,7 +1423,7 @@ describe(filename, async () => {
       });
     });
 
-    test("test/_data_/empty: relative {keep_parent: 'full', symlink: 'none'} file then ignored", async (ctx) => {
+    test("test/_data_/empty: relative {keep_parent: 'full', symlink: 'none'} file then ignored", async () => {
       const input = [join('test', '_data_', 'empty')];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1447,7 +1447,7 @@ describe(filename, async () => {
             ? 'Windows does not handle symlinks'
             : undefined,
       },
-      async (ctx) => {
+      async () => {
         const input = [
           join('test', '_data_', 'dir-1', 'a.txt'),
           join('test', '_data_', 'dir-5', 'symlink-a'),
@@ -1500,7 +1500,7 @@ describe(filename, async () => {
             ? undefined
             : `${platform()} usually has a case-insensitive file system`,
       },
-      async (ctx) => {
+      async () => {
         const input = [join('test', '_case-sensitive_')];
         const [entries, conflicting_list, map] = await list_entries(
           input,
@@ -1537,7 +1537,7 @@ describe(filename, async () => {
             ? undefined
             : `${platform()} usually has a case-insensitive file system`,
       },
-      async (ctx) => {
+      async () => {
         const input = [join('test', '_case-sensitive_')];
         const [entries, conflicting_list, map] = await list_entries(
           input,
@@ -1595,7 +1595,7 @@ describe(filename, async () => {
       await rm(list_entries_dir, { recursive: true });
     });
 
-    test('disable rules: none', async (ctx) => {
+    test('disable rules: none', async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1624,7 +1624,7 @@ describe(filename, async () => {
       assert.strictEqual(entries[3].type, 'file');
     });
 
-    test("disable rules: none - exclude 'e.txt'", async (ctx) => {
+    test("disable rules: none - exclude 'e.txt'", async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1650,7 +1650,7 @@ describe(filename, async () => {
       assert.strictEqual(entries[2].type, 'file');
     });
 
-    test('disable rules: zipignore', async (ctx) => {
+    test('disable rules: zipignore', async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1691,7 +1691,7 @@ describe(filename, async () => {
       assert.strictEqual(entries[7].type, 'file');
     });
 
-    test('disable rules: gitignore', async (ctx) => {
+    test('disable rules: gitignore', async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1732,7 +1732,7 @@ describe(filename, async () => {
       assert.strictEqual(entries[7].type, 'file');
     });
 
-    test('disable rules: ignore-files', async (ctx) => {
+    test('disable rules: ignore-files', async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1779,7 +1779,7 @@ describe(filename, async () => {
       assert.strictEqual(entries[9].type, 'file');
     });
 
-    test("disable rules: exclude-rules - exclude 'e.txt'", async (ctx) => {
+    test("disable rules: exclude-rules - exclude 'e.txt'", async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,
@@ -1808,7 +1808,7 @@ describe(filename, async () => {
       assert.strictEqual(entries[3].type, 'file');
     });
 
-    test("disable rules: all - exclude 'e.txt'", async (ctx) => {
+    test("disable rules: all - exclude 'e.txt'", async () => {
       const input = [relative_list_entries_dir];
       const [entries, conflicting_list, map] = await list_entries(
         input,

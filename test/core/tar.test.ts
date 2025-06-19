@@ -35,7 +35,7 @@ const filename = relative(
 
 describe(filename, async () => {
   describe('read_tar', async () => {
-    test('base.tar', async (context) => {
+    test('base.tar', async () => {
       const tar_path = join(data_dir, 'base.tar');
       const [entries, map] = await read_tar(
         tar_path,
@@ -80,7 +80,7 @@ describe(filename, async () => {
       });
     });
 
-    test('base.tgz', async (context) => {
+    test('base.tgz', async () => {
       const tar_path = join(data_dir, 'base.tgz');
       const [entries, map] = await read_tar(
         tar_path,
@@ -150,7 +150,7 @@ describe(filename, async () => {
     });
 
     beforeEach(async () => {
-      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+      mock.method(process.stderr, 'write', (msg: string, _err: () => void) => {
         return msg;
       });
     });
@@ -628,7 +628,7 @@ describe(filename, async () => {
     });
 
     beforeEach(async () => {
-      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+      mock.method(process.stderr, 'write', (msg: string, _err: () => void) => {
         return msg;
       });
     });

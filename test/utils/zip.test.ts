@@ -22,34 +22,34 @@ const filename = relative(
 
 describe(filename, async () => {
   describe('is_symlink', async () => {
-    test('symlink', async (context) => {
+    test('symlink', async () => {
       const mode = 0o120777;
       assert.ok(is_symlink(mode));
     });
 
-    test('file', async (context) => {
+    test('file', async () => {
       const mode = 0o100664;
       assert.ok(!is_symlink(mode));
     });
 
-    test('dir', async (context) => {
+    test('dir', async () => {
       const mode = 0o40775;
       assert.ok(!is_symlink(mode));
     });
   });
 
   describe('open_zip_file', async () => {
-    test('files-dir.zip', async (context) => {
+    test('files-dir.zip', async () => {
       assert.ok(open_zip_file(join(archives_dir, 'files-dir.zip')));
     });
 
-    test('files-dir.tar', async (context) => {
+    test('files-dir.tar', async () => {
       assert.rejects(open_zip_file(join(archives_dir, 'files-dir.tar')));
     });
   });
 
   describe('open_read_stream', async () => {
-    test('base.zip', async (context) => {
+    test('base.zip', async () => {
       const zip = await open_zip_file(join(data_dir, 'base.zip'));
       for await (const entry of read_entries(zip)) {
         if (entry.fileName.endsWith('/')) {
@@ -65,7 +65,7 @@ describe(filename, async () => {
   });
 
   describe('read_entries', async () => {
-    test('base.zip', async (context) => {
+    test('base.zip', async () => {
       const zip = await open_zip_file(join(data_dir, 'base.zip'));
       let counter = 0;
       for await (const _ of read_entries(zip)) {
@@ -75,7 +75,7 @@ describe(filename, async () => {
       assert.strictEqual(counter, 2);
     });
 
-    test('partial base.zip', async (context) => {
+    test('partial base.zip', async () => {
       const zip = await open_zip_file(join(data_dir, 'base.zip'));
       const entries = read_entries(zip);
 

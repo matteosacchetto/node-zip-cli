@@ -15,7 +15,7 @@ const filename = relative(
 describe(filename, async () => {
   describe('conflicts', async () => {
     beforeEach(() => {
-      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+      mock.method(process.stderr, 'write', (msg: string, _err: () => void) => {
         return msg;
       });
     });
@@ -24,7 +24,7 @@ describe(filename, async () => {
       mock.restoreAll();
     });
 
-    test('no files', async (context) => {
+    test('no files', async () => {
       const conflicting_list: ConflictingFsEntry[] = [];
 
       log_conflicts(conflicting_list);
@@ -36,7 +36,7 @@ describe(filename, async () => {
       assert.strictEqual(mocked_process_stderr_write.mock.calls.length, 0);
     });
 
-    test('1 file', async (context) => {
+    test('1 file', async () => {
       const conflicting_list: ConflictingFsEntry[] = [
         {
           conflicting_path: 'test/index.ts',
@@ -82,7 +82,7 @@ describe(filename, async () => {
       }
     });
 
-    test('2 files', async (context) => {
+    test('2 files', async () => {
       const conflicting_list: ConflictingFsEntry[] = [
         {
           conflicting_path: 'test/index.ts',

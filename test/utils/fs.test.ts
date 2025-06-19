@@ -47,7 +47,7 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  describe('get_priority_for_type', async (context) => {
+  describe('get_priority_for_type', async () => {
     test('directory', async () => {
       assert.strictEqual(get_priority_for_type('directory'), 1);
     });
@@ -61,7 +61,7 @@ describe(filename, async () => {
     });
   });
 
-  describe('type_compare', async (context) => {
+  describe('type_compare', async () => {
     test('directory vs directory', async () => {
       assert.ok(type_compare('directory', 'directory') === 0);
     });
@@ -99,72 +99,72 @@ describe(filename, async () => {
     });
   });
 
-  describe('get_default_mode', async (context) => {
-    test('file', async (context) => {
+  describe('get_default_mode', async () => {
+    test('file', async () => {
       assert.strictEqual(get_default_mode('file'), 0o100664);
     });
 
-    test('directory', async (context) => {
+    test('directory', async () => {
       assert.strictEqual(get_default_mode('directory'), 0o40775);
     });
 
-    test('symlink', async (context) => {
+    test('symlink', async () => {
       assert.strictEqual(get_default_mode('symlink'), 0o120777);
     });
   });
 
-  describe('fix_mode', async (context) => {
-    test('file: 0o100666 windows', async (context) => {
+  describe('fix_mode', async () => {
+    test('file: 0o100666 windows', async () => {
       assert.strictEqual(fix_mode(0o100666, true), 0o100664);
     });
 
-    test('file: 0o100777 windows', async (context) => {
+    test('file: 0o100777 windows', async () => {
       assert.strictEqual(fix_mode(0o100777, true), 0o100664);
     });
 
-    test('file: 0o100666 unix/linux', async (context) => {
+    test('file: 0o100666 unix/linux', async () => {
       assert.strictEqual(fix_mode(0o100666, false), 0o100666);
     });
 
-    test('file: 0o100777 unix/linux', async (context) => {
+    test('file: 0o100777 unix/linux', async () => {
       assert.strictEqual(fix_mode(0o100777, false), 0o100777);
     });
 
-    test('directory: 0o40666 windows', async (context) => {
+    test('directory: 0o40666 windows', async () => {
       assert.strictEqual(fix_mode(0o40666, true), 0o40775);
     });
 
-    test('directory: 0o40777 windows', async (context) => {
+    test('directory: 0o40777 windows', async () => {
       assert.strictEqual(fix_mode(0o40777, true), 0o40775);
     });
 
-    test('directory: 0o40666 unix/linux', async (context) => {
+    test('directory: 0o40666 unix/linux', async () => {
       assert.strictEqual(fix_mode(0o40666, false), 0o40666);
     });
 
-    test('directory: 0o40777 unix/linux', async (context) => {
+    test('directory: 0o40777 unix/linux', async () => {
       assert.strictEqual(fix_mode(0o40777, false), 0o40777);
     });
 
-    test('symlink: 0o120666 windows', async (context) => {
+    test('symlink: 0o120666 windows', async () => {
       assert.strictEqual(fix_mode(0o120666, true), 0o120777);
     });
 
-    test('symlink: 0o120777 windows', async (context) => {
+    test('symlink: 0o120777 windows', async () => {
       assert.strictEqual(fix_mode(0o120777, true), 0o120777);
     });
 
-    test('symlink: 0o120666 unix/linux', async (context) => {
+    test('symlink: 0o120666 unix/linux', async () => {
       assert.strictEqual(fix_mode(0o120666, false), 0o120666);
     });
 
-    test('symlink: 0o120777 unix/linux', async (context) => {
+    test('symlink: 0o120777 unix/linux', async () => {
       assert.strictEqual(fix_mode(0o120777, false), 0o120777);
     });
   });
 
-  describe('get_default_stats', async (context) => {
-    test('file', async (context) => {
+  describe('get_default_stats', async () => {
+    test('file', async () => {
       const now = new Date();
       assert.deepEqual(get_default_stats('file', now), <
         ReturnType<typeof get_default_stats>
@@ -176,7 +176,7 @@ describe(filename, async () => {
       });
     });
 
-    test('directory', async (context) => {
+    test('directory', async () => {
       const now = new Date();
       assert.deepEqual(get_default_stats('directory', now), <
         ReturnType<typeof get_default_stats>
@@ -188,7 +188,7 @@ describe(filename, async () => {
       });
     });
 
-    test('symlink', async (context) => {
+    test('symlink', async () => {
       const now = new Date();
       assert.deepEqual(get_default_stats('symlink', now), <
         ReturnType<typeof get_default_stats>
@@ -201,39 +201,39 @@ describe(filename, async () => {
     });
   });
 
-  describe('normalize_windows_path', async (context) => {
-    test('src: posix/unix', async (context) => {
+  describe('normalize_windows_path', async () => {
+    test('src: posix/unix', async () => {
       assert.strictEqual(normalize_windows_path('src', false), 'src');
     });
 
-    test('./src: posix/unix', async (context) => {
+    test('./src: posix/unix', async () => {
       assert.strictEqual(normalize_windows_path('./src', false), './src');
     });
 
-    test('.\\src: posix/unix', async (context) => {
+    test('.\\src: posix/unix', async () => {
       assert.strictEqual(normalize_windows_path('.\\src', false), '.\\src');
     });
 
-    test('.\\src: windows', async (context) => {
+    test('.\\src: windows', async () => {
       assert.strictEqual(normalize_windows_path('.\\src', true), './src');
     });
 
-    test('..\\src: posix/unix', async (context) => {
+    test('..\\src: posix/unix', async () => {
       assert.strictEqual(normalize_windows_path('..\\src', false), '..\\src');
     });
 
-    test('..\\src: windows', async (context) => {
+    test('..\\src: windows', async () => {
       assert.strictEqual(normalize_windows_path('..\\src', true), '../src');
     });
 
-    test('..\\src\\a\\b: posix/unix', async (context) => {
+    test('..\\src\\a\\b: posix/unix', async () => {
       assert.strictEqual(
         normalize_windows_path('..\\src\\a\\b', false),
         '..\\src\\a\\b'
       );
     });
 
-    test('..\\src\\a\\b: windows', async (context) => {
+    test('..\\src\\a\\b: windows', async () => {
       assert.strictEqual(
         normalize_windows_path('..\\src\\a\\b', true),
         '../src/a/b'
@@ -241,60 +241,60 @@ describe(filename, async () => {
     });
   });
 
-  describe('clean_path', async (context) => {
-    test('src', async (context) => {
+  describe('clean_path', async () => {
+    test('src', async () => {
       assert.strictEqual(clean_path('src'), 'src');
     });
 
-    test('src/: ensure trailing slash is removed', async (context) => {
+    test('src/: ensure trailing slash is removed', async () => {
       assert.strictEqual(clean_path('src/'), 'src');
     });
 
-    test('../src', async (context) => {
+    test('../src', async () => {
       assert.strictEqual(clean_path(join('..', 'src')), 'src');
     });
 
-    test('./src', async (context) => {
+    test('./src', async () => {
       assert.strictEqual(clean_path('./src'), 'src');
     });
 
-    test('/src', async (context) => {
+    test('/src', async () => {
       assert.strictEqual(clean_path('/src'), 'src');
     });
 
-    test('../test/src', async (context) => {
+    test('../test/src', async () => {
       assert.strictEqual(clean_path('../test/src'), join('test', 'src'));
     });
 
-    test('//test/src', async (context) => {
+    test('//test/src', async () => {
       assert.strictEqual(clean_path('//test/src'), join('test', 'src'));
     });
 
-    test('////test/src', async (context) => {
+    test('////test/src', async () => {
       assert.strictEqual(clean_path('////test/src'), join('test', 'src'));
     });
 
-    test('//src', async (context) => {
+    test('//src', async () => {
       assert.strictEqual(clean_path('//src'), 'src');
     });
 
-    test('/', async (context) => {
+    test('/', async () => {
       assert.strictEqual(clean_path('/'), '');
     });
 
-    test('//', async (context) => {
+    test('//', async () => {
       assert.strictEqual(clean_path('//'), '');
     });
 
-    test('///', async (context) => {
+    test('///', async () => {
       assert.strictEqual(clean_path('///'), '');
     });
 
-    test('.', async (context) => {
+    test('.', async () => {
       assert.strictEqual(clean_path('.'), '');
     });
 
-    test('..', async (context) => {
+    test('..', async () => {
       assert.strictEqual(clean_path('..'), '');
     });
 
@@ -306,7 +306,7 @@ describe(filename, async () => {
             ? 'This test checks if on windows it properly handles \\ separator'
             : undefined,
       },
-      async (context) => {
+      async () => {
         assert.strictEqual(clean_path('src\\'), 'src');
       }
     );
@@ -319,7 +319,7 @@ describe(filename, async () => {
             ? 'This test checks if on windows it properly handles \\ separator'
             : undefined,
       },
-      async (context) => {
+      async () => {
         assert.strictEqual(clean_path('..\\src\\test'), 'src\\test');
       }
     );
@@ -332,7 +332,7 @@ describe(filename, async () => {
             ? 'This test checks if on windows it properly handles C:\\ separator'
             : undefined,
       },
-      async (context) => {
+      async () => {
         assert.strictEqual(clean_path('C:\\src\\test'), 'src\\test');
       }
     );
@@ -408,28 +408,28 @@ describe(filename, async () => {
   });
 
   describe('unique_entries', async () => {
-    test('single entry: src', async (context) => {
+    test('single entry: src', async () => {
       assert.deepStrictEqual(unique_entries(['src']), ['src']);
     });
 
-    test('mulitple entry: src, ./src', async (context) => {
+    test('mulitple entry: src, ./src', async () => {
       assert.deepStrictEqual(unique_entries(['src', './src']), ['src']);
     });
 
-    test('mulitple entry: src, ./src, join(process.cwd(), src)', async (context) => {
+    test('mulitple entry: src, ./src, join(process.cwd(), src)', async () => {
       assert.deepStrictEqual(
         unique_entries(['src', './src', join(process.cwd(), 'src')]),
         ['src']
       );
     });
 
-    test('mulitple entry: src, test', async (context) => {
+    test('mulitple entry: src, test', async () => {
       assert.deepStrictEqual(unique_entries(['src', 'test']), ['src', 'test']);
     });
   });
 
   describe('map_absolute_path_to_clean_entry_with_mode', async () => {
-    test('1 file, 1 directory and 1 symlink', async (context) => {
+    test('1 file, 1 directory and 1 symlink', async () => {
       const now = new Date();
       const list: ArchiveEntry[] = [
         {
@@ -494,7 +494,7 @@ describe(filename, async () => {
   });
 
   describe('broken_symlinks', async () => {
-    test('symlink: link to existing dir', async (context) => {
+    test('symlink: link to existing dir', async () => {
       const now = new Date();
       const list: ArchiveEntry[] = [
         {
@@ -543,7 +543,7 @@ describe(filename, async () => {
       assert.strictEqual(broken.length, 0);
     });
 
-    test('symlink: link to existing file', async (context) => {
+    test('symlink: link to existing file', async () => {
       const now = new Date();
       const list: ArchiveEntry[] = [
         {
@@ -592,7 +592,7 @@ describe(filename, async () => {
       assert.strictEqual(broken.length, 0);
     });
 
-    test('symlink: broken link', async (context) => {
+    test('symlink: broken link', async () => {
       const now = new Date();
       const list: ArchiveEntry[] = [
         {
@@ -685,7 +685,7 @@ describe(filename, async () => {
     });
   });
 
-  describe('get_symlink_path', async (context) => {
+  describe('get_symlink_path', async () => {
     test('relative: ../utils', async () => {
       assert.equal(get_symlink_path('test', '../utils'), join('..', 'utils'));
     });

@@ -158,7 +158,7 @@ export const broken_symlinks = (
 export const exists = async (path: string) => {
   try {
     return !!(await lstat(path));
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -166,7 +166,7 @@ export const exists = async (path: string) => {
 export const is_directory = async (path: string) => {
   try {
     return (await lstat(path)).isDirectory();
-  } catch (e) {
+  } catch {
     return false;
   }
 };

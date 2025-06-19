@@ -11,7 +11,7 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  describe('valid_zip_file_path', async (context) => {
+  describe('valid_zip_file_path', async () => {
     test('valid filename: out.zip', () => {
       assert.ok(valid_zip_file_path('out.zip'));
     });

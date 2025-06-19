@@ -25,7 +25,7 @@ describe(filename, async () => {
       mock.restoreAll();
     });
 
-    test('1 file', async (t) => {
+    test('1 file', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -54,7 +54,7 @@ describe(filename, async () => {
       );
     });
 
-    test('2 files', async (t) => {
+    test('2 files', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -99,7 +99,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (no trailing sep)', async (t) => {
+    test('1 file, 1 directory (no trailing sep)', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -144,7 +144,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (with trailing sep)', async (t) => {
+    test('1 file, 1 directory (with trailing sep)', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -189,7 +189,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (with trailing sep)', async (t) => {
+    test('1 file, 1 directory (with trailing sep)', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -234,7 +234,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (no trailing sep), 1 symlink', async (t) => {
+    test('1 file, 1 directory (no trailing sep), 1 symlink', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -295,7 +295,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (no trailing sep), 1 symlink (color)', async (t) => {
+    test('1 file, 1 directory (no trailing sep), 1 symlink (color)', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -356,7 +356,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (with trailing sep), 1 symlink (color)', async (t) => {
+    test('1 file, 1 directory (with trailing sep), 1 symlink (color)', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',
@@ -421,7 +421,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 file, 1 directory (with trailing sep), 1 symlink (color)', async (t) => {
+    test('1 file, 1 directory (with trailing sep), 1 symlink (color)', async () => {
       const entries = <FsEntry[]>[
         {
           type: 'file',

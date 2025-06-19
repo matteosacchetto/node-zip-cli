@@ -17,7 +17,7 @@ const filename = relative(
 describe(filename, async () => {
   describe('spinner_wrapper', async () => {
     beforeEach(() => {
-      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+      mock.method(process.stderr, 'write', (msg: string, _err: () => void) => {
         return msg;
       });
     });
@@ -27,7 +27,7 @@ describe(filename, async () => {
     });
 
     test('success', async () => {
-      let _spinner: Ora | undefined = undefined;
+      let _spinner: Ora | undefined ;
       await spinner_wrapper({
         spinner_text: 'init',
         success_text: 'done',
@@ -68,7 +68,7 @@ describe(filename, async () => {
     });
 
     test('fail', async () => {
-      let _spinner: Ora | undefined = undefined;
+      let _spinner: Ora | undefined ;
       await assert.rejects(() =>
         spinner_wrapper({
           spinner_text: 'init',
@@ -122,7 +122,7 @@ describe(filename, async () => {
     });
 
     test('success', async () => {
-      let _spinner: Ora | undefined = undefined;
+      let _spinner: Ora | undefined ;
       await scoped_spinner_wrapper({
         scope: 'test',
         message: 'success',
@@ -173,7 +173,7 @@ describe(filename, async () => {
     });
 
     test('fail', async () => {
-      let _spinner: Ora | undefined = undefined;
+      let _spinner: Ora | undefined ;
       await assert.rejects(() =>
         scoped_spinner_wrapper({
           scope: 'test',

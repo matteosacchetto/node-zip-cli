@@ -45,7 +45,7 @@ const filename = relative(
 
 describe(filename, async () => {
   describe('read_zip', async () => {
-    test('base.zip', async (context) => {
+    test('base.zip', async () => {
       const [entries, map] = await read_zip(join(data_dir, 'base.zip'));
 
       assert.strictEqual(entries.length, 2);
@@ -111,7 +111,7 @@ describe(filename, async () => {
     });
 
     beforeEach(async () => {
-      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+      mock.method(process.stderr, 'write', (msg: string, _err: () => void) => {
         return msg;
       });
     });
@@ -506,7 +506,7 @@ describe(filename, async () => {
     });
 
     beforeEach(async () => {
-      mock.method(process.stderr, 'write', (msg: string, err: () => void) => {
+      mock.method(process.stderr, 'write', (msg: string, _err: () => void) => {
         return msg;
       });
     });

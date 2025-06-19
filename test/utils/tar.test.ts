@@ -12,7 +12,7 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  describe('get_full_mode', async (context) => {
+  describe('get_full_mode', async () => {
     test('directory', async () => {
       assert.strictEqual(get_full_mode(0o755, 'directory'), 0o40755);
     });
@@ -47,18 +47,18 @@ describe(filename, async () => {
     });
   });
 
-  describe('is_gzip', async (context) => {
-    test('gzip', async (context) => {
+  describe('is_gzip', async () => {
+    test('gzip', async () => {
       const buffer = Buffer.from([0x1f, 0x8b, 0x08]);
       assert.strictEqual(is_gzip(buffer), true);
     });
 
-    test('non gzip', async (context) => {
+    test('non gzip', async () => {
       const buffer = Buffer.from([0x2e, 0x63, 0x38]);
       assert.strictEqual(is_gzip(buffer), false);
     });
 
-    test('buffer too short', async (context) => {
+    test('buffer too short', async () => {
       const buffer = Buffer.from([0x1f, 0x8b]);
       assert.strictEqual(is_gzip(buffer), false);
     });

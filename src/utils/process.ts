@@ -8,7 +8,7 @@ export const exit_success_on_error_ignore = async <T extends unknown[], R>(
 ): Promise<R> => {
   try {
     return await fn(...params);
-  } catch (e) {
+  } catch {
     process.exit(0);
   }
 };
@@ -114,7 +114,7 @@ export const ignore_on_error = async <T extends unknown[], R>(
 ) => {
   try {
     await fn(...params);
-  } catch (e) {
+  } catch {
     // Ignore
   }
 };

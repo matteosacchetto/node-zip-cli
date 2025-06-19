@@ -10,38 +10,38 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  describe('capitalize', async (context) => {
-    test('test', async (context) => {
+  describe('capitalize', async () => {
+    test('test', async () => {
       assert.strictEqual(capitalize('test'), 'Test');
     });
 
-    test('Test', async (context) => {
+    test('Test', async () => {
       assert.strictEqual(capitalize('Test'), 'Test');
     });
 
-    test('TEST', async (context) => {
+    test('TEST', async () => {
       assert.strictEqual(capitalize('TEST'), 'TEST');
     });
 
-    test('1 test', async (context) => {
+    test('1 test', async () => {
       assert.strictEqual(capitalize('1 test'), '1 test');
     });
   });
 
-  describe('uncapitalize', async (context) => {
-    test('test', async (context) => {
+  describe('uncapitalize', async () => {
+    test('test', async () => {
       assert.strictEqual(uncapitalize('test'), 'test');
     });
 
-    test('Test', async (context) => {
+    test('Test', async () => {
       assert.strictEqual(uncapitalize('Test'), 'test');
     });
 
-    test('TEST', async (context) => {
+    test('TEST', async () => {
       assert.strictEqual(uncapitalize('TEST'), 'tEST');
     });
 
-    test('1 test', async (context) => {
+    test('1 test', async () => {
       assert.strictEqual(uncapitalize('1 test'), '1 test');
     });
   });

@@ -29,7 +29,7 @@ describe(filename, async () => {
       mock.restoreAll();
     });
 
-    test('1 file', async (t) => {
+    test('1 file', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'file',
@@ -66,7 +66,7 @@ describe(filename, async () => {
       assert.strictEqual(mocked_logger_write.mock.calls[1].result, '\n1 file');
     });
 
-    test('1 directory', async (t) => {
+    test('1 directory', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'directory',
@@ -106,7 +106,7 @@ describe(filename, async () => {
       );
     });
 
-    test('2 files', async (t) => {
+    test('2 files', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'file',
@@ -163,7 +163,7 @@ describe(filename, async () => {
       );
     });
 
-    test('1 directory, 2 files', async (t) => {
+    test('1 directory, 2 files', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'directory',
@@ -235,7 +235,7 @@ describe(filename, async () => {
       );
     });
 
-    test('2 directories, 2 files', async (t) => {
+    test('2 directories, 2 files', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'directory',
@@ -324,7 +324,7 @@ describe(filename, async () => {
       );
     });
 
-    test('2 directories, 1 file and 1 symlink (existing)', async (t) => {
+    test('2 directories, 1 file and 1 symlink (existing)', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'directory',
@@ -417,7 +417,7 @@ describe(filename, async () => {
       );
     });
 
-    test('2 directories, 1 file and 1 symlink (broken)', async (t) => {
+    test('2 directories, 1 file and 1 symlink (broken)', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'directory',
@@ -510,7 +510,7 @@ describe(filename, async () => {
       );
     });
 
-    test('2 directories (not in list), 2 files', async (t) => {
+    test('2 directories (not in list), 2 files', async () => {
       const files = <ArchiveEntry[]>[
         {
           type: 'file',
@@ -575,7 +575,7 @@ describe(filename, async () => {
       );
     });
 
-    test('empty list', async (t) => {
+    test('empty list', async () => {
       const files = <ArchiveEntry[]>[];
 
       const absolute_path_to_clean_entry_with_mode =

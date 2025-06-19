@@ -14,7 +14,7 @@ const filename = relative(
 ).replace('.test', '');
 
 describe(filename, async () => {
-  describe('valid_output_tar_file_path', async (context) => {
+  describe('valid_output_tar_file_path', async () => {
     test('valid filename: out.tar (gzip: off)', () => {
       assert.ok(valid_output_tar_file_path('out.tar', false));
     });
@@ -106,7 +106,7 @@ describe(filename, async () => {
     });
   });
 
-  describe('valid_input_tar_file_path', async (context) => {
+  describe('valid_input_tar_file_path', async () => {
     test('valid filename: out.tar', () => {
       assert.ok(valid_input_tar_file_path('out.tar'));
     });
