@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
-    "@inquirer/confirm": "^5.1.13",
+    "@inquirer/confirm": "^5.1.14",
     "chalk": "^5.4.1",
     "commander": "^14.0.0",
     "ignore": "^7.0.5",
