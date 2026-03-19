@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
   "files": {
     "includes": [
       "**/src/**/*.ts",
@@ -12,7 +12,8 @@
       "**/package.json",
       "**/tsconfig.json",
       "**/biome.json",
-      "**/.c8rc.json"
+      "**/.c8rc.json",
+      "!test/_data_/dir-5/symlink-dir-6"
     ]
   },
   "assist": {

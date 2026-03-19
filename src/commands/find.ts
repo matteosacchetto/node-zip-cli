@@ -58,6 +58,8 @@ findCommand.action(async (options) => {
           return 'directory';
         case 'l':
           return 'symlink';
+        default:
+          throw new Error('Unexpected entry type');
       }
     });
 

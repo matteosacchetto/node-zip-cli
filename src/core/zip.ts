@@ -78,7 +78,7 @@ export const create_zip = async (
               mtime: file.stats.mtime,
               mode: file.stats.mode,
               compress: !!deflate,
-              // @ts-ignore
+              // @ts-expect-error
               compressionLevel: get_compression_level(deflate),
               size: file.stats.size,
             }
@@ -114,7 +114,7 @@ export const create_zip = async (
               mtime: file.stats.mtime,
               mode: file.stats.mode,
               compress: !!deflate,
-              // @ts-ignore
+              // @ts-expect-error
               compressionLevel: get_compression_level(deflate),
             }
           );

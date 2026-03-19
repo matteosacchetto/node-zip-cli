@@ -117,7 +117,7 @@ export const create_tar = async (
       ].filter(boolean_filter);
 
       spinner.text = `Creating ${output_path} file (${num_files}/${num_files} files)`;
-      // @ts-ignore
+      // @ts-expect-error
       // Using async generators with pipeline is supported
       // https://nodejs.org/api/stream.html#streampipelinesource-transforms-destination-options
       await pipeline(line);
